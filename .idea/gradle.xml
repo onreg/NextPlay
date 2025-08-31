@@ -17,8 +17,6 @@
             <option value="$PROJECT_DIR$/data/release/impl" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/release" />
-            <option value="$PROJECT_DIR$/feature/release/api" />
-            <option value="$PROJECT_DIR$/feature/release/impl" />
           </set>
         </option>
       </GradleProjectSettings>

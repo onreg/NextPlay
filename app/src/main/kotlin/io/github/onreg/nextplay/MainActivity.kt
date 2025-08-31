@@ -11,7 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.onreg.feature.release.impl.ReleasesScreen
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+internal class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

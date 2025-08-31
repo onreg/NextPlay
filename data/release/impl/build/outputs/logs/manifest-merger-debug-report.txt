@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml:2:13-83
-INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml:2:13-83
+ADDED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml:2:13-83
+INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml:2:13-83
 	package
-		INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml
+		INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml
 	xmlns:android
-		ADDED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml:2:23-81
+		ADDED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml:2:23-81
 uses-sdk
-INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml reason: use-sdk injection requested
-INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml
-INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml
+INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml reason: use-sdk injection requested
+INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml
+INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml
 	android:targetSdkVersion
-		INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml
+		INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml
 	android:minSdkVersion
-		INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2707102545082266284.xml
+		INJECTED from /Users/vkorzun/Projects/NextPlay/data/release/impl/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8407866532772987249.xml
