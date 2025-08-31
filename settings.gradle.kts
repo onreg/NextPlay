@@ -21,3 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "NextPlay"
 include(":app")
+include(":data:release:api")
+include(":data:release:impl")
+include(":feature:release")
