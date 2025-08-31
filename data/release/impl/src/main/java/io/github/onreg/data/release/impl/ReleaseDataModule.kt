@@ -9,8 +9,8 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ReleaseDataModule {
+public abstract class ReleaseDataModule {
     @Binds
     @Singleton
-    abstract fun bindReleaseRepository(impl: ReleaseRepositoryImpl): ReleaseRepository
+    public abstract fun bindReleaseRepository(impl: ReleaseRepositoryImpl): ReleaseRepository
 }

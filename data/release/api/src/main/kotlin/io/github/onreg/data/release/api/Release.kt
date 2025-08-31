@@ -1,6 +1,6 @@
 package io.github.onreg.data.release.api
 
-data class Release(
+public data class Release(
     val image: String,
     val title: String,
     val releaseDate: String,

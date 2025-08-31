@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ReleaseRepositoryImpl @Inject constructor() : ReleaseRepository {
+public class ReleaseRepositoryImpl @Inject constructor() : ReleaseRepository {
     override fun getReleases(): Flow<List<Release>> {
         return flowOf(
             listOf(
