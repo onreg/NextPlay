@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class io.github.onreg.feature.release.impl.ReleasesViewModel
