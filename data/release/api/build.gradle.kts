@@ -4,9 +4,6 @@ plugins {
 
 android {
     namespace = "io.github.onreg.data.release.api"
-    androidResources {
-        enable = false
-    }
 }
 
 dependencies {
