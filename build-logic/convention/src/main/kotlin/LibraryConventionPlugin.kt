@@ -26,7 +26,7 @@ class LibraryConventionPlugin : Plugin<Project> {
                 targetCompatibility = AndroidConfig.JAVA_VERSION
             }
             androidResources {
-                enable = true
+                enable = false
             }
         }
 
