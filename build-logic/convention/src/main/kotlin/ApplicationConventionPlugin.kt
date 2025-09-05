@@ -19,6 +19,7 @@ class ApplicationConventionPlugin : Plugin<Project> {
 
             defaultConfig {
                 minSdk = AndroidConfig.MIN_SDK
+                targetSdk = AndroidConfig.TARGET_SDK
                 testInstrumentationRunner = AndroidConfig.TEST_RUNNER
             }
 
