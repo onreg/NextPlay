@@ -1,11 +1,7 @@
 plugins {
-    id("library.common")
+    id("library.convention.plugin")
 }
 
 android {
     namespace = "io.github.onreg.data.release.api"
-}
-
-dependencies {
-    implementation(libs.kotlinx.coroutines)
 }

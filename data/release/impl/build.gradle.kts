@@ -1,7 +1,6 @@
 plugins {
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
-    id("library.common")
+    id("library.convention.plugin")
+    id("hilt.convention.plugin")
 }
 
 android {
@@ -10,8 +9,4 @@ android {
 
 dependencies {
     implementation(projects.data.release.api)
-    implementation(libs.kotlinx.coroutines)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    testImplementation(libs.junit)
 }
