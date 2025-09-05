@@ -40,7 +40,7 @@ class LibraryConventionPlugin : Plugin<Project> {
 
         dependencies {
             "implementation"(catalog.findLibrary("kotlinx-coroutines").get())
-            "implementation"(catalog.findLibrary("junit").get())
+            "testImplementation"(catalog.findLibrary("junit").get())
         }
     }
 }
