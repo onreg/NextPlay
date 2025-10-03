@@ -24,6 +24,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "NextPlay"
 include(":app")
+include(":core:ui")
 include(":data:release:api")
 include(":data:release:impl")
 include(":feature:release")

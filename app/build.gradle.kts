@@ -13,6 +13,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.ui)
     implementation(projects.feature.release)
     implementation(projects.data.release.impl)
 }
