@@ -20,6 +20,10 @@ gradlePlugin {
             id = "application.convention.plugin"
             implementationClass = "ApplicationConventionPlugin"
         }
+        register("UiConventionPlugin") {
+            id = "ui.convention.plugin"
+            implementationClass = "UiConventionPlugin"
+        }
     }
 }
 
