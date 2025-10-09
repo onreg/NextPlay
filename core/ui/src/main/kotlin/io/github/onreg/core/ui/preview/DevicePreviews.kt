@@ -1,5 +1,6 @@
 package io.github.onreg.core.ui.preview
 
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
@@ -7,27 +8,27 @@ import androidx.compose.ui.tooling.preview.Preview
  * screen sizes with both themes
  */
 @Preview(
-    name = "Phone - Light",
-    device = "spec:width=360dp,height=640dp,dpi=480",
+    name = "Pixel 9 - Light",
+    device = Devices.PIXEL_9,
     showBackground = true,
     backgroundColor = 0xFFE9ECEF
 )
 @Preview(
-    name = "Phone - Dark",
-    device = "spec:width=360dp,height=640dp,dpi=480",
+    name = "Pixel 9 - Dark",
+    device = Devices.PIXEL_9,
     showBackground = true,
     backgroundColor = 0xFF151515,
     uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
 )
 @Preview(
     name = "Tablet - Light",
-    device = "spec:width=1280dp,height=800dp,dpi=240",
+    device = Devices.TABLET,
     showBackground = true,
     backgroundColor = 0xFFE9ECEF
 )
 @Preview(
     name = "Tablet - Dark",
-    device = "spec:width=1280dp,height=800dp,dpi=240",
+    device = Devices.TABLET,
     showBackground = true,
     backgroundColor = 0xFF151515,
     uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
