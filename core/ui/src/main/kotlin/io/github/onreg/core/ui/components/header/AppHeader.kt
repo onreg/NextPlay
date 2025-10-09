@@ -28,24 +28,24 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
  * - **Title**: Material Theme's titleMedium style
  *
  * @param modifier Modifier to be applied to the component
- * @param appHeaderState Configuration state containing title and navigation/menu items
+ * @param appHeaderUI Configuration state containing title and navigation/menu items
  * @param onNavigationClicked Callback invoked when the navigation icon is clicked
  * @param onMenuItemClicked Variable number of callbacks for menu item clicks, indexed by position
  *
- * @see AppHeaderState
+ * @see AppHeaderUI
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun AppHeader(
     modifier: Modifier = Modifier,
-    appHeaderState: AppHeaderState,
+    appHeaderUI: AppHeaderUI,
     onNavigationClicked: () -> Unit = {},
     vararg onMenuItemClicked: (() -> Unit) = emptyArray(),
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier.fillMaxWidth(),
         navigationIcon = {
-            appHeaderState.navigationItemResId?.let {
+            appHeaderUI.navigationItemResId?.let {
                 IconButton(onClick = onNavigationClicked) {
                     Icon(
                         painter = painterResource(R.drawable.ic_back_24),
@@ -56,12 +56,12 @@ public fun AppHeader(
         },
         title = {
             Text(
-                text = stringResource(appHeaderState.titleResId),
+                text = stringResource(appHeaderUI.titleResId),
                 style = MaterialTheme.typography.titleMedium,
             )
         },
         actions = {
-            appHeaderState.menuItemResIds?.forEachIndexed { index, menuItemResId ->
+            appHeaderUI.menuItemResIds?.forEachIndexed { index, menuItemResId ->
                 IconButton(
                     onClick = {
                         onMenuItemClicked[index].invoke()
@@ -82,7 +82,7 @@ public fun AppHeader(
 private fun AppHeaderPreview() {
     NextPlayTheme {
         AppHeader(
-            appHeaderState = AppHeaderState(
+            appHeaderUI = AppHeaderUI(
                 titleResId = R.string.preview_test_15,
                 navigationItemResId = R.drawable.ic_back_24,
                 menuItemResIds = listOf(R.drawable.ic_share_24)
