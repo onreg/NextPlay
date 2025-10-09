@@ -13,25 +13,27 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = Orange60,
     onPrimary = Gray100,
-    secondary = Gray12,
+    secondary = Gray18,
     onSecondary = Gray70,
     background = Gray08,
     onBackground = Gray100,
     surface = Gray12,
     onSurface = Gray100,
-    onSurfaceVariant = Gray60
+    onSurfaceVariant = Gray60,
+    surfaceContainerLow = Gray12,
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Orange60,
     onPrimary = Gray100,
-    secondary = Gray92,
-    onSecondary = Gray45,
+    secondary = Gray96,
+    onSecondary = Gray20,
     background = Gray92,
     onBackground = Gray13,
     surface = Gray100,
     onSurface = Gray13,
-    onSurfaceVariant = Gray40
+    onSurfaceVariant = Gray40,
+    surfaceContainerLow = Gray100
 )
 
 @Composable
@@ -46,7 +48,7 @@ public fun NextPlayTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        else -> if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
+        else -> if (darkTheme) DarkColorScheme else LightColorScheme
     }
 
     MaterialTheme(
