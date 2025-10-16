@@ -11,26 +11,26 @@ import androidx.compose.ui.tooling.preview.Preview
     name = "Pixel 9 - Light",
     device = Devices.PIXEL_9,
     showBackground = true,
-    backgroundColor = 0xFFE9ECEF
+    backgroundColor = 0xFFFFFFFF
 )
 @Preview(
     name = "Pixel 9 - Dark",
     device = Devices.PIXEL_9,
     showBackground = true,
-    backgroundColor = 0xFF151515,
+    backgroundColor = 0xFF000000,
     uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
 )
 @Preview(
     name = "Tablet - Light",
     device = Devices.TABLET,
     showBackground = true,
-    backgroundColor = 0xFFE9ECEF
+    backgroundColor = 0xFFFFFFFF
 )
 @Preview(
     name = "Tablet - Dark",
     device = Devices.TABLET,
     showBackground = true,
-    backgroundColor = 0xFF151515,
+    backgroundColor = 0xFF000000,
     uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
 )
 public annotation class DevicePreviews
