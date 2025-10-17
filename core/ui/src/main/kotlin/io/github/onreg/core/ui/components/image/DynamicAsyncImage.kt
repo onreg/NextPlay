@@ -1,5 +1,6 @@
 package io.github.onreg.core.ui.components.image
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,14 @@ public fun DynamicAsyncImage(
             .data(imageUrl)
             .size(sizeResolver)
             .crossfade(true)
+            .listener(
+                onSuccess = { _, _ ->
+
+                },
+                onError = { _, ex ->
+                    Log.d("TEST123", "Image load error: ${ex.throwable}")
+                }
+            )
             .build()
     )
     val state by asyncImagePainter.state.collectAsStateWithLifecycle()
@@ -46,7 +55,7 @@ public fun DynamicAsyncImage(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            modifier = modifier.matchParentSize(),
+            modifier = Modifier.matchParentSize(),
             painter = asyncImagePainter,
             contentDescription = contentDescription,
             contentScale = ContentScale.Crop

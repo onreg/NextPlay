@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import io.github.onreg.core.ui.R
-import io.github.onreg.core.ui.preview.DevicePreviews
+import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
 
 /**
@@ -77,7 +77,7 @@ public fun AppHeader(
     )
 }
 
-@DevicePreviews
+@ThemePreview
 @Composable
 private fun AppHeaderPreview() {
     NextPlayTheme {
