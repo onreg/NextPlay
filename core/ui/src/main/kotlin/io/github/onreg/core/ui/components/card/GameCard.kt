@@ -2,7 +2,6 @@ package io.github.onreg.core.ui.components.card
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ElevatedCard
@@ -105,18 +104,18 @@ public fun GameCard(
                 modifier = Modifier.constrainAs(platforms) {
                     start.linkTo(parent.start, Spacing.lg)
                     top.linkTo(releaseDate.bottom, Spacing.sm)
-                    end.linkTo(rating.start, Spacing.sm)
+                    bottom.linkTo(parent.bottom, Spacing.lg)
                     width = Dimension.fillToConstraints
                 },
                 platforms = gameData.platforms
             )
 
             Chip(
-                modifier = Modifier.constrainAs(rating) {
-                    top.linkTo(platforms.bottom)
-                    bottom.linkTo(platforms.bottom)
-                    end.linkTo(parent.end, Spacing.sm)
-                },
+                modifier =
+                    Modifier.constrainAs(rating) {
+                        top.linkTo(parent.top)
+                        end.linkTo(parent.end, Spacing.sm)
+                    },
                 chipUI = gameData.rating
             )
         }
