@@ -1,8 +1,13 @@
 package io.github.onreg.core.ui.components.card
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -10,18 +15,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
+import androidx.compose.ui.unit.dp
 import io.github.onreg.core.ui.R
 import io.github.onreg.core.ui.components.chip.Chip
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.core.ui.components.image.DynamicAsyncImage
 import io.github.onreg.core.ui.preview.ThemePreview
+import io.github.onreg.core.ui.theme.ControlsSize
 import io.github.onreg.core.ui.theme.IconsSize
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
@@ -37,87 +43,74 @@ public fun GameCard(
         modifier = modifier,
         onClick = onCardClicked,
     ) {
-        ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
-            val (image, title, releaseDate, platforms, bookmark, rating) = createRefs()
-            DynamicAsyncImage(
-                modifier = Modifier
-                    .constrainAs(image) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.ratio("2:1")
-                    }
-                    .clip(MaterialTheme.shapes.small),
-                imageUrl = gameData.imageUrl
-            )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Box {
+                DynamicAsyncImage(
+                    modifier = Modifier
+                        .aspectRatio(2f)
+                        .clip(MaterialTheme.shapes.small),
+                    imageUrl = gameData.imageUrl
+                )
 
-            Text(
-                modifier = Modifier
-                    .constrainAs(title) {
-                        start.linkTo(parent.start, Spacing.lg)
-                        top.linkTo(image.bottom, Spacing.sm)
-                        end.linkTo(bookmark.start, Spacing.sm)
-                        width = Dimension.fillToConstraints
-                    },
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                text = gameData.title,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            IconButton(
-                modifier = Modifier.constrainAs(bookmark) {
-                    top.linkTo(image.bottom)
-                    end.linkTo(parent.end)
-                },
-                onClick = onBookmarkClick
-            ) {
-                Icon(
-                    painter = painterResource(
-                        when (gameData.isBookmarked) {
-                            true -> R.drawable.ic_bookmark_filled_24
-                            false -> R.drawable.ic_bookmark_24
-                        }
-                    ),
-                    tint = MaterialTheme.colorScheme.primary,
-                    contentDescription = stringResource(
-                        if (gameData.isBookmarked) {
-                            R.string.remove_bookmark
-                        } else {
-                            R.string.add_bookmark
-                        }
-                    )
+                Chip(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(end = Spacing.sm),
+                    chipUI = gameData.rating
                 )
             }
 
-            Text(
-                modifier = Modifier.constrainAs(releaseDate) {
-                    start.linkTo(parent.start, Spacing.lg)
-                    top.linkTo(title.bottom, Spacing.sm)
-                },
-                text = gameData.releaseDate,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .requiredSize(ControlsSize.IconButton),
+                    onClick = onBookmarkClick
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            when (gameData.isBookmarked) {
+                                true -> R.drawable.ic_bookmark_filled_24
+                                false -> R.drawable.ic_bookmark_24
+                            }
+                        ),
+                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = stringResource(
+                            if (gameData.isBookmarked) {
+                                R.string.remove_bookmark
+                            } else {
+                                R.string.add_bookmark
+                            }
+                        )
+                    )
+                }
 
-            Platforms(
-                modifier = Modifier.constrainAs(platforms) {
-                    start.linkTo(parent.start, Spacing.lg)
-                    top.linkTo(releaseDate.bottom, Spacing.sm)
-                    bottom.linkTo(parent.bottom, Spacing.lg)
-                    width = Dimension.fillToConstraints
-                },
-                platforms = gameData.platforms
-            )
+                Column(modifier = Modifier.padding(Spacing.lg)) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                end = (ControlsSize.IconButton - Spacing.sm)
+                                    .coerceAtLeast(0.dp)
+                            ),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        text = gameData.title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
 
-            Chip(
-                modifier =
-                    Modifier.constrainAs(rating) {
-                        top.linkTo(parent.top)
-                        end.linkTo(parent.end, Spacing.sm)
-                    },
-                chipUI = gameData.rating
-            )
+                    Text(
+                        modifier = Modifier.padding(top = Spacing.sm),
+                        text = gameData.releaseDate,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Platforms(
+                        modifier = Modifier.padding(top = Spacing.sm),
+                        platforms = gameData.platforms
+                    )
+                }
+            }
         }
     }
 }

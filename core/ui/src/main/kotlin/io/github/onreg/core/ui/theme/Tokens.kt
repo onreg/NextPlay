@@ -18,3 +18,7 @@ public object IconsSize {
     public val lg: Dp = 32.dp
     public val xl: Dp = 48.dp
 }
+
+public object ControlsSize {
+    public val IconButton: Dp = 48.dp
+}

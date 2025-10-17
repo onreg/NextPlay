@@ -15,7 +15,6 @@ coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
 appcompat = "1.7.1"
-constraintlayout = "1.1.1"
 
 coroutines = "1.10.2"
 coil = "3.3.0"
@@ -45,7 +44,6 @@ compose-tooling          = { group = "androidx.compose.ui",               name =
 compose-tooling-preview  = { group = "androidx.compose.ui",               name = "ui-tooling-preview" }
 compose-test-manifest    = { group = "androidx.compose.ui",               name = "ui-test-manifest" }
 compose-test-junit4      = { group = "androidx.compose.ui",               name = "ui-test-junit4" }
-compose-constraintlayout = { group = "androidx.constraintlayout",         name = "constraintlayout-compose", version.ref = "constraintlayout"}
 
 # Hilt
 hilt-android            = { module = "com.google.dagger:hilt-android",        version.ref = "hilt" }
