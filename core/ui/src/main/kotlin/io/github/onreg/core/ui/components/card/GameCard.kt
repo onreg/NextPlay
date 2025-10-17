@@ -3,6 +3,7 @@ package io.github.onreg.core.ui.components.card
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -37,7 +38,7 @@ public fun GameCard(
         modifier = modifier,
         onClick = onCardClicked,
     ) {
-        ConstraintLayout {
+        ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
             val (image, title, releaseDate, platforms, bookmark, rating) = createRefs()
             DynamicAsyncImage(
                 modifier = Modifier
@@ -45,8 +46,9 @@ public fun GameCard(
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.ratio("2:1")
                     }
-                    .aspectRatio(2 / 1f)
                     .clip(MaterialTheme.shapes.small),
                 imageUrl = gameData.imageUrl
             )

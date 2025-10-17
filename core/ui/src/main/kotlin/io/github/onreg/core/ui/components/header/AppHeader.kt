@@ -15,25 +15,6 @@ import io.github.onreg.core.ui.R
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
 
-/**
- * This component uses Material 3's [CenterAlignedTopAppBar]
- *
- * #### Colors Used:
- * - **Container**: Uses Material Theme's surface color
- * - **Title**: Uses Material Theme's onSurface color
- * - **Navigation icon**: Uses Material Theme's onSurface color
- * - **Menu items**: Uses Material Theme's onSurfaceVariant color
- *
- * #### Typography:
- * - **Title**: Material Theme's titleMedium style
- *
- * @param modifier Modifier to be applied to the component
- * @param appHeaderUI Configuration state containing title and navigation/menu items
- * @param onNavigationClicked Callback invoked when the navigation icon is clicked
- * @param onMenuItemClicked Variable number of callbacks for menu item clicks, indexed by position
- *
- * @see AppHeaderUI
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun AppHeader(

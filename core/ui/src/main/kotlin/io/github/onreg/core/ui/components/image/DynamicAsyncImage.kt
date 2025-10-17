@@ -36,14 +36,6 @@ public fun DynamicAsyncImage(
             .data(imageUrl)
             .size(sizeResolver)
             .crossfade(true)
-            .listener(
-                onSuccess = { _, _ ->
-
-                },
-                onError = { _, ex ->
-                    Log.d("TEST123", "Image load error: ${ex.throwable}")
-                }
-            )
             .build()
     )
     val state by asyncImagePainter.state.collectAsStateWithLifecycle()
