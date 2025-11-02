@@ -26,11 +26,11 @@ public fun AppHeader(
     CenterAlignedTopAppBar(
         modifier = modifier.fillMaxWidth(),
         navigationIcon = {
-            appHeaderUI.navigationItemResId?.let {
+            appHeaderUI.navigationItem?.let { menuItem ->
                 IconButton(onClick = onNavigationClicked) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_back_24),
-                        contentDescription = null
+                        painter = painterResource(menuItem.iconResId),
+                        contentDescription = stringResource(menuItem.contentDescriptionResId)
                     )
                 }
             }
@@ -42,15 +42,15 @@ public fun AppHeader(
             )
         },
         actions = {
-            appHeaderUI.menuItemResIds?.forEachIndexed { index, menuItemResId ->
+            appHeaderUI.menuItems?.forEachIndexed { index, menuItem ->
                 IconButton(
                     onClick = {
                         onMenuItemClicked[index].invoke()
                     }
                 ) {
                     Icon(
-                        painter = painterResource(menuItemResId),
-                        contentDescription = null
+                        painter = painterResource(menuItem.iconResId),
+                        contentDescription = stringResource(menuItem.contentDescriptionResId)
                     )
                 }
             }
@@ -65,8 +65,16 @@ private fun AppHeaderPreview() {
         AppHeader(
             appHeaderUI = AppHeaderUI(
                 titleResId = R.string.preview_test_15,
-                navigationItemResId = R.drawable.ic_back_24,
-                menuItemResIds = listOf(R.drawable.ic_share_24)
+                navigationItem = AppHeaderMenu(
+                    iconResId = R.drawable.ic_back_24,
+                    contentDescriptionResId = R.string.preview_test_15
+                ),
+                menuItems = listOf(
+                    AppHeaderMenu(
+                        iconResId = R.drawable.ic_share_24,
+                        contentDescriptionResId = R.string.preview_test_15
+                    )
+                )
             )
         )
     }
