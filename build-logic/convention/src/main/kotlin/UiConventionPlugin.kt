@@ -25,6 +25,8 @@ class UiConventionPlugin : Plugin<Project> {
             "implementation"(catalog.findLibrary("compose-ui").get())
             "implementation"(catalog.findLibrary("compose-material3").get())
             "implementation"(catalog.findLibrary("compose-tooling-preview").get())
+            "implementation"(catalog.findLibrary("coil-compose").get())
+            "implementation"(catalog.findLibrary("coil-network").get())
 
             "debugImplementation"(catalog.findLibrary("compose-tooling").get())
         }

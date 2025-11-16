@@ -11,21 +11,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Orange60,
+    onPrimary = Gray100,
+    secondary = Gray18,
+    onSecondary = Gray70,
+    background = Gray08,
+    onBackground = Gray100,
+    surface = Gray12,
+    onSurface = Gray100,
+    onSurfaceVariant = Gray92,
+    surfaceContainerLow = Gray12,
+    surfaceContainerHigh = Gray33,
+
+    outlineVariant = Gray70,
+    onSecondaryContainer = Gray92,
+    secondaryContainer = Orange60
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Orange60,
+    onPrimary = Gray100,
+    secondary = Gray96,
+    onSecondary = Gray20,
+    background = Gray92,
+    onBackground = Gray13,
+    surface = Gray100,
+    onSurface = Gray13,
+    onSurfaceVariant = Gray20,
+    surfaceContainerLow = Gray100,
+    surfaceContainerHigh = Gray94,
+
+    outlineVariant = Gray40,
+    onSecondaryContainer = Gray20,
+    secondaryContainer = Orange60
 )
 
 @Composable
 public fun NextPlayTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // TODO Check dynamic color support
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -34,13 +58,11 @@ public fun NextPlayTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else -> if (darkTheme) DarkColorScheme else LightColorScheme
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
         content = content
     )
 }
