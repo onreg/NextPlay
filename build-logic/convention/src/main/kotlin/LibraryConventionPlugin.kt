@@ -41,6 +41,9 @@ class LibraryConventionPlugin : Plugin<Project> {
         dependencies {
             "implementation"(catalog.findLibrary("kotlinx-coroutines").get())
             "testImplementation"(catalog.findLibrary("junit").get())
+            "testImplementation"(catalog.findLibrary("junit-kotlin").get())
+            "testImplementation"(catalog.findLibrary("mockito-core").get())
+            "testImplementation"(catalog.findLibrary("mockito-kotlin").get())
         }
     }
 }
