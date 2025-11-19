@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 public data class GameEntity(
     @PrimaryKey
     val id: Int,
-    val name: String?,
-    val backgroundImage: String?,
-    val released: String?,
-    val rating: Double?,
+    val name: String,
+    val backgroundImage: String,
+    val released: String,
+    val rating: Double,
     val platforms: List<String>
 )

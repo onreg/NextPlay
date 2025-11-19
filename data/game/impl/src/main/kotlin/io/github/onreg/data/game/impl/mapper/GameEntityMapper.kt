@@ -15,7 +15,7 @@ public class GameEntityMapperImpl : GameEntityMapper {
         backgroundImage = model.backgroundImage,
         released = model.released,
         rating = model.rating,
-        platforms = emptyList()
+        platforms = model.platforms
     )
 
     override fun map(model: GameEntity): Game = Game(
@@ -24,6 +24,6 @@ public class GameEntityMapperImpl : GameEntityMapper {
         rating = model.rating,
         backgroundImage = model.backgroundImage,
         released = model.released,
-        platforms = emptyList(),
+        platforms = model.platforms,
     )
 }
