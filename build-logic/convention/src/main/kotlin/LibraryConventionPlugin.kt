@@ -24,6 +24,7 @@ class LibraryConventionPlugin : Plugin<Project> {
             compileOptions {
                 sourceCompatibility = AndroidConfig.JAVA_VERSION
                 targetCompatibility = AndroidConfig.JAVA_VERSION
+                isCoreLibraryDesugaringEnabled = true
             }
             androidResources {
                 enable = false
@@ -39,6 +40,7 @@ class LibraryConventionPlugin : Plugin<Project> {
         }
 
         dependencies {
+            "coreLibraryDesugaring"(catalog.findLibrary("desugar-jdk-libs").get())
             "implementation"(catalog.findLibrary("kotlinx-coroutines").get())
             "testImplementation"(catalog.findLibrary("junit").get())
             "testImplementation"(catalog.findLibrary("junit-kotlin").get())

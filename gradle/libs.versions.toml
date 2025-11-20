@@ -19,6 +19,7 @@ appcompat = "1.7.1"
 coroutines = "1.10.2"
 coil = "3.3.0"
 androidTools = "31.9.0"
+desugarJdkLibs = "2.1.4"
 retrofit = "2.11.0"
 okhttp = "5.0.0"
 moshi = "1.15.1"
@@ -88,6 +89,9 @@ mockito-kotlin             = { group = "org.mockito.kotlin",     name = "mockito
 paparazzi                  = { group = "app.cash.paparazzi",     name = "paparazzi",                version.ref = "paparazzi" }
 androidx-test-core         = { group = "androidx.test",          name = "core",                     version.ref = "androidxTestCore" }
 robolectric                = { group = "org.robolectric",        name = "robolectric",              version.ref = "robolectric" }
+
+# Desugaring
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 
 # Dependencies of the included build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle",                                version.ref = "agp" }
