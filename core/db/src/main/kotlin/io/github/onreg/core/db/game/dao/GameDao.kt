@@ -19,10 +19,10 @@ public abstract class GameDao private constructor(private val platformDao: Platf
     public constructor(database: NextPlayDatabase) : this(database.platformDao())
 
     @Transaction
-    @Query("SELECT * FROM games ORDER BY insertionOrder")
+    @Query("SELECT * FROM ${GameEntity.TABLE_NAME} ORDER BY ${GameEntity.INSERTION_ORDER}")
     public abstract fun pagingSource(): PagingSource<Int, GameWithPlatformsEntity>
 
-    @Query("DELETE FROM games")
+    @Query("DELETE FROM ${GameEntity.TABLE_NAME}")
     public abstract suspend fun clearGames()
 
     @Transaction
