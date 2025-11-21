@@ -10,5 +10,6 @@ public data class GameEntity(
     val title: String,
     val imageUrl: String,
     val releaseDate: Instant?,
-    val rating: Double
+    val rating: Double,
+    val insertionOrder: Long
 )

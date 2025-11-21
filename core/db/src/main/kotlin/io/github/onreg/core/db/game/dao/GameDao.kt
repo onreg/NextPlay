@@ -14,19 +14,13 @@ import io.github.onreg.core.db.platform.dao.PlatformDao
 import io.github.onreg.core.db.platform.entity.PlatformEntity
 
 @Dao
-public abstract class GameDao(private val platformDao: PlatformDao) {
+public abstract class GameDao private constructor(private val platformDao: PlatformDao) {
 
     public constructor(database: NextPlayDatabase) : this(database.platformDao())
 
     @Transaction
-    @Query("SELECT * FROM games")
+    @Query("SELECT * FROM games ORDER BY insertionOrder")
     public abstract fun pagingSource(): PagingSource<Int, GameWithPlatformsEntity>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract suspend fun insertGames(games: List<GameEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract suspend fun insertGamePlatformCrossRefs(crossRefs: List<GamePlatformCrossRef>)
 
     @Query("DELETE FROM games")
     public abstract suspend fun clearGames()
@@ -41,4 +35,10 @@ public abstract class GameDao(private val platformDao: PlatformDao) {
         insertGames(games)
         insertGamePlatformCrossRefs(crossRefs)
     }
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    internal abstract suspend fun insertGames(games: List<GameEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    internal abstract suspend fun insertGamePlatformCrossRefs(crossRefs: List<GamePlatformCrossRef>)
 }
