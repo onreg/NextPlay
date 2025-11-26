@@ -4,10 +4,11 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.map
+import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.dao.GameDao
 import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
 import io.github.onreg.core.network.rawg.api.GameApi
-import io.github.onreg.data.game.api.Game
+import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.map
 @OptIn(ExperimentalPagingApi::class)
 public class GameRepositoryImpl(
     private val gameApi: GameApi,
+    private val database: NextPlayDatabase,
     private val gameDao: GameDao,
     private val remoteKeysDao: GameRemoteKeysDao,
     private val pagingConfig: GamePagingConfig,
@@ -29,6 +31,7 @@ public class GameRepositoryImpl(
     override fun getGames(): Flow<PagingData<Game>> {
         val mediator = GameRemoteMediator(
             gameApi = gameApi,
+            database = database,
             gameDao = gameDao,
             remoteKeysDao = remoteKeysDao,
             pagingConfig = pagingConfig,

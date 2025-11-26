@@ -1,7 +1,8 @@
 package io.github.onreg.data.game.impl.mapper
 
 import io.github.onreg.core.network.rawg.dto.GameDto
-import io.github.onreg.data.game.api.Game
+import io.github.onreg.data.game.api.model.Game
+import io.github.onreg.data.game.api.model.GamePlatform
 
 public interface GameDtoMapper {
     public fun map(model: GameDto): Game
@@ -10,10 +11,14 @@ public interface GameDtoMapper {
 public class GameDtoMapperImpl : GameDtoMapper {
     override fun map(model: GameDto): Game = Game(
         id = model.id,
-        name = model.name.orEmpty(),
-        backgroundImage = model.backgroundImage.orEmpty(),
-        released = model.released.orEmpty(),
+        title = model.title.orEmpty(),
+        imageUrl = model.imageUrl.orEmpty(),
+        releaseDate = model.releaseDate,
         rating = model.rating ?: 0.0,
-        platforms = emptyList()
+        platforms = model.platforms
+            .mapNotNull { wrapper ->
+                wrapper.platform?.id?.let { GamePlatform.fromId(it) }
+            }
+            .toSet()
     )
 }

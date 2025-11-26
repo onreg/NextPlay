@@ -9,6 +9,8 @@ import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.impl.GameRepositoryImpl
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
+import io.github.onreg.data.game.impl.mapper.GameEntityMapperImpl
+import io.github.onreg.data.game.impl.mapper.GameDtoMapperImpl
 import io.github.onreg.data.game.impl.paging.GamePagingConfig
 import javax.inject.Singleton
 
@@ -21,10 +23,10 @@ public abstract class GameModule {
     public abstract fun bindGameRepository(impl: GameRepositoryImpl): GameRepository
 
     @Binds
-    public abstract fun bindsGameEntityMapper(): GameEntityMapper
+    public abstract fun bindGameEntityMapper(impl: GameEntityMapperImpl): GameEntityMapper
 
     @Binds
-    public abstract fun bindsGameDtoMapper(): GameDtoMapper
+    public abstract fun bindGameDtoMapper(impl: GameDtoMapperImpl): GameDtoMapper
 
     public companion object {
         @Provides
