@@ -9,9 +9,9 @@ import androidx.room.Transaction
 import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
-import io.github.onreg.core.db.game.entity.GameWithPlatformsEntity
+import io.github.onreg.core.db.game.model.GameWithPlatforms
+import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.platform.dao.PlatformDao
-import io.github.onreg.core.db.platform.entity.PlatformEntity
 
 @Dao
 public abstract class GameDao private constructor(private val platformDao: PlatformDao) {
@@ -20,20 +20,18 @@ public abstract class GameDao private constructor(private val platformDao: Platf
 
     @Transaction
     @Query("SELECT * FROM ${GameEntity.TABLE_NAME} ORDER BY ${GameEntity.INSERTION_ORDER}")
-    public abstract fun pagingSource(): PagingSource<Int, GameWithPlatformsEntity>
+    public abstract fun pagingSource(): PagingSource<Int, GameWithPlatforms>
 
     @Query("DELETE FROM ${GameEntity.TABLE_NAME}")
     public abstract suspend fun clearGames()
 
     @Transaction
     public suspend fun insertGamesWithPlatforms(
-        games: List<GameEntity>,
-        platforms: List<PlatformEntity>,
-        crossRefs: List<GamePlatformCrossRef>
+        gameInsertionBundle: GameInsertionBundle
     ) {
-        platformDao.insertPlatforms(platforms)
-        insertGames(games)
-        insertGamePlatformCrossRefs(crossRefs)
+        platformDao.insertPlatforms(gameInsertionBundle.platforms)
+        insertGames(gameInsertionBundle.games)
+        insertGamePlatformCrossRefs(gameInsertionBundle.crossRefs)
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

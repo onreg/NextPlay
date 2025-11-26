@@ -1,6 +1,5 @@
 package io.github.onreg.core.db.game.dao
 
-import android.icu.text.MessagePattern
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -10,7 +9,7 @@ import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
 @Dao
 public interface GameRemoteKeysDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public suspend fun insertAll(remoteKeys: List<GameRemoteKeysEntity>)
+    public suspend fun insertRemoteKeys(remoteKeys: List<GameRemoteKeysEntity>)
 
     @Query(
         """

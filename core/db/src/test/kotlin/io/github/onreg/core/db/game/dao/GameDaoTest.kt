@@ -8,7 +8,8 @@ import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
 import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
-import io.github.onreg.core.db.game.entity.GameWithPlatformsEntity
+import io.github.onreg.core.db.game.model.GameInsertionBundle
+import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
@@ -70,7 +71,7 @@ internal class GameDaoTest {
             GamePlatformCrossRef(gameId = 11, platformId = 2)
         )
 
-        gameDao.insertGamesWithPlatforms(games, platforms, crossRefs)
+        gameDao.insertGamesWithPlatforms(GameInsertionBundle(games, platforms, crossRefs))
 
         val pagingSource = gameDao.pagingSource()
         val result = pagingSource.load(
@@ -84,11 +85,11 @@ internal class GameDaoTest {
         assertTrue(result is PagingSource.LoadResult.Page)
         assertEquals(
             listOf(
-                GameWithPlatformsEntity(
+                GameWithPlatforms(
                     game = games[0],
                     platforms = listOf(platforms[0], platforms[1])
                 ),
-                GameWithPlatformsEntity(
+                GameWithPlatforms(
                     game = games[1],
                     platforms = listOf(platforms[1])
                 )
@@ -111,7 +112,13 @@ internal class GameDaoTest {
         val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
         val remoteKey = GameRemoteKeysEntity(gameId = game.id, prevKey = null, nextKey = 2)
 
-        gameDao.insertGamesWithPlatforms(listOf(game), listOf(platform), listOf(crossRef))
+        gameDao.insertGamesWithPlatforms(
+            GameInsertionBundle(
+                listOf(game),
+                listOf(platform),
+                listOf(crossRef)
+            )
+        )
         remoteKeysDao.insertRemoteKeys(listOf(remoteKey))
 
         gameDao.clearGames()
@@ -134,7 +141,13 @@ internal class GameDaoTest {
         )
         val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
 
-        gameDao.insertGamesWithPlatforms(listOf(game), listOf(platform), listOf(crossRef))
+        gameDao.insertGamesWithPlatforms(
+            GameInsertionBundle(
+                listOf(game),
+                listOf(platform),
+                listOf(crossRef)
+            )
+        )
 
         database.query(
             "DELETE FROM ${PlatformEntity.TABLE_NAME} WHERE ${PlatformEntity.ID} = ${platform.id}",
