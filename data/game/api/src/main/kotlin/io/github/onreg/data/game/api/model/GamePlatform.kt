@@ -1,0 +1,60 @@
+package io.github.onreg.data.game.api.model
+
+public enum class GamePlatform(public val id: Int) {
+    PC(4),
+    PLAYSTATION_5(187),
+    XBOX_ONE(1),
+    PLAYSTATION_4(18),
+    XBOX_SERIES_S_X(186),
+    NINTENDO_SWITCH(7),
+    IOS(3),
+    ANDROID(21),
+    NINTENDO_3DS(8),
+    NINTENDO_DS(9),
+    NINTENDO_DSI(13),
+    MACOS(5),
+    LINUX(6),
+    XBOX_360(14),
+    XBOX(80),
+    PLAYSTATION_3(16),
+    PLAYSTATION_2(15),
+    PLAYSTATION(27),
+    PS_VITA(19),
+    PSP(17),
+    WII_U(10),
+    WII(11),
+    GAMECUBE(105),
+    NINTENDO_64(83),
+    GAME_BOY_ADVANCE(24),
+    GAME_BOY_COLOR(43),
+    GAME_BOY(26),
+    SNES(79),
+    NES(49),
+    CLASSIC_MACINTOSH(55),
+    APPLE_II(41),
+    COMMODORE_AMIGA(166),
+    ATARI_7800(28),
+    ATARI_5200(31),
+    ATARI_2600(23),
+    ATARI_FLASHBACK(22),
+    ATARI_8_BIT(25),
+    ATARI_ST(34),
+    ATARI_LYNX(46),
+    ATARI_XEGS(50),
+    GENESIS(167),
+    SEGA_SATURN(107),
+    SEGA_CD(119),
+    SEGA_32X(117),
+    SEGA_MASTER_SYSTEM(74),
+    DREAMCAST(106),
+    P_3DO(111),
+    JAGUAR(112),
+    GAME_GEAR(77),
+    NEO_GEO(12);
+
+    public companion object {
+        private val idMap: Map<Int, GamePlatform> = entries.associateBy(GamePlatform::id)
+
+        public fun fromId(id: Int): GamePlatform? = idMap[id]
+    }
+}
