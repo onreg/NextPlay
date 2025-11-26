@@ -3,12 +3,12 @@ package io.github.onreg.core.network.rawg.interceptor
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RawgApiKeyInterceptorTest {

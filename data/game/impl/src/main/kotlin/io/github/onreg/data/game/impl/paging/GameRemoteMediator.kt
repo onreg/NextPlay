@@ -5,25 +5,24 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import androidx.room.withTransaction
-import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.dao.GameDao
 import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
 import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
+import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 
 @OptIn(ExperimentalPagingApi::class)
 internal class GameRemoteMediator(
     private val gameApi: GameApi,
-    private val database: NextPlayDatabase,
     private val gameDao: GameDao,
     private val remoteKeysDao: GameRemoteKeysDao,
     private val pagingConfig: GamePagingConfig,
     private val dtoMapper: GameDtoMapper,
-    private val entityMapper: GameEntityMapper
+    private val entityMapper: GameEntityMapper,
+    private val transactionProvider: TransactionProvider
 ) : RemoteMediator<Int, GameWithPlatforms>() {
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, GameWithPlatforms>): MediatorResult {
@@ -52,7 +51,7 @@ internal class GameRemoteMediator(
                 nextKey = nextPage
             )
         }
-        database.withTransaction {
+        transactionProvider.run {
             if (loadType == LoadType.REFRESH) {
                 gameDao.clearGames()
             }
