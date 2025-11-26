@@ -36,5 +36,4 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
-    implementation(libs.moshi.adapters)
 }
