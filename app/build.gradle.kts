@@ -14,6 +14,8 @@ android {
 
 dependencies {
     implementation(projects.core.ui)
-    implementation(projects.feature.release)
-    implementation(projects.data.release.impl)
+    implementation(projects.core.db)
+    implementation(projects.core.network)
+    implementation(projects.feature.game)
+    implementation(projects.data.game.impl)
 }

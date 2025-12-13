@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.onreg.feature.release.impl.ReleasesScreen
+import io.github.onreg.feature.game.impl.GamesPane
 
 @AndroidEntryPoint
 internal class MainActivity : ComponentActivity() {
@@ -18,9 +18,9 @@ internal class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val nav = rememberNavController()
-            NavHost(navController = nav, startDestination = "ReleasesScreen") {
-                composable("ReleasesScreen") {
-                    ReleasesScreen()
+            NavHost(navController = nav, startDestination = "GamesPane") {
+                composable("GamesPane") {
+                    GamesPane()
                 }
             }
         }
