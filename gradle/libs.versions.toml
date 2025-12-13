@@ -81,7 +81,7 @@ hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", ve
 
 # Test
 junit                      = { group = "junit",                  name = "junit",                    version.ref = "junit" }
-junit-android              = { group = "androidx.test.ext",      name = "junit",                    version.ref = "junitAndroid" }
+junit-android              = { group = "androidx.test.ext",      name = "junit-ktx",                version.ref = "junitAndroid" }
 junit-kotlin               = { group = "org.jetbrains.kotlin",   name = "kotlin-test-junit",        version.ref = "kotlin" }
 coroutines-test            = { group = "org.jetbrains.kotlinx",  name = "kotlinx-coroutines-test",  version.ref = "coroutines" }
 mockito-core               = { group = "org.mockito",            name = "mockito-core",             version.ref = "mockito" }
