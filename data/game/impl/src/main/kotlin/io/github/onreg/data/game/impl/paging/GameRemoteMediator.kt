@@ -5,14 +5,15 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
 import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
 import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
-import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalPagingApi::class)
 internal class GameRemoteMediator(
@@ -68,7 +69,7 @@ internal class GameRemoteMediator(
     }
 
     private fun getNextPage(next: String): Int? {
-        val uri = runCatching { Uri.parse(next) }.getOrNull()
+        val uri = runCatching { next.toUri() }.getOrNull()
         return uri?.getQueryParameter("page")?.toIntOrNull()
     }
 }

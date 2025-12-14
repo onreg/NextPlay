@@ -2,18 +2,19 @@ package io.github.onreg.data.game.impl.mapper
 
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
-import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.game.model.GameInsertionBundle
+import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
+import javax.inject.Inject
 
 public interface GameEntityMapper {
     public fun map(models: List<Game>, startOrder: Long): GameInsertionBundle
     public fun map(model: GameWithPlatforms): Game
 }
 
-public class GameEntityMapperImpl : GameEntityMapper {
+public class GameEntityMapperImpl @Inject constructor() : GameEntityMapper {
     override fun map(models: List<Game>, startOrder: Long): GameInsertionBundle {
         val games = models.mapIndexed { index, model ->
             GameEntity(
