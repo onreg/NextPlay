@@ -30,6 +30,7 @@ class ApplicationConventionPlugin : Plugin<Project> {
             compileOptions {
                 sourceCompatibility = AndroidConfig.JAVA_VERSION
                 targetCompatibility = AndroidConfig.JAVA_VERSION
+                isCoreLibraryDesugaringEnabled = true
             }
 
             buildTypes {
@@ -60,6 +61,7 @@ class ApplicationConventionPlugin : Plugin<Project> {
             "implementation"(catalog.findLibrary("hilt-navigation-compose").get())
 
             "androidTestImplementation"(catalog.findLibrary("junit-android").get())
+            "coreLibraryDesugaring"(catalog.findLibrary("desugar-jdk-libs").get())
         }
     }
 }
