@@ -31,7 +31,7 @@
 ## Preferred Tools
 
 - Use the IntelliJ MCP integration (`mcp__android_studio` server) for all file inspection, edits,
-  searches, and run configurations before reaching for shell commands.
+  searches, and run commands before reaching for shell commands.
 - For investigating problems with specific files, use `mcp__android_studio__get_file_problems` to
   inspect file errors and warnings.
 - Use the shell bridge (`functions.shell`) only when you must run a CLI command; always set
