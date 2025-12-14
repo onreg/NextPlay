@@ -15,11 +15,13 @@ import io.github.onreg.core.network.rawg.dto.PlatformDto
 import io.github.onreg.core.network.rawg.dto.PlatformWrapperDto
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -28,7 +30,6 @@ internal class GameRepositoryTest {
 
     private val dispatcher = StandardTestDispatcher()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `should get games`() = runTest(dispatcher) {
         val dto = GameDto(
@@ -99,13 +100,15 @@ internal class GameRepositoryTest {
                 override fun areContentsTheSame(oldItem: Game, newItem: Game): Boolean = oldItem == newItem
             },
             updateCallback = NoopListUpdateCallback,
+            mainDispatcher = dispatcher,
             workerDispatcher = dispatcher
         )
 
-        differ.submitData(pagingData)
+        val submitJob = launch { differ.submitData(pagingData) }
         advanceUntilIdle()
 
         assertEquals(listOf(mappedGame), differ.snapshot().items)
+        submitJob.cancelAndJoin()
     }
 }
 
