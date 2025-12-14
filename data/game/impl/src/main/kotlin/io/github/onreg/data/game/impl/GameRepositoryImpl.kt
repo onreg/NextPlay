@@ -3,45 +3,31 @@ package io.github.onreg.data.game.impl
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingData
+import androidx.paging.RemoteMediator
 import androidx.paging.map
-import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
-import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
-import io.github.onreg.core.network.rawg.api.GameApi
+import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.api.model.Game
-import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 import io.github.onreg.data.game.impl.paging.GamePagingConfig
-import io.github.onreg.data.game.impl.paging.GameRemoteMediator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Provider
 
 @OptIn(ExperimentalPagingApi::class)
 public class GameRepositoryImpl @Inject constructor(
-    private val gameApi: GameApi,
     private val gameDao: GameDao,
-    private val remoteKeysDao: GameRemoteKeysDao,
     private val pagingConfig: GamePagingConfig,
-    private val gameDtoMapper: GameDtoMapper,
     private val gameEntityMapper: GameEntityMapper,
-    private val transactionProvider: TransactionProvider
+    private val gameRemoteMediatorProvider: Provider<RemoteMediator<Int, GameWithPlatforms>>
 ) : GameRepository {
 
     override fun getGames(): Flow<PagingData<Game>> {
-        val mediator = GameRemoteMediator(
-            gameApi = gameApi,
-            gameDao = gameDao,
-            remoteKeysDao = remoteKeysDao,
-            pagingConfig = pagingConfig,
-            dtoMapper = gameDtoMapper,
-            entityMapper = gameEntityMapper,
-            transactionProvider = transactionProvider
-        )
         return Pager(
             config = pagingConfig.asPagingConfig(),
-            remoteMediator = mediator
+            remoteMediator = gameRemoteMediatorProvider.get()
         ) {
             gameDao.pagingSource()
         }.flow.map { pagingData ->

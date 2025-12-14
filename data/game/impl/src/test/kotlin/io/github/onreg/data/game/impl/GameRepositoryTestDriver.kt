@@ -1,55 +1,40 @@
 package io.github.onreg.data.game.impl
 
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingSource
-import io.github.onreg.core.db.TransactionProvider
+import androidx.paging.PagingSource.LoadResult
+import androidx.paging.RemoteMediator
 import io.github.onreg.core.db.game.dao.GameDao
-import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
-import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
-import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
-import io.github.onreg.core.network.rawg.api.GameApi
-import io.github.onreg.core.network.rawg.dto.GameDto
-import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.api.model.Game
-import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 import io.github.onreg.data.game.impl.paging.GamePagingConfig
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.mockito.kotlin.wheneverBlocking
 
+@OptIn(ExperimentalPagingApi::class)
 internal class GameRepositoryTestDriver private constructor(
-    val gameApi: GameApi,
     val gameDao: GameDao,
-    val remoteKeysDao: GameRemoteKeysDao,
-    val dtoMapper: GameDtoMapper,
     val entityMapper: GameEntityMapper,
     val pagingConfig: GamePagingConfig,
-    private val transactionProvider: TransactionProvider
+    val remoteMediator: RemoteMediator<Int, GameWithPlatforms>
 ) : GameRepository {
 
     private val repository: GameRepository = GameRepositoryImpl(
-        gameApi = gameApi,
         gameDao = gameDao,
-        remoteKeysDao = remoteKeysDao,
         pagingConfig = pagingConfig,
-        gameDtoMapper = dtoMapper,
         gameEntityMapper = entityMapper,
-        transactionProvider = transactionProvider
+        gameRemoteMediatorProvider = { remoteMediator }
     )
 
     override fun getGames() = repository.getGames()
 
     class Builder {
-        private val transactionProvider = object : TransactionProvider {
-            override suspend fun <T> run(block: suspend () -> T): T = block()
-        }
-        private val gameApi: GameApi = mock()
         private val gameDao: GameDao = mock()
-        private val remoteKeysDao: GameRemoteKeysDao = mock()
-        private val dtoMapper: GameDtoMapper = mock()
         private val entityMapper: GameEntityMapper = mock()
         private val pagingConfig = GamePagingConfig(
             pageSize = 2,
@@ -57,40 +42,33 @@ internal class GameRepositoryTestDriver private constructor(
             initialLoadSize = 2,
             maxSize = 10
         )
+        private val remoteMediator: RemoteMediator<Int, GameWithPlatforms> = mock()
 
-        fun gameApiGetGames(response: PaginatedResponseDto<GameDto>): Builder = apply {
-            wheneverBlocking { gameApi.getGames(page = 1, pageSize = pagingConfig.pageSize) }
-                .thenReturn(response)
-        }
-
-        fun dtoMapperMap(gameDto: GameDto, game: Game): Builder = apply {
-            whenever(dtoMapper.map(gameDto)).thenReturn(game)
-        }
-
-        fun entityMapperMap(games: List<Game>, bundle: GameInsertionBundle): Builder = apply {
-            whenever(entityMapper.map(games, 0)).thenReturn(bundle)
+        init {
+            wheneverBlocking { remoteMediator.load(any(), any()) }
+                .thenReturn(RemoteMediator.MediatorResult.Success(endOfPaginationReached = true))
         }
 
         fun entityMapperMap(gameWithPlatforms: GameWithPlatforms, mapped: Game): Builder = apply {
             whenever(entityMapper.map(gameWithPlatforms)).thenReturn(mapped)
         }
 
-        fun gameDaoPagingSource(pagingSource: PagingSource<Int, GameWithPlatforms>): Builder = apply {
-            whenever(gameDao.pagingSource()).thenReturn(pagingSource)
-        }
-
-        fun remoteKeysDaoGetRemoteKey(entity: GameRemoteKeysEntity?): Builder = apply {
-            wheneverBlocking { remoteKeysDao.getRemoteKey(any()) }.thenReturn(entity)
+        fun gameDaoPagingSource(pagingSource: List<GameWithPlatforms>): Builder = apply {
+            val source: PagingSource<Int, GameWithPlatforms> = mock() {
+                onBlocking { load(any()) } doReturn LoadResult.Page(
+                    data = pagingSource,
+                    prevKey = null,
+                    nextKey = null
+                )
+            }
+            whenever(gameDao.pagingSource()).thenReturn(source)
         }
 
         fun build(): GameRepositoryTestDriver = GameRepositoryTestDriver(
-            gameApi = gameApi,
             gameDao = gameDao,
-            remoteKeysDao = remoteKeysDao,
-            dtoMapper = dtoMapper,
             entityMapper = entityMapper,
             pagingConfig = pagingConfig,
-            transactionProvider = transactionProvider
+            remoteMediator = remoteMediator
         )
     }
 }

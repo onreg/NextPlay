@@ -1,6 +1,6 @@
 package io.github.onreg.data.game.impl.paging
 
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -13,10 +13,9 @@ import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
-import androidx.core.net.toUri
 
 @OptIn(ExperimentalPagingApi::class)
-internal class GameRemoteMediator(
+public class GameRemoteMediator(
     private val gameApi: GameApi,
     private val gameDao: GameDao,
     private val remoteKeysDao: GameRemoteKeysDao,
