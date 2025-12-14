@@ -19,12 +19,12 @@ import io.github.onreg.core.db.platform.entity.PlatformEntity
         PlatformEntity::class,
         GamePlatformCrossRef::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = true
 )
 @TypeConverters(InstantTypeConverter::class)
 public abstract class NextPlayDatabase : RoomDatabase() {
     public abstract fun gameDao(): GameDao
     public abstract fun gameRemoteKeysDao(): GameRemoteKeysDao
-    internal abstract fun platformDao(): PlatformDao
+    public abstract fun platformDao(): PlatformDao
 }

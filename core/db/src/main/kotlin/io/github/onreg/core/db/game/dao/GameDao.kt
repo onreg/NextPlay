@@ -9,13 +9,16 @@ import androidx.room.Transaction
 import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
-import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.game.model.GameInsertionBundle
+import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.dao.PlatformDao
+import kotlin.jvm.JvmSuppressWildcards
 
 @Dao
-public abstract class GameDao private constructor(private val platformDao: PlatformDao) {
-
+@JvmSuppressWildcards
+public abstract class GameDao internal constructor(
+    private val platformDao: PlatformDao
+) {
     public constructor(database: NextPlayDatabase) : this(database.platformDao())
 
     @Transaction
@@ -23,20 +26,18 @@ public abstract class GameDao private constructor(private val platformDao: Platf
     public abstract fun pagingSource(): PagingSource<Int, GameWithPlatforms>
 
     @Query("DELETE FROM ${GameEntity.TABLE_NAME}")
-    public abstract suspend fun clearGames()
+    public abstract suspend fun clearGames(): Int
 
-    @Transaction
-    public suspend fun insertGamesWithPlatforms(
-        gameInsertionBundle: GameInsertionBundle
-    ) {
-        platformDao.insertPlatforms(gameInsertionBundle.platforms)
-        insertGames(gameInsertionBundle.games)
-        insertGamePlatformCrossRefs(gameInsertionBundle.crossRefs)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract suspend fun insertGames(games: List<GameEntity>): List<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract suspend fun insertGamePlatformCrossRefs(crossRefs: List<GamePlatformCrossRef>): List<Long>
+
+    public suspend fun insertGamesWithPlatforms(bundle: GameInsertionBundle): List<Long> {
+        platformDao.insertPlatforms(bundle.platforms)
+        insertGames(bundle.games)
+        return insertGamePlatformCrossRefs(bundle.crossRefs)
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    internal abstract suspend fun insertGames(games: List<GameEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    internal abstract suspend fun insertGamePlatformCrossRefs(crossRefs: List<GamePlatformCrossRef>)
 }

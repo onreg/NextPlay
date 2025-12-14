@@ -1,10 +1,14 @@
 package io.github.onreg.core.db.platform.dao
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import io.github.onreg.core.db.platform.entity.PlatformEntity
+import kotlin.jvm.JvmSuppressWildcards
 
-internal interface PlatformDao {
+@Dao
+@JvmSuppressWildcards
+public interface PlatformDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertPlatforms(platforms: List<PlatformEntity>)
+    public suspend fun insertPlatforms(platforms: List<PlatformEntity>): List<Long>
 }
