@@ -12,10 +12,8 @@ import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
 import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.dao.PlatformDao
-import kotlin.jvm.JvmSuppressWildcards
 
 @Dao
-@JvmSuppressWildcards
 public abstract class GameDao internal constructor(
     private val platformDao: PlatformDao
 ) {
@@ -26,18 +24,18 @@ public abstract class GameDao internal constructor(
     public abstract fun pagingSource(): PagingSource<Int, GameWithPlatforms>
 
     @Query("DELETE FROM ${GameEntity.TABLE_NAME}")
-    public abstract suspend fun clearGames(): Int
+    public abstract suspend fun clearGames()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract suspend fun insertGames(games: List<GameEntity>): List<Long>
+    internal abstract suspend fun insertGames(games: List<GameEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract suspend fun insertGamePlatformCrossRefs(crossRefs: List<GamePlatformCrossRef>): List<Long>
+    internal abstract suspend fun insertGamePlatformCrossRefs(crossRefs: List<GamePlatformCrossRef>)
 
-    public suspend fun insertGamesWithPlatforms(bundle: GameInsertionBundle): List<Long> {
+    @Transaction
+    public open suspend fun insertGamesWithPlatforms(bundle: GameInsertionBundle) {
         platformDao.insertPlatforms(bundle.platforms)
         insertGames(bundle.games)
-        return insertGamePlatformCrossRefs(bundle.crossRefs)
+        insertGamePlatformCrossRefs(bundle.crossRefs)
     }
-
 }
