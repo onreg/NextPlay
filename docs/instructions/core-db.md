@@ -124,12 +124,8 @@
 - Schema export is enabled (`exportSchema = true`) and configured to write JSON files to `core/db/schemas` via KSP args (DB + Gradle: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`, `core/db/build.gradle.kts`).
 - Current migration behavior is destructive: `.fallbackToDestructiveMigration()` (so any version bump without explicit migrations will wipe local data): `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`.
 
-9) **Definition of done**
+9) **Add unit tests**
 - Add/adjust unit tests under `core/db/src/test/kotlin/...` (examples: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`).
-- Ensure schema export updated for the new DB version under `core/db/schemas/...` (example existing file: `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/1.json`).
-- CLI checks (project uses Android Gradle Plugin via `com.android.library` in the convention plugin):
-  - Build: `./gradlew assembleDebug` (repo guideline) and `com.android.library` comes from `build-logic/convention/src/main/kotlin/LibraryConventionPlugin.kt`
-  - Module unit tests: `./gradlew :core:db:testDebugUnitTest` (task comes with `com.android.library`, `build-logic/convention/src/main/kotlin/LibraryConventionPlugin.kt`)
 
 ## 3) How to add tests for a new database feature (practical and repo-specific)
 
@@ -170,9 +166,9 @@ c) **Migration test**
 - Unit tests for this module: `./gradlew :core:db:testDebugUnitTest` (module is `com.android.library` via `build-logic/convention/src/main/kotlin/LibraryConventionPlugin.kt` and `core/db/build.gradle.kts`)
 - Instrumentation tests (general): `./gradlew connectedDebugAndroidTest` (repo guideline)
 
-## 4) Copy-paste templates
+## 4) Examples
 
-### Entity template (matches current conventions)
+### Entity
 Based on `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt` and `core/db/src/main/kotlin/io/github/onreg/core/db/platform/entity/PlatformEntity.kt`.
 
 ```kotlin
@@ -196,7 +192,7 @@ Fill in:
 - Replace `todo_items` with your snake_case table name pattern (see `games`, `platforms`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`).
 - Add `indices` / `foreignKeys` to `@Entity(...)` as needed (examples: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`).
 
-### DAO template (simple interface DAO)
+### DAO
 Based on `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt` and `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`.
 
 ```kotlin
@@ -221,21 +217,7 @@ public interface TodoDao {
 Fill in:
 - Add ordering/filtering queries using `@Query(...)` and keep column names in the entity’s `internal companion object` (pattern: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`).
 
-### Migration template (only if you introduce explicit migrations)
-Current repo behavior is destructive migration: `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`.
-
-```kotlin
-public val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE todo_items ADD COLUMN createdAt INTEGER")
-    }
-}
-```
-
-Fill in:
-- Register via `.addMigrations(MIGRATION_1_2)` on the builder in `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt` (and decide what to do with `.fallbackToDestructiveMigration()`).
-
-### DAO test template (repo-aligned JVM test)
+### DAO test
 Based on `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`.
 
 ```kotlin
