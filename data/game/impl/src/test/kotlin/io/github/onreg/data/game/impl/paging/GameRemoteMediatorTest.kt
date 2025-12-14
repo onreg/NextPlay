@@ -54,7 +54,7 @@ internal class GameRemoteMediatorTest {
             crossRefs = listOf(GamePlatformCrossRef(gameId = 1, platformId = GamePlatform.PC.id))
         )
         val driver = GameRemoteMediatorTestDriver.Builder()
-            .gameApiResponse(
+            .gameApiGetGames(
                 PaginatedResponseDto(
                     count = 1,
                     next = "https://example.com?page=2",
@@ -62,8 +62,8 @@ internal class GameRemoteMediatorTest {
                     results = listOf(dto)
                 )
             )
-            .dtoMapperMap(dto, mappedGame)
-            .entityMapperMap(listOf(mappedGame), startOrder = 0, bundle = insertionBundle)
+            .gameDtoMapperMap(dto, mappedGame)
+            .gameEntityMapperMap(listOf(mappedGame), startOrder = 0, bundle = insertionBundle)
             .build()
 
         val result = driver.load(LoadType.REFRESH, driver.emptyPagingState())

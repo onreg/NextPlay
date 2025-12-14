@@ -1,9 +1,7 @@
 package io.github.onreg.data.game.impl
 
 import androidx.paging.AsyncPagingDataDiffer
-import androidx.paging.PagingSource
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
@@ -59,7 +57,7 @@ internal class GameRepositoryTest {
 
         val driver = GameRepositoryTestDriver.Builder()
             .gameDaoPagingSource(listOf(entityWithPlatforms))
-            .entityMapperMap(entityWithPlatforms, mappedGame)
+            .gameEntityMapperMap(entityWithPlatforms, mappedGame)
             .build()
 
         val pagingData = driver.getGames().first()

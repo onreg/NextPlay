@@ -1,6 +1,5 @@
 package io.github.onreg.data.game.impl.paging
 
-import androidx.core.net.toUri
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -13,6 +12,7 @@ import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
+import java.net.URI
 
 @OptIn(ExperimentalPagingApi::class)
 public class GameRemoteMediator(
@@ -25,7 +25,10 @@ public class GameRemoteMediator(
     private val transactionProvider: TransactionProvider
 ) : RemoteMediator<Int, GameWithPlatforms>() {
 
-    override suspend fun load(loadType: LoadType, state: PagingState<Int, GameWithPlatforms>): MediatorResult {
+    override suspend fun load(
+        loadType: LoadType,
+        state: PagingState<Int, GameWithPlatforms>
+    ): MediatorResult {
         val page = when (loadType) {
             LoadType.REFRESH -> pagingConfig.startingPage
             LoadType.PREPEND -> null
@@ -40,7 +43,8 @@ public class GameRemoteMediator(
         )
 
         val games = response.results.map(dtoMapper::map)
-        val insertionOrderStart = (page - pagingConfig.startingPage).toLong() * pagingConfig.pageSize
+        val insertionOrderStart =
+            (page - pagingConfig.startingPage).toLong() * pagingConfig.pageSize
         val databaseBundle = entityMapper.map(games, insertionOrderStart)
         val nextPage = response.next?.let(::getNextPage)
 
@@ -68,7 +72,14 @@ public class GameRemoteMediator(
     }
 
     private fun getNextPage(next: String): Int? {
-        val uri = runCatching { next.toUri() }.getOrNull()
-        return uri?.getQueryParameter("page")?.toIntOrNull()
+        val query = runCatching { URI(next).query }.getOrNull() ?: return null
+        return query.split('&')
+            .mapNotNull {
+                val parts = it.split('=', limit = 2)
+                if (parts.size == 2) parts[0] to parts[1] else null
+            }
+            .firstOrNull { it.first == "page" }
+            ?.second
+            ?.toIntOrNull()
     }
 }

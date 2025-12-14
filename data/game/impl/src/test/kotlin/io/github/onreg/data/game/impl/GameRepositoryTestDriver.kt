@@ -13,8 +13,7 @@ import io.github.onreg.data.game.impl.paging.GamePagingConfig
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
-import org.mockito.kotlin.wheneverBlocking
+import org.mockito.kotlin.stub
 
 @OptIn(ExperimentalPagingApi::class)
 internal class GameRepositoryTestDriver private constructor(
@@ -42,16 +41,16 @@ internal class GameRepositoryTestDriver private constructor(
             initialLoadSize = 2,
             maxSize = 10
         )
-        private val remoteMediator: RemoteMediator<Int, GameWithPlatforms> = mock()
-
-        init {
-            wheneverBlocking { remoteMediator.load(any(), any()) }
-                .thenReturn(RemoteMediator.MediatorResult.Success(endOfPaginationReached = true))
+        private val remoteMediator: RemoteMediator<Int, GameWithPlatforms> = mock() {
+            onBlocking { load(any(), any()) } doReturn RemoteMediator.MediatorResult.Success(
+                endOfPaginationReached = true
+            )
         }
 
-        fun entityMapperMap(gameWithPlatforms: GameWithPlatforms, mapped: Game): Builder = apply {
-            whenever(entityMapper.map(gameWithPlatforms)).thenReturn(mapped)
-        }
+        fun gameEntityMapperMap(gameWithPlatforms: GameWithPlatforms, mapped: Game): Builder =
+            apply {
+                entityMapper.stub { on { map(gameWithPlatforms) } doReturn mapped }
+            }
 
         fun gameDaoPagingSource(pagingSource: List<GameWithPlatforms>): Builder = apply {
             val source: PagingSource<Int, GameWithPlatforms> = mock() {
@@ -61,7 +60,7 @@ internal class GameRepositoryTestDriver private constructor(
                     nextKey = null
                 )
             }
-            whenever(gameDao.pagingSource()).thenReturn(source)
+            gameDao.stub { on { pagingSource() } doReturn source }
         }
 
         fun build(): GameRepositoryTestDriver = GameRepositoryTestDriver(

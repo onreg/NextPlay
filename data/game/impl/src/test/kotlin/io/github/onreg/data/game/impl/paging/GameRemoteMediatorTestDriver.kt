@@ -14,9 +14,9 @@ import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
-import org.mockito.kotlin.wheneverBlocking
+import org.mockito.kotlin.stub
 
 @OptIn(ExperimentalPagingApi::class)
 internal class GameRemoteMediatorTestDriver private constructor(
@@ -66,28 +66,30 @@ internal class GameRemoteMediatorTestDriver private constructor(
             maxSize = 10
         )
 
-        fun gameApiResponse(response: PaginatedResponseDto<GameDto>): Builder = apply {
-            wheneverBlocking {
-                gameApi.getGames(
-                    page = pagingConfig.startingPage,
-                    pageSize = pagingConfig.pageSize
-                )
-            }.thenReturn(response)
+        fun gameApiGetGames(response: PaginatedResponseDto<GameDto>): Builder = apply {
+            gameApi.stub {
+                onBlocking {
+                    getGames(
+                        page = pagingConfig.startingPage,
+                        pageSize = pagingConfig.pageSize
+                    )
+                } doReturn response
+            }
         }
 
-        fun dtoMapperMap(dto: GameDto, mapped: Game): Builder = apply {
-            whenever(dtoMapper.map(dto)).thenReturn(mapped)
+        fun gameDtoMapperMap(dto: GameDto, mapped: Game): Builder = apply {
+            dtoMapper.stub { on { map(dto) } doReturn mapped }
         }
 
-        fun entityMapperMap(
+        fun gameEntityMapperMap(
             games: List<Game>,
             startOrder: Long,
             bundle: GameInsertionBundle
         ): Builder = apply {
-            whenever(entityMapper.map(games, startOrder)).thenReturn(bundle)
+            entityMapper.stub { on { map(games, startOrder) } doReturn bundle }
         }
 
-        fun build(): GameRemoteMediatorTestDriver = GameRemoteMediatorTestDriver(
+        fun build() = GameRemoteMediatorTestDriver(
             gameApi = gameApi,
             gameDao = gameDao,
             remoteKeysDao = remoteKeysDao,
