@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -65,6 +66,8 @@ internal class GameRepositoryTest {
         val submitJob = launch { differ.submitData(pagingData) }
         advanceUntilIdle()
 
+        verify(driver.gameDao).pagingSource()
+        verify(driver.entityMapper).map(entityWithPlatforms)
         assertEquals(listOf(mappedGame), differ.snapshot().items)
         submitJob.cancelAndJoin()
     }
