@@ -8,26 +8,19 @@ import io.github.onreg.core.db.platform.entity.PlatformEntity
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 internal class PlatformDaoTest {
 
-    private lateinit var database: NextPlayDatabase
-    private lateinit var platformDao: PlatformDao
-
-    @BeforeTest
-    fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            NextPlayDatabase::class.java
-        )
-            .allowMainThreadQueries()
-            .build()
-        platformDao = database.platformDao()
-    }
+    private val database = Room.inMemoryDatabaseBuilder(
+        ApplicationProvider.getApplicationContext(),
+        NextPlayDatabase::class.java
+    )
+        .allowMainThreadQueries()
+        .build()
+    private val platformDao = database.platformDao()
 
     @AfterTest
     fun tearDown() {

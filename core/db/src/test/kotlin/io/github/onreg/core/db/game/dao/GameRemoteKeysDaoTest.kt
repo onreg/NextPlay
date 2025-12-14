@@ -10,7 +10,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import java.time.Instant
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -18,21 +17,14 @@ import kotlin.test.assertNull
 @RunWith(AndroidJUnit4::class)
 internal class GameRemoteKeysDaoTest {
 
-    private lateinit var database: NextPlayDatabase
-    private lateinit var gameDao: GameDao
-    private lateinit var remoteKeysDao: GameRemoteKeysDao
-
-    @BeforeTest
-    fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            NextPlayDatabase::class.java
-        )
-            .allowMainThreadQueries()
-            .build()
-        gameDao = database.gameDao()
-        remoteKeysDao = database.gameRemoteKeysDao()
-    }
+    private val database = Room.inMemoryDatabaseBuilder(
+        ApplicationProvider.getApplicationContext(),
+        NextPlayDatabase::class.java
+    )
+        .allowMainThreadQueries()
+        .build()
+    private val gameDao = database.gameDao()
+    private val remoteKeysDao = database.gameRemoteKeysDao()
 
     @AfterTest
     fun tearDown() {

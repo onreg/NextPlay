@@ -15,7 +15,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import java.time.Instant
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -23,21 +22,15 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 internal class GameDaoTest {
 
-    private lateinit var database: NextPlayDatabase
-    private lateinit var gameDao: GameDao
-    private lateinit var remoteKeysDao: GameRemoteKeysDao
+    private val database = Room.inMemoryDatabaseBuilder(
+        ApplicationProvider.getApplicationContext(),
+        NextPlayDatabase::class.java
+    )
+        .allowMainThreadQueries()
+        .build()
 
-    @BeforeTest
-    fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            NextPlayDatabase::class.java
-        )
-            .allowMainThreadQueries()
-            .build()
-        gameDao = database.gameDao()
-        remoteKeysDao = database.gameRemoteKeysDao()
-    }
+    private val gameDao = database.gameDao()
+    private val remoteKeysDao = database.gameRemoteKeysDao()
 
     @AfterTest
     fun tearDown() {
@@ -149,9 +142,9 @@ internal class GameDaoTest {
             )
         )
 
-        database.query(
-            "DELETE FROM ${PlatformEntity.TABLE_NAME} WHERE ${PlatformEntity.ID} = ${platform.id}",
-            null
+        database.openHelper.writableDatabase.execSQL(
+            "DELETE FROM ${PlatformEntity.TABLE_NAME} WHERE ${PlatformEntity.ID} = ?",
+            arrayOf(platform.id)
         )
 
         assertEquals(1, countRows(GameEntity.TABLE_NAME))
