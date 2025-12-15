@@ -1,97 +1,172 @@
-## Module overview
+## core/network: rules for implementing or changing networking
 
-### Boundaries (what it owns vs must not own)
-**Owns**
-- Raw Retrofit service interfaces for RAWG and their DTOs (no domain mapping): `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/PaginatedResponseDto.kt`
-- Network DI wiring (Moshi, OkHttp, Retrofit, service creation) via Hilt: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
-- RAWG auth integration via an OkHttp interceptor that injects `key=<apiKey>` query param: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`
-- JSON parsing adapters for types used by DTOs (currently `Instant`): `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+### Boundaries
+- Owns only the raw networking layer:
+    - Retrofit service interfaces and DTOs (no domain mapping):
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/PaginatedResponseDto.kt`
+    - OkHttp/Moshi/Retrofit setup and DI wiring via Hilt:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
+    - RAWG auth integration (API key query param):
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`
+    - Moshi adapters used by DTOs (currently `Instant`):
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
+        - (adapter registration) `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
 
-**Must NOT own**
-- Repository contracts/implementations and paging orchestration (owned by `data/*`): `data/game/api/src/main/kotlin/io/github/onreg/data/game/api/GameRepository.kt`, `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/GameRepositoryImpl.kt`, `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
-- Domain models and cross-module mapping rules (kept in `data/*`): `data/game/api/src/main/kotlin/io/github/onreg/data/game/api/model/Game.kt`, `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameDtoMapper.kt`
-- Persistence and DB transactions (owned by `core/db`): `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`
+- Must NOT own:
+    - Repository contracts/implementations or paging orchestration:
+        - `data/game/api/src/main/kotlin/io/github/onreg/data/game/api/GameRepository.kt`
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/GameRepositoryImpl.kt`
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
+    - Domain models and cross-module mapping rules:
+        - `data/game/api/src/main/kotlin/io/github/onreg/data/game/api/model/Game.kt`
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameDtoMapper.kt`
+    - Persistence, Room, or DB transactions:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`
 
-### Public API surface (what other modules should depend on)
-- **Retrofit service interfaces** (inject these; do not inject `Retrofit` directly in app code): `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`, used via DI in `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
-- **DTOs** (consumed by mapping layer in `data/*/impl`): `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`, referenced by `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameDtoMapper.kt`
-- **Hilt-provided singletons** (internal wiring; consumers usually don’t reference these types directly): `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
+### What other modules should depend on
+- Inject Retrofit service interfaces (not `Retrofit` directly):
+    - Service API: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
+    - Example consumer: `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
+- DTOs are consumed only by mapping layer in `data/*/impl`:
+    - DTO: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
+    - Example mapper: `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameDtoMapper.kt`
+- DI modules are wiring only; consumers typically shouldn’t reference them:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
 
-### Key technologies used
-- **Retrofit (suspend APIs)**: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`, deps in `core/network/build.gradle.kts`
-- **OkHttp + HttpLoggingInterceptor**: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`, deps in `core/network/build.gradle.kts`
-- **Moshi (JSON) + KotlinJsonAdapterFactory**: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`, DTO annotations in `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
-- **Hilt DI** (SingletonComponent modules): `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`, plugin applied in `core/network/build.gradle.kts`
-- **java.time.Instant + custom adapter**: `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`, used by `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
+### Directory placement
+- DI:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
+- Moshi adapters:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
+- RAWG services:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/`
+- RAWG DTOs:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/`
+- RAWG interceptors:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/`
+- Tests:
+    - `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
 
-### Directory structure
-- `core/network/src/main/kotlin/io/github/onreg/core/network/di/`: Hilt DI provisioning for Moshi/OkHttp/Retrofit/APIs (`NetworkModule.kt`, `ApiModule.kt`)
-- `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/`: Moshi adapters (`InstantJsonAdapter.kt`)
-- `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/`: Retrofit service interfaces (`GameApi.kt`)
-- `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/`: DTOs for RAWG payloads (`GameDto.kt`, `PaginatedResponseDto.kt`)
-- `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/`: OkHttp interceptors for RAWG concerns (`RawgApiKeyInterceptor.kt`)
-- `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/`: unit tests for interceptors (`RawgApiKeyInterceptorTest.kt`)
+### Naming and API design conventions
+- Service interfaces:
+    - Name: `*Api`
+    - Location: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/`
+    - `public interface`, `public suspend fun`, Retrofit annotations, RAWG-style query names (example uses `page_size`):
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
+- DTOs:
+    - Name: `*Dto`
+    - Location: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/`
+    - Moshi: `@JsonClass(generateAdapter = true)` + field-level `@Json(name = "...")`:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/PaginatedResponseDto.kt`
+    - Nullability/defaults: match existing style (nullable for optional, defaults for collections):
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/PaginatedResponseDto.kt`
 
-### Naming conventions & patterns
-- **Service interfaces**: `*Api` in `rawg/api/`, `public interface`, `suspend fun` endpoints, Retrofit annotations and snake_case query names (`page_size`): `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
-- **DTOs**: `*Dto` in `rawg/dto/`, annotated with Moshi `@JsonClass(generateAdapter = true)` and field-level `@Json(name = "...")`: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/PaginatedResponseDto.kt`
-- **Auth**: RAWG API key is injected as a query param named `key` via an OkHttp interceptor: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`
-  - The key value comes from `BuildConfig.RAWG_API_KEY`, populated at build time from env var or Gradle property: `core/network/build.gradle.kts`, `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`
-- **Base URL**: currently hard-coded to RAWG (`https://api.rawg.io/api/`) as a private constant: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-- **Interceptors & logging**:
-  - Logging is `BODY` in debug and `NONE` in release, based on `BuildConfig.DEBUG`: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-  - Interceptor order is API key first, logging second: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-- **Qualifiers**: none in current setup (single `OkHttpClient` and single `Retrofit`): `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-- **Timeouts/retries**: no explicit client timeouts or retry policy is configured (OkHttp defaults apply): `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+### Auth, base URL, logging, interceptors
+- RAWG key is injected as query param `key=<apiKey>` for every request:
+    - Interceptor: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`
+    - OkHttp wiring: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+    - Key source: `BuildConfig.RAWG_API_KEY` (configured in):
+        - `core/network/build.gradle.kts`
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`
+- Base URL is currently RAWG-only and hard-coded:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+- Logging:
+    - Debug: BODY, Release: NONE, based on `BuildConfig.DEBUG`:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+    - Interceptor order: API key first, logging second:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+    - Implication: debug logs may include the final URL with the API key.
 
-## How to add a new API feature
-Follow this checklist to add a new RAWG endpoint/service inside `:core:network`.
+### Serialization rules (Moshi) and `Instant`
+- `Instant` parsing is customized to accept an ISO-8601 date string (`yyyy-MM-dd`) and convert to midnight UTC `Instant`:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
+- If an endpoint returns a full timestamp or non-date format, this adapter may return `null` (because it parses via `LocalDate.parse(...)`):
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
+- If new endpoints require a different date/time format:
+    - Add/adjust Moshi adapter(s) in:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/`
+    - Register in:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
 
-1) Ensure you can build the module (RAWG API key required at configuration time): `core/network/build.gradle.kts`
-   - Set `RAWG_API_KEY` as an environment variable or Gradle property (supported inputs): `core/network/build.gradle.kts`
-2) Decide where the endpoint lives:
-   - Add it to an existing service if it’s the same domain area (example service): `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
-   - Or create a new `*Api` interface under the same package root: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/`
-3) Add/extend the Retrofit service interface:
-   - Use `public interface`, `public suspend fun`, and Retrofit annotations (`@GET`, `@Query`, etc.): `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
-4) Create request/response DTOs:
-   - Place DTOs under `rawg/dto/` and use Moshi `@JsonClass(generateAdapter = true)` + `@Json(name = ...)`: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
-   - Use repo-consistent nullability: optional fields should be nullable and/or defaulted to `emptyList()` (existing examples): `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/PaginatedResponseDto.kt`
-5) Serialization rules and date handling:
-   - `Instant` parsing is customized to accept an ISO-8601 *date* string (`yyyy-MM-dd`) and convert it to midnight UTC `Instant`: `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
-   - If the endpoint returns a full timestamp (or a non-date format), this adapter may produce `null` (because it parses via `LocalDate.parse(...)`): `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
-6) Auth handling:
-   - RAWG API key is always appended as `key=<apiKey>` to every request made by the module’s `OkHttpClient`: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-   - If you need an unauthenticated call path, there is no existing pattern (Unknown from repository); check whether you should (a) make the interceptor conditional or (b) add a second `OkHttpClient`/`Retrofit`: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-7) Error handling (current repo pattern):
-   - Core networking does not define a typed error model or response wrapper (only converter factory is Moshi): `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-   - Call sites currently call Retrofit suspending functions directly and rely on exceptions (example call site): `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
-8) DI wiring:
-   - If you created a new service interface, add a `@Provides` function that calls `retrofit.create(...)` in `ApiModule`: `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
-   - If you need a new interceptor/client-level concern, wire it in `provideOkHttpClient`: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-9) Logging/interceptors rules:
-   - Do not enable network logging in release builds (already enforced): `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
-   - Be aware the current interceptor order logs the final URL (including API key) in debug builds: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`, `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptor.kt`
-10) Definition of done:
-   - `:core:network` compiles with `RAWG_API_KEY` set: `core/network/build.gradle.kts`
-   - Unit tests pass (existing pattern is JVM tests): `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
-   - If you added new DTOs/services, add at least one unit test covering the new behavior (see templates and `data/game/impl` examples): `data/game/impl/src/test/kotlin/io/github/onreg/data/game/impl/mapper/GameDtoMapperTest.kt`
-   - Update any docs that reference network boundaries (example doc referencing network module): `docs/instructions/core-db.md`
+## Add or change an API endpoint (checklist)
 
-## How to write tests for networking
+1. Ensure the module can configure (API key is required at build configuration time):
+    - `core/network/build.gradle.kts`
 
-### Where tests live (current state)
-- `:core:network` uses JVM unit tests under `core/network/src/test/kotlin/` (example): `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
-- There is no `core/network/src/androidTest/` test source set in this module (current directory layout): `core/network/src`
+2. Choose where the endpoint belongs:
+    - Extend existing service when it is the same area:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
+    - Or add a new service interface:
+        - Create `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/<Thing>Api.kt`
 
-### Current test dependencies and style
-- Base unit test deps come from the library convention plugin (JUnit + kotlin-test + Mockito): `build-logic/convention/src/main/kotlin/LibraryConventionPlugin.kt`
-- Current `:core:network` tests use:
-  - `kotlin.test.Test`/assertions: `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
-  - Mockito-Kotlin for mocking/stubbing/verifying: `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
+3. Implement Retrofit declaration:
+    - Use `public suspend fun` and Retrofit annotations:
+        - Reference style: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
 
-### MockWebServer / Retrofit parsing tests (status in this repo)
-- `MockWebServer` is available in the version catalog but is not currently added to `:core:network` deps: `gradle/libs.versions.toml`, `core/network/build.gradle.kts`
-- `kotlinx-coroutines-test` is available and used in other modules for suspend testing (but is not currently added to `:core:network`): `gradle/libs.versions.toml`, `data/game/impl/build.gradle.kts`, `core/network/build.gradle.kts`
-- There is no established JSON fixtures pattern in this repo (Unknown from repository); existing tests build payloads inline: `data/game/impl/src/test/kotlin/io/github/onreg/data/game/impl/mapper/GameDtoMapperTest.kt`
-- Coroutine-based unit tests elsewhere in the repo use `kotlinx.coroutines.test.runTest` and test dispatchers (example): `data/game/impl/src/test/kotlin/io/github/onreg/data/game/impl/GameRepositoryTest.kt`
+4. Add/extend DTOs:
+    - Add DTO(s) under:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/`
+    - Use Moshi annotations consistently:
+        - Reference style: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/GameDto.kt`
+        - Paginated wrapper style: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/PaginatedResponseDto.kt`
+    - Keep DTOs raw (no domain-level computed properties or mapping helpers).
+
+5. Confirm date/time handling:
+    - If response uses date-only strings, `InstantJsonAdapter` applies:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
+    - If response uses timestamps, update/add adapters and registration:
+        - Adapter location: `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/`
+        - Registration: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+
+6. DI wiring (only if you created a new service interface):
+    - Add `@Provides fun provide<Thing>Api(retrofit: Retrofit): <Thing>Api = retrofit.create(...)` in:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
+
+7. Client-level concerns (interceptors, logging, base URL, timeouts):
+    - Implement/wire client changes only in:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+    - If you need a second client/Retrofit instance, introduce qualifiers (none currently exist) and keep the default path unchanged:
+        - Current single-client reference: `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+
+8. Error handling expectations (current repo behavior):
+    - No typed error wrapper is defined in `core/network`; suspend calls throw on failure.
+    - Example call site relying on exceptions:
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
+
+## Tests: add or update network-layer coverage
+- Tests live under JVM unit tests:
+    - `core/network/src/test/kotlin/`
+- Existing test to copy for interceptors:
+    - `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
+- Current style uses:
+    - `kotlin.test` (`@Test`, assertions):
+        - `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
+    - Mockito-Kotlin:
+        - `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/RawgApiKeyInterceptorTest.kt`
+- If you add new interceptor behavior:
+    - Add/extend unit tests in the same package:
+        - `core/network/src/test/kotlin/io/github/onreg/core/network/rawg/interceptor/`
+
+## Fast review checklist (before finishing)
+- No repositories, paging orchestration, domain models, or mappers added to `core/network`.
+- Services are `*Api` under:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/`
+- DTOs are `*Dto` under:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/dto/`
+- `ApiModule` provides any new service interface:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt`
+- Any client-level change is isolated to:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/di/NetworkModule.kt`
+- Date/time parsing is compatible with returned formats:
+    - `core/network/src/main/kotlin/io/github/onreg/core/network/moshi/InstantJsonAdapter.kt`
+- Debug logging does not leak secrets beyond what is currently accepted (API key in URL is currently loggable in debug due to order).
+- Tests added/updated:
+    - `core/network/src/test/kotlin/...`
