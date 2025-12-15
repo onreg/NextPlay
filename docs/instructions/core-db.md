@@ -1,149 +1,196 @@
-## 1) core/db Module Overview
+## core/db: rules for implementing or changing persistence
 
-### What this module owns (and what it must NOT own)
-**Owns**
-- Room database definition + schema: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`, `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/1.json`
-- Persistence models: entities, junction/cross-ref entities, relation wrappers: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/model/GameWithPlatforms.kt`
-- DAOs and query definitions: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`
-- TypeConverters for DB-only types: `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/InstantTypeConverter.kt`
-- DI provisioning of DB/DAOs and a transaction helper: `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`
+### Boundaries
+- Owns only Room persistence layer:
+    - Room DB definition + schema export:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
+        - `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/1.json`
+    - Entities / cross-ref entities / relation models:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/model/GameWithPlatforms.kt`
+    - DAOs and SQL queries:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`
+    - DB-only type converters:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/InstantTypeConverter.kt`
+    - DI providers for DB, DAOs, and transaction helper:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`
 
-**Must NOT own**
-- Repository contracts or implementations: `data/game/api/src/main/kotlin/io/github/onreg/data/game/api/GameRepository.kt`, `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/GameRepositoryImpl.kt`
-- Networking (Retrofit APIs, DTOs) or “fetch” logic: `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`, `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
-- Cross-module mapping/domain rules (kept in `data/*/impl` today): `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameEntityMapper.kt`
+- Must NOT own:
+    - Repository contracts or implementations:
+        - `data/game/api/src/main/kotlin/io/github/onreg/data/game/api/GameRepository.kt`
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/GameRepositoryImpl.kt`
+    - Networking, DTOs, "fetch" logic:
+        - `core/network/src/main/kotlin/io/github/onreg/core/network/rawg/api/GameApi.kt`
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
+    - Cross-module mapping/domain rules (keep in `data/*/impl`):
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameEntityMapper.kt`
 
-### Public API surface (what other modules are intended to depend on)
-- DB + DAOs are public and injectable:
-  - `NextPlayDatabase`: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
-  - Provided by Hilt as a singleton: `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`
-  - DAOs exposed via Hilt: `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt`
-- Transaction wrapper intended for consumers doing multi-DAO work:
-  - `TransactionProvider` + `withTransaction` implementation: `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`
-  - Used by Paging RemoteMediator to keep refresh/update atomic: `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
-- DB models are consumed across modules (mapping layer in `data/*/impl`):
-  - Entities used by mappers: `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameEntityMapper.kt`
-  - Relation wrapper used in paging: `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/GameRepositoryImpl.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/model/GameWithPlatforms.kt`
+### Directory placement
+- Create new persisted area under:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/<feature>/`
+    - Subfolders (mirror existing examples):
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/model/`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/platform/entity/`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/`
 
-### Key technologies used
-- **Room (AndroidX) + KSP compiler**
-  - Room annotations and DB: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
-  - KSP Room compiler + schema export args: `core/db/build.gradle.kts`
-- **Room Paging integration (PagingSource)**
-  - DAO exposes `PagingSource<Int, GameWithPlatforms>`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
-  - Room paging dependency: `core/db/build.gradle.kts`
-- **Hilt DI**
-  - DB and DAO modules: `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt`
-  - Convention plugin applies Hilt + KSP: `build-logic/convention/src/main/kotlin/HiltConventionPlugin.kt`
-- **Transactions**
-  - `@Transaction` on relation query and multi-step insert: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
-  - Consumer-side transactions via `TransactionProvider` → `RoomDatabase.withTransaction`: `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`
-- **TypeConverters**
-  - Instant ↔ Long epoch millis: `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/InstantTypeConverter.kt`
-  - Registered on DB: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
-- **java.time support via desugaring**
-  - `Instant` is used in entities/converter: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/InstantTypeConverter.kt`
-  - Desugaring enabled in library convention: `build-logic/convention/src/main/kotlin/LibraryConventionPlugin.kt`
-- **Migrations policy (current)**
-  - DB version is `1`: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`, `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/1.json`
-  - Runtime migration strategy is destructive: `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`
+### Naming and schema conventions (use existing examples as source of truth)
+- Entities:
+    - Suffix `*Entity`:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
+    - `@Entity(tableName = X.TABLE_NAME)` and constants in `internal companion object`:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/platform/entity/PlatformEntity.kt`
+    - Use `@ColumnInfo(name = CONST)` for every column:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
+- Table names: snake_case, generally plural (verify in schema JSON):
+    - `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/1.json`
+- Column names: camelCase strings (verify in entity definitions):
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
+- Indices and foreign keys:
+    - Indices declared at entity level:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
+    - Prefer `onDelete = CASCADE` for dependent rows:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
 
-### Directory structure (what lives where)
-- `core/db/src/main/kotlin/io/github/onreg/core/db/`: module root
-  - `NextPlayDatabase.kt`: Room database class (entities list + DAO accessors + module-wide `@TypeConverters`)
-  - `TransactionProvider.kt`: consumer-facing transaction abstraction (wraps `RoomDatabase.withTransaction`)
-- `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/`: Room `@TypeConverter` implementations shared across features
-- `core/db/src/main/kotlin/io/github/onreg/core/db/di/`: Hilt modules providing the database and DAOs
-- `core/db/src/main/kotlin/io/github/onreg/core/db/<feature>/`: one package per persisted domain area (existing examples in repo: `game/`, `platform/`)
-  - `<feature>/entity/`: tables (`@Entity`), join/cross-ref entities, plus FK/index definitions
-  - `<feature>/dao/`: DAOs and query APIs (`@Dao`)
-  - `<feature>/model/`: Room projection/relation models (e.g., `@Embedded` + `@Relation`) and write bundles used by DAOs
-- `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/`: exported Room schema JSON snapshots (versioned)
-- `core/db/src/test/kotlin/io/github/onreg/core/db/<feature>/...`: DAO tests (in-memory Room + `runTest`) colocated by feature
+### Entity creation or modification checklist
+1. Create or update entity file under:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/<feature>/entity/<Thing>Entity.kt`
 
-### Existing naming conventions and patterns (DB, tables, entities, DAOs)
-- **Entities**
-  - Suffix `*Entity`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
-  - `@Entity(tableName = X.TABLE_NAME)` with `internal companion object` constants for table/columns: `core/db/src/main/kotlin/io/github/onreg/core/db/platform/entity/PlatformEntity.kt`
-  - Column names are explicitly set via `@ColumnInfo(name = CONST)` even when they match property name: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
-- **Tables**
-  - Table names are snake_case and generally plural: `games`, `platforms`, `game_platforms`, `game_remote_keys` (see entity constants and exported schema: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`, `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/1.json`)
-  - Column names are camelCase strings (e.g., `imageUrl`, `releaseDate`, `insertionOrder`): `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
-- **Indices & FKs**
-  - Indices declared at entity level via `indices = [Index(...)]`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
-  - FKs use `onDelete = CASCADE` for dependent rows (remote keys and cross-refs): `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
-- **Relations**
-  - Many-to-many via cross-ref + `@Relation(... associateBy = Junction(...))`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/model/GameWithPlatforms.kt`
-- **DAOs**
-  - Suffix `*Dao`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt`
-  - Writes are `suspend` and use explicit conflict strategies (REPLACE/IGNORE): `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`
-  - Relation-returning query is `@Transaction` + returns `PagingSource`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
-  - Cross-table insert is done inside a `@Transaction` method and ensures parent rows inserted before junction rows: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
+2. Primary keys:
+    - Single PK example:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`
+    - Composite PK example:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
 
-## 2) How to add a new database feature (step-by-step checklist)
+3. Indices:
+    - Add `indices = [Index(...)]` when filtering/joining on columns (examples):
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
 
-1) **Pick the package location**
-- Create feature-scoped folders mirroring existing layout: `.../<feature>/entity`, `.../<feature>/dao`, and optionally `.../<feature>/model` (see `core/db/src/main/kotlin/io/github/onreg/core/db/game/` and `core/db/src/main/kotlin/io/github/onreg/core/db/platform/`).
+4. Foreign keys:
+    - Add `foreignKeys = [ForeignKey(... onDelete = CASCADE)]` for dependent tables (examples):
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`
 
-2) **Add the Entity (table)**
-- Create `public data class <Thing>Entity` annotated with `@Entity(tableName = <Thing>Entity.TABLE_NAME)` (pattern: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`).
-- Add `@PrimaryKey` (single PK) or `primaryKeys = [...]` (composite PK) (examples: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`).
-- Add `@ColumnInfo(name = ...)` for each column using constants in an `internal companion object` (pattern: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`).
-- Add indices (`indices = [Index(...)]`) when you query/join on a column (examples: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`).
-- Add FKs (`foreignKeys = [ForeignKey(... onDelete = CASCADE)]`) for dependent tables (examples: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`).
-- If you need embedded objects / relations, create a `model/` wrapper using `@Embedded` + `@Relation` (example: `core/db/src/main/kotlin/io/github/onreg/core/db/game/model/GameWithPlatforms.kt`).
+5. Relations:
+    - Create relation wrapper in:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/<feature>/model/<ThingWithOtherThings>.kt`
+    - Example many-to-many relation wrapper:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/model/GameWithPlatforms.kt`
 
-3) **Add/update TypeConverters (if needed)**
-- Implement a converter class under `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/` (example: `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/InstantTypeConverter.kt`).
-- Register it on the DB via `@TypeConverters(...)` (current pattern registers at DB level: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`).
+### Type converters
+- Add converters only for DB persistence needs.
+- Put converters in:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/`
+- Example converter:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/common/converter/InstantTypeConverter.kt`
+- Register converters at DB level:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
 
-4) **Add the DAO and queries**
-- Create `@Dao` interface for simple CRUD (patterns: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`).
-- Use `suspend` for write operations; pick conflict strategy explicitly (examples: REPLACE in `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt`, IGNORE in `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`).
-- Use `@Transaction` for:
-  - relation-returning queries (example: `pagingSource()` in `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`)
-  - multi-step operations that must be atomic (example: `insertGamesWithPlatforms()` in `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`)
-- If you need Paging:
-  - return a `PagingSource<Key, Value>` from the DAO (example: `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`)
-  - ensure the module has Room paging dependency (already present): `core/db/build.gradle.kts`
+### DAO rules (queries and writes)
+- Create DAO under:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/<feature>/dao/<Thing>Dao.kt`
 
-5) **Wire into `NextPlayDatabase`**
-- Add your new entity to `@Database(entities = [...])` and bump the `version` if schema changes (DB definition: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`).
-- Add a DAO accessor `public abstract fun <thing>Dao(): <Thing>Dao` (pattern: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`).
+- Writes:
+    - Use `suspend` for inserts/updates/deletes.
+    - Always specify conflict strategy explicitly:
+        - REPLACE example:
+            - `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt`
+        - IGNORE example:
+            - `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`
 
-6) **Wire into DI**
-- If another module needs to inject this DAO, add a provider in `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt` (pattern: existing providers for `GameDao`/`GameRemoteKeysDao` in `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt`).
-- DB + `TransactionProvider` are already provided in `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`.
+- Transactions:
+    - Use `@Transaction` for relation-returning queries:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
+    - Use `@Transaction` for multi-step atomic writes:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
 
-7) **Wire into repositories/datasources (what exists today)**
-- Current pattern: repository implementations inject DAOs directly (no separate local datasource abstraction in the game flow), e.g. `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/GameRepositoryImpl.kt`.
-- If you need atomic multi-table updates outside the DAO, inject `TransactionProvider` and wrap the block (pattern: `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt` + `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`).
-- Add mapping between API models and entities in the relevant `data/*/impl` module (pattern: `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameEntityMapper.kt`).
+- Paging:
+    - Return `PagingSource<Key, Value>` from DAO (example):
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameDao.kt`
+    - Do not implement paging logic outside SQL/Room in this module.
 
-8) **Handle schema changes**
-- Schema export is enabled (`exportSchema = true`) and configured to write JSON files to `core/db/schemas` via KSP args (DB + Gradle: `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`, `core/db/build.gradle.kts`).
-- Current migration behavior is destructive: `.fallbackToDestructiveMigration()` (so any version bump without explicit migrations will wipe local data): `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`.
+### Wire into the database
+- Update database definition:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
+    - Add new entity to `@Database(entities = [...])`
+    - Add DAO accessor: `abstract fun <thing>Dao(): <Thing>Dao`
+    - If schema changed, bump `version` in `@Database(...)`
 
-9) **Add unit tests**
-- Add/adjust unit tests under `core/db/src/test/kotlin/...`.
+### Wire into DI
+- DB provider:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`
+- DAO providers (add your DAO here if it must be injectable):
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt`
+- Transaction helper (for consumer-side multi-DAO atomic work):
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`
+    - Consumer example (outside this module):
+        - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediator.kt`
 
-## 3) How to add tests for a new database feature
+### Consumer integration rules (outside core/db)
+- Repositories inject DAOs directly (current pattern example):
+    - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/GameRepositoryImpl.kt`
+- Mapping between API/domain models and entities lives in `data/*/impl`:
+    - `data/game/impl/src/main/kotlin/io/github/onreg/data/game/impl/mapper/GameEntityMapper.kt`
+- Do not add network calls or mapping rules into `core/db`.
 
-### Where tests live (and why)
-- `core/db` uses JVM unit tests under `core/db/src/test/kotlin/...` with `AndroidJUnit4` + Robolectric deps (examples + deps: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/build.gradle.kts`).
-- Rationale (as implemented): tests can use `ApplicationProvider` + in-memory Room DB without device/emulator (test setup: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDaoTest.kt`, deps: `core/db/build.gradle.kts`).
+### Schema export and migrations policy
+- Schema export setup:
+    - DB definition:
+        - `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
+    - KSP/Room args:
+        - `core/db/build.gradle.kts`
+    - Output directory:
+        - `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/`
+- Current runtime migration strategy (destructive):
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`
 
-### Standard test setup used here
-- In-memory DB:
-  - `Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), NextPlayDatabase::class.java)`
-- Allow main thread queries in tests:
-  - `.allowMainThreadQueries()` (same files as above)
-- Coroutines:
-  - `kotlinx.coroutines.test.runTest { ... }` (same files as above)
-- Assertions:
-  - `kotlin.test` assertions (`assertEquals`, `assertTrue`, `assertNull`) (examples: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDaoTest.kt`)
-- Query verification:
-  - Direct SQL `database.query("SELECT ...")` for row counts / invariants (examples: `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`)
-- Paging query verification:
-  - Call `PagingSource.load(LoadParams.Refresh(...))` and assert `LoadResult.Page` (example: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`)
-- Examples: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`)
+## Tests: add or update DAO coverage
+- Location:
+    - `core/db/src/test/kotlin/io/github/onreg/core/db/<feature>/...`
+
+- Existing test examples to copy:
+    - `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`
+    - `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDaoTest.kt`
+    - `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`
+
+- Setup pattern used in this repo:
+    - In-memory DB:
+        - `Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), NextPlayDatabase::class.java)`
+    - Allow main thread queries:
+        - `.allowMainThreadQueries()`
+    - Coroutines:
+        - `kotlinx.coroutines.test.runTest { ... }`
+    - Assertions:
+        - `kotlin.test` assertions (`assertEquals`, `assertTrue`, `assertNull`)
+    - Optional direct SQL checks:
+        - `database.query("SELECT ...")`
+    - Paging verification:
+        - call `PagingSource.load(LoadParams.Refresh(...))` and assert `LoadResult.Page`
+        - example test:
+            - `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`
+
+## Fast review checklist (before finishing)
+- No repository/network/mapping logic added to `core/db`.
+- Entity/table/column naming follows existing conventions (verify against):
+    - `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/1.json`
+- Indices/FKs added where needed; cascading behavior intentional.
+- DAO writes are `suspend` with explicit conflict strategies.
+- Transactional operations use `@Transaction` in DAO or `TransactionProvider` in consumers:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/TransactionProvider.kt`
+- `NextPlayDatabase.kt` updated:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`
+- If injection is needed, Hilt providers updated:
+    - `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt`
+- Tests added/updated:
+    - `core/db/src/test/kotlin/io/github/onreg/core/db/<feature>/...`
+- Schema export updated under:
+    - `core/db/schemas/io.github.onreg.core.db.NextPlayDatabase/`
