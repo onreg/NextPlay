@@ -125,9 +125,9 @@
 - Current migration behavior is destructive: `.fallbackToDestructiveMigration()` (so any version bump without explicit migrations will wipe local data): `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`.
 
 9) **Add unit tests**
-- Add/adjust unit tests under `core/db/src/test/kotlin/...` (examples: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`).
+- Add/adjust unit tests under `core/db/src/test/kotlin/...`.
 
-## 3) How to add tests for a new database feature (practical and repo-specific)
+## 3) How to add tests for a new database feature
 
 ### Where tests live (and why)
 - `core/db` uses JVM unit tests under `core/db/src/test/kotlin/...` with `AndroidJUnit4` + Robolectric deps (examples + deps: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/build.gradle.kts`).
@@ -135,7 +135,7 @@
 
 ### Standard test setup used here
 - In-memory DB:
-  - `Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), NextPlayDatabase::class.java)` (examples: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`)
+  - `Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), NextPlayDatabase::class.java)`
 - Allow main thread queries in tests:
   - `.allowMainThreadQueries()` (same files as above)
 - Coroutines:
@@ -146,114 +146,4 @@
   - Direct SQL `database.query("SELECT ...")` for row counts / invariants (examples: `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`)
 - Paging query verification:
   - Call `PagingSource.load(LoadParams.Refresh(...))` and assert `LoadResult.Page` (example: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`)
-
-### Templates (repo-aligned)
-a) **DAO test (CRUD + edge cases)**
-- Base pattern: in-memory DB + `runTest`, assert load/insert semantics (see `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDaoTest.kt` and `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`).
-
-b) **Query test (sorting/filtering + behavior tied to schema constraints)**
-- Sorting/ordering: validate `ORDER BY` using paging load (example: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`).
-- Schema-constraint behavior: validate FK cascades with row-count checks (examples: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, schema definitions: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`, `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GamePlatformCrossRef.kt`).
-
-c) **Migration test**
-- Current state: no explicit migrations are defined and the app uses `.fallbackToDestructiveMigration()` (so migration tests are not applicable yet): `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`.
-- How to introduce safely (when you decide to preserve data):
-  - Add explicit `Migration` objects and register via `Room.databaseBuilder(...).addMigrations(...)` (builder is in `core/db/src/main/kotlin/io/github/onreg/core/db/di/DatabaseModule.kt`).
-  - Add a migration test suite (location is **Unknown from repository** because there is no existing pattern in `core/db`; check whether you prefer JVM+Robolectric or `src/androidTest` with instrumentation based on your team’s direction; current db tests are JVM: `core/db/src/test/kotlin/...` and deps: `core/db/build.gradle.kts`).
-
-### How to run tests from CLI (Gradle tasks used in this repo)
-- Build APK: `./gradlew assembleDebug` (repo guideline)
-- Unit tests for this module: `./gradlew :core:db:testDebugUnitTest` (module is `com.android.library` via `build-logic/convention/src/main/kotlin/LibraryConventionPlugin.kt` and `core/db/build.gradle.kts`)
-- Instrumentation tests (general): `./gradlew connectedDebugAndroidTest` (repo guideline)
-
-## 4) Examples
-
-### Entity
-Based on `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt` and `core/db/src/main/kotlin/io/github/onreg/core/db/platform/entity/PlatformEntity.kt`.
-
-```kotlin
-@Entity(tableName = TodoEntity.TABLE_NAME)
-public data class TodoEntity(
-    @PrimaryKey
-    @ColumnInfo(name = ID)
-    val id: Int,
-    @ColumnInfo(name = NAME)
-    val name: String
-) {
-    internal companion object {
-        const val TABLE_NAME: String = "todo_items"
-        const val ID: String = "id"
-        const val NAME: String = "name"
-    }
-}
-```
-
-Fill in:
-- Replace `todo_items` with your snake_case table name pattern (see `games`, `platforms`: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`).
-- Add `indices` / `foreignKeys` to `@Entity(...)` as needed (examples: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameRemoteKeysEntity.kt`).
-
-### DAO
-Based on `core/db/src/main/kotlin/io/github/onreg/core/db/game/dao/GameRemoteKeysDao.kt` and `core/db/src/main/kotlin/io/github/onreg/core/db/platform/dao/PlatformDao.kt`.
-
-```kotlin
-@Dao
-public interface TodoDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public suspend fun upsert(items: List<TodoEntity>)
-
-    @Query(
-        """
-            SELECT * FROM ${TodoEntity.TABLE_NAME}
-            WHERE ${TodoEntity.ID} = :id
-        """
-    )
-    public suspend fun getById(id: Int): TodoEntity?
-
-    @Query("DELETE FROM ${TodoEntity.TABLE_NAME}")
-    public suspend fun clearAll()
-}
-```
-
-Fill in:
-- Add ordering/filtering queries using `@Query(...)` and keep column names in the entity’s `internal companion object` (pattern: `core/db/src/main/kotlin/io/github/onreg/core/db/game/entity/GameEntity.kt`).
-
-### DAO test
-Based on `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`.
-
-```kotlin
-@RunWith(AndroidJUnit4::class)
-internal class TodoDaoTest {
-
-    private val database = Room.inMemoryDatabaseBuilder(
-        ApplicationProvider.getApplicationContext(),
-        NextPlayDatabase::class.java
-    )
-        .allowMainThreadQueries()
-        .build()
-
-    private val todoDao: TodoDao = database.todoDao()
-
-    @AfterTest
-    fun tearDown() {
-        database.close()
-    }
-
-    @Test
-    fun `should upsert and load by id`() = runTest {
-        val entity = TodoEntity(
-            id = 1,
-            name = "TODO"
-        )
-
-        todoDao.upsert(listOf(entity))
-
-        val loaded = todoDao.getById(entity.id)
-
-        assertEquals(entity, loaded)
-    }
-}
-```
-
-Fill in:
-- Add `todoDao()` accessor and entity registration in `core/db/src/main/kotlin/io/github/onreg/core/db/NextPlayDatabase.kt`.
-- Add the DAO provider in `core/db/src/main/kotlin/io/github/onreg/core/db/di/DaoModule.kt` if another module injects it.
+- Examples: `core/db/src/test/kotlin/io/github/onreg/core/db/game/dao/GameDaoTest.kt`, `core/db/src/test/kotlin/io/github/onreg/core/db/platform/dao/PlatformDaoTest.kt`)
