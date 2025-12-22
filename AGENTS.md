@@ -1,4 +1,11 @@
-# Repository Guidelines
+## Working agreements
+
+- Run terminal commands via Android Studio (`mcp__android_studio`)), not direct shell.
+- Use verification reports to fix Lint and Unit tests issues instead of terminal output.
+- After any code change, run Unit tests appropriate to the scope of the change.
+    - For large/multi-file changes (e.g. implementing a whole feature), run all Unit tests.
+    - For small/isolated changes (e.g. changing a single class), run only the single most relevant Unit test for that class (e.g. one test class), not
+      the full suite.
 
 ## Project Structure & Module Organization
 
@@ -15,25 +22,12 @@
 - All modules adhere to the standard `src/main`, `src/test`, and `src/androidTest` layout; keep
   previews, assets, and fixtures near their owners to preserve clear boundaries.
 
-## Build, Test, and Development Commands
-
-- `./gradlew assembleDebug` – compile the debug APK with the convention-managed SDK + Compose
-  stack.
-- `./gradlew connectedDebugAndroidTest` – execute instrumentation/Compose UI suites on an attached
-  device via `AndroidJUnitRunner`.
-- To update project dependencies, run `./gradlew versionCatalogUpdate`, then build the project to
-  verify. If build errors appear, try other version combinations. To check other dependency versions
-  use `mcp__playwright`.
-
-- You should run these commands with escalated permissions.
-- For running commands set timeout to 5 minutes if it not enough then increase it accordingly.
 
 ## Preferred Tools
 
 - Use the IntelliJ MCP integration (`mcp__android_studio` server) for all file inspection, edits,
-  searches, and run commands before reaching for shell commands.
-- For investigating problems with specific files, use `mcp__android_studio__get_file_problems` to
-  inspect file errors and warnings.
+  searches, and run shell commands.
+- For investigating problems with specific files, use `mcp__android_studio__get_file_problems` to inspect file errors and warnings.
 - Use the shell bridge (`functions.shell`) only when you must run a CLI command; always set
   `workdir` to the project root.
 - Use the GitHub automations (`mcp__github`/`mcp__github_personal` servers) for any repository
@@ -41,54 +35,60 @@
   shell.
 - Use the Atlassian MCP integration (`mcp__atlassian` server) for every Jira or Confluence lookup or
   update instead of hitting the APIs manually.
-- Use the Playwright MCP integration (`mcp__playwright` server) for every web lookup—never open
-  browsers
+- Use the Playwright MCP integration (`mcp__playwright` server) for every web lookup—never open browsers
   or external search manually.
 - Use the DeepWiki MCP integration (`mcp__deepwiki` server) whenever you need framework or library
   guidance; do not rely on ad-hoc internet searches for that information.
-- Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and
-  measurements
+- Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and measurements
   rather than guessing UI details.
+- Use the Maven Deps MCP integration (`mcp__maven_deps` server) to confirm dependency versions and
+  availability instead of checking Maven Central manually.
+
+## Build, Test, and Development Commands
+
+- `./gradlew assembleDevDebug` compiles the dev flavour for local installs.
+- `./gradlew testDevDebugUnitTest` runs unit tests.
+- `./gradlew :app:testDevDebugUnitTest --tests "com.reedcouk.jobs.feature.profile.languages.data.LanguageRepositoryTest"` runs a specific test class.
+
+## Verification reports locations
+- Unit Tests: `app/build/reports/tests/testDevDebugUnitTest/index.html`
+- Lint: `app/build/reports/lint-results-devDebug.html`
 
 ## Coding Style & Naming Conventions
 
-- Follow Kotlin official style with 4-space indentation; prefer expression-bodied functions when
-  they improve clarity.
+- Follow Kotlin official style with 4-space indentation; prefer expression-bodied functions when they improve clarity.
 - Compose previews describe state only (e.g., `FilledPreview`).
 - Icons follow `ic_name_size.xml`.
 - User action events in ViewModels: Use `on` prefix.
     - Example: `fun onSaveClicked()`
 - Boolean Variables: Use `is`, `has`, or `should` prefixes.
     - Example: `isUserLoggedIn`, `hasProfilePicture`, `shouldShowTooltip`
-- Mapper Function: Must be implemented as classes (not extension functions) that implement an
-  interface. Use `map` as the function name and `model` as
+- Mapper Function: Must be implemented as classes (not extension functions) that implement an interface. Use `map` as the function name and `model` as
   the parameter name.
     - Example: `interface FooMapper { fun map(model: FooEntity): Foo }` and
       `class FooMapperImpl : FooMapper { override fun map(model: FooEntity): Foo = ... }`
-- Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
-  and docs.
-- Do not add empty line at the end of the file.
+- Do not leave comments in source files. Code must be self-explanatory through clear naming, tests, and docs.
 
-## Testing Guidelines
+## Unit tests Guidelines
 
-Place JVM tests in `src/test/kotlin` and rely on JUnit4 plus kotlinx-coroutines-test. Compose or
-instrumentation suites live in `src/androidTest/kotlin` and should mirror the screen/component
-name (`GameCardTest`, `AppHeaderScreenshotTest`). Every feature change needs at least one unit test
-and, for behavioral UI work, an accompanying instrumentation or screenshot check. Keep fixtures
-module-scoped via `Fake*` helpers or `src/test/resources` data to avoid cross-module leakage.
-
-## Commit & Pull Request Guidelines
-
-Follow the existing history: imperative, component-focused subject lines (“Refactors GameCard
-component…”) kept under ~72 characters. PRs must include a short summary, linked issue/discussion,
-screenshots or recordings for UI changes, and the command/output of the tests you ran. Rebase on
-`main`, avoid force-pushing after review starts, and flag configuration or migration follow-up
-directly in the description.
-
-## Security & Configuration Tips
-
-Keep secrets (API keys, endpoints) in git-ignored `local.properties` or Gradle-managed env
-files—never commit them. Convention plugins pin Java/Kotlin 17 with minSdk 24 and target/compile 36,
-so align your Android Studio JDK with those values. Update `proguard-rules.pro` whenever you add
-libraries that perform reflection or dynamic loading, and document runtime permissions or network
-domains in module READMEs.
+- All public methods should be tested
+- Do not create manual stubs or fakes, use `mockito-kotlin` for mocking dependencies and verification.
+- Do not use initialization methods (`@Before`). Initialize everything in class properties.
+    - For additional setup, use `mockito-kotlin` DSL in property initialization, e.g.:
+        ```kotlin
+            private val getNewJobsCountUseCase: GetNewJobsCountUseCase = mock {
+                onBlocking { getNewJobsCount() } doReturn GetNewJobsCountResult.NoRecentSearches
+            }
+        ```
+- If the test class has a JUnit `@Rule` and the class under test must be initialized after the rule, declare the class under test with `by lazy { ... }` (since we don’t use `@Before`).
+- When you need to use any Mockito matcher in a `verify(...)` call, use matchers for all arguments (use `eq(...)` to check specific arguments).
+- Prefer verifying exact arguments (e.g. `verify(api).sendEvent(expectedRequest)`) instead of capturing with `argumentCaptor` when the expected
+  request can be constructed upfront. Use captors only when the argument can’t be reasonably constructed or needs partial/dynamic assertions.
+    - Example:
+        ```kotlin
+            whenever(api.sendEvent(JobEventRequest(listOf(dto1, dto2)))).thenReturn(NetworkResponse.Success(Unit))
+            repository.sendEvent(listOf(event1, event2))
+            verify(api).sendEvent(JobEventRequest(listOf(dto1, dto2)))
+        ```
+- Prefer comparing objects with `assertEquals` when possible instead of asserting individual fields repeatedly.
+- If the class under test has complex logic, introduce a test driver/DSL abstraction to reduce boilerplate; see `data/game/impl/src/test/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediatorTest.kt` and `data/game/impl/src/test/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediatorTestDriver.kt`.
