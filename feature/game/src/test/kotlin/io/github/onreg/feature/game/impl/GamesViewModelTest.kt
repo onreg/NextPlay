@@ -1,7 +1,6 @@
 package io.github.onreg.feature.game.impl
 
 import androidx.paging.PagingData
-import androidx.paging.testing.asSnapshot
 import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.core.ui.components.card.PlatformUI
 import io.github.onreg.core.ui.components.chip.ChipUI
@@ -9,23 +8,13 @@ import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
 import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
-import kotlinx.coroutines.Dispatchers
+import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
+import io.github.onreg.testing.unit.flow.test
+import io.github.onreg.testing.unit.paging.asSnapshot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Rule
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import org.mockito.kotlin.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -117,62 +106,4 @@ private fun createFixture(): Fixture {
         defaultCard = defaultCard,
         bookmarkedCard = bookmarkedCard
     )
-}
-
-@OptIn(ExperimentalCoroutinesApi::class)
-internal class MainDispatcherRule(
-    val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
-) : TestWatcher() {
-    override fun starting(description: Description) {
-        Dispatchers.setMain(dispatcher)
-    }
-
-    override fun finished(description: Description) {
-        Dispatchers.resetMain()
-    }
-}
-
-@OptIn(ExperimentalCoroutinesApi::class)
-class TestObserver<T>(
-    private val testScope: TestScope,
-    flow: Flow<T>
-) {
-    private val values = mutableListOf<T>()
-    private val job = testScope.launch {
-        flow.collect { values.add(it) }
-    }
-
-    fun assert(vararg expected: T) {
-        testScope.advanceUntilIdle()
-        assertEquals(expected.toList(), values)
-    }
-
-    fun assertLatest(expected: T) {
-        testScope.advanceUntilIdle()
-        assertEquals(expected, values.last())
-    }
-
-    fun latestValue(): T {
-        testScope.advanceUntilIdle()
-        return values.last()
-    }
-
-    suspend fun cancel() {
-        job.cancelAndJoin()
-    }
-}
-
-@OptIn(ExperimentalCoroutinesApi::class)
-suspend fun <T> Flow<T>.test(testScope: TestScope, block: suspend TestObserver<T>.() -> Unit) {
-    val observer = TestObserver(testScope = testScope, flow = this)
-    testScope.advanceUntilIdle()
-    try {
-        observer.block()
-    } finally {
-        observer.cancel()
-    }
-}
-
-suspend fun <T : Any> PagingData<T>.asSnapshot(): List<T> {
-    return flowOf(this).asSnapshot()
 }
