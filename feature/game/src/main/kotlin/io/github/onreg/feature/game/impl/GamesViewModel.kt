@@ -6,7 +6,7 @@ import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.data.game.api.GameRepository
-import io.github.onreg.feature.game.impl.mapper.GameUiMapper
+import io.github.onreg.ui.game.presentation.mapper.GameUiMapper
 import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import kotlinx.coroutines.channels.Channel
