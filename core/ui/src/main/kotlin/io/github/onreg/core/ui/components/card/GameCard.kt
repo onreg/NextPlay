@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import io.github.onreg.core.ui.R
 import io.github.onreg.core.ui.components.chip.Chip
 import io.github.onreg.core.ui.components.chip.ChipUI
-import io.github.onreg.core.ui.components.card.GameCardUI.PlatformUI
+import io.github.onreg.core.ui.components.card.PlatformUI
 import io.github.onreg.core.ui.components.image.DynamicAsyncImage
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.ControlsSize

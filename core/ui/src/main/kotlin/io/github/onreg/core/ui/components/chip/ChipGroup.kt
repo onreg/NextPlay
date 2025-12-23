@@ -37,9 +37,9 @@ private fun StaticChipsPreview() {
     NextPlayTheme {
         ChipGroup(
             chips = listOf(
-                ChipUI("Action", leadingIconRes = R.drawable.ic_xbox_24),
-                ChipUI("Adventure", isSelected = true, leadingIconRes = R.drawable.ic_apple_24),
-                ChipUI("RPG", leadingIconRes = R.drawable.ic_linux_24),
+                ChipUI("Action", leadingIconRes = R.drawable.ic_controller_24),
+                ChipUI("Adventure", isSelected = true, leadingIconRes = R.drawable.ic_share_24),
+                ChipUI("RPG", leadingIconRes = R.drawable.ic_controller_off_24),
                 ChipUI("Indie"),
                 ChipUI("Strategy"),
                 ChipUI("Simulation"),
@@ -55,8 +55,8 @@ private fun SelectableChipsPreview() {
     NextPlayTheme {
         ChipGroup(
             chips = listOf(
-                ChipUI("Action", isSelected = false, leadingIconRes = R.drawable.ic_xbox_24),
-                ChipUI("Adventure", isSelected = true, leadingIconRes = R.drawable.ic_apple_24),
+                ChipUI("Action", isSelected = false, leadingIconRes = R.drawable.ic_controller_24),
+                ChipUI("Adventure", isSelected = true, leadingIconRes = R.drawable.ic_share_24),
                 ChipUI("RPG", isSelected = false),
                 ChipUI("Indie", isSelected = true),
                 ChipUI("Strategy", isSelected = false),

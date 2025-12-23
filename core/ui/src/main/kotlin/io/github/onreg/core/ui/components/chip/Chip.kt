@@ -72,7 +72,7 @@ public fun StaticSelectedPreview() {
             chipUI = ChipUI(
                 text = "Selected",
                 isSelected = true,
-                leadingIconRes = R.drawable.ic_apple_24
+                leadingIconRes = R.drawable.ic_controller_24
             ),
             onClick = null
         )
@@ -87,7 +87,7 @@ public fun StaticNotSelectedPreview() {
             chipUI = ChipUI(
                 text = "Not selected",
                 isSelected = false,
-                leadingIconRes = R.drawable.ic_apple_24
+                leadingIconRes = R.drawable.ic_controller_24
             ),
             onClick = null
         )
@@ -102,7 +102,7 @@ public fun ClickableSelectedPreview() {
             chipUI = ChipUI(
                 text = "Selected",
                 isSelected = true,
-                leadingIconRes = R.drawable.ic_apple_24
+                leadingIconRes = R.drawable.ic_controller_24
             ),
             onClick = {}
         )
@@ -117,7 +117,7 @@ public fun ClickableNotSelectedPreview() {
             chipUI = ChipUI(
                 text = "Not selected",
                 isSelected = false,
-                leadingIconRes = R.drawable.ic_xbox_24
+                leadingIconRes = R.drawable.ic_controller_off_24
             ),
             onClick = {}
         )

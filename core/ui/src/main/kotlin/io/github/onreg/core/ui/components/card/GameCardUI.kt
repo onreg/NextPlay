@@ -10,9 +10,9 @@ public data class GameCardUI(
     val platforms: Set<PlatformUI>,
     val rating: ChipUI,
     val isBookmarked: Boolean
-) {
-    public data class PlatformUI(
-        val name: String,
-        val iconRes: Int
-    )
-}
+)
+
+public data class PlatformUI(
+    val name: String,
+    val iconRes: Int
+)
