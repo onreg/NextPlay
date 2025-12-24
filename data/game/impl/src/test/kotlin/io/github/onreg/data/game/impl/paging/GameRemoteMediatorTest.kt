@@ -22,50 +22,54 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalPagingApi::class)
 internal class GameRemoteMediatorTest {
 
+    private val dto = GameDto(
+        id = 1,
+        title = "Title",
+        imageUrl = "image",
+        releaseDate = null,
+        rating = 4.5,
+        platforms = listOf(PlatformWrapperDto(platform = PlatformDto(GamePlatform.PC.id)))
+    )
+
+    private val mappedGame = Game(
+        id = 1,
+        title = "Title",
+        imageUrl = "image",
+        releaseDate = null,
+        rating = 4.5,
+        platforms = setOf(GamePlatform.PC)
+    )
+
+    private val gameEntity = GameEntity(
+        id = 1,
+        title = "Title",
+        imageUrl = "image",
+        releaseDate = null,
+        rating = 4.5,
+        insertionOrder = 0
+    )
+
+    private val insertionBundle = GameInsertionBundle(
+        games = listOf(gameEntity),
+        platforms = listOf(PlatformEntity(GamePlatform.PC.id)),
+        crossRefs = listOf(GamePlatformCrossRef(gameId = 1, platformId = GamePlatform.PC.id))
+    )
+
+    private val driver = GameRemoteMediatorTestDriver.Builder()
+        .gameApiGetGames(
+            PaginatedResponseDto(
+                count = 1,
+                next = "https://example.com?page=2",
+                previous = null,
+                results = listOf(dto)
+            )
+        )
+        .gameDtoMapperMap(dto, mappedGame)
+        .gameEntityMapperMap(listOf(mappedGame), startOrder = 0, bundle = insertionBundle)
+        .build()
+
     @Test
     fun `load refresh inserts games and remote keys`() = runTest {
-        val dto = GameDto(
-            id = 1,
-            title = "Title",
-            imageUrl = "image",
-            releaseDate = null,
-            rating = 4.5,
-            platforms = listOf(PlatformWrapperDto(platform = PlatformDto(GamePlatform.PC.id)))
-        )
-        val mappedGame = Game(
-            id = 1,
-            title = "Title",
-            imageUrl = "image",
-            releaseDate = null,
-            rating = 4.5,
-            platforms = setOf(GamePlatform.PC)
-        )
-        val gameEntity = GameEntity(
-            id = 1,
-            title = "Title",
-            imageUrl = "image",
-            releaseDate = null,
-            rating = 4.5,
-            insertionOrder = 0
-        )
-        val insertionBundle = GameInsertionBundle(
-            games = listOf(gameEntity),
-            platforms = listOf(PlatformEntity(GamePlatform.PC.id)),
-            crossRefs = listOf(GamePlatformCrossRef(gameId = 1, platformId = GamePlatform.PC.id))
-        )
-        val driver = GameRemoteMediatorTestDriver.Builder()
-            .gameApiGetGames(
-                PaginatedResponseDto(
-                    count = 1,
-                    next = "https://example.com?page=2",
-                    previous = null,
-                    results = listOf(dto)
-                )
-            )
-            .gameDtoMapperMap(dto, mappedGame)
-            .gameEntityMapperMap(listOf(mappedGame), startOrder = 0, bundle = insertionBundle)
-            .build()
-
         val result = driver.load(LoadType.REFRESH, driver.emptyPagingState())
 
         assertTrue(result is RemoteMediator.MediatorResult.Success && !result.endOfPaginationReached)

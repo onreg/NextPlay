@@ -13,4 +13,5 @@ dependencies {
     implementation(projects.presentation.platform)
 
     implementation(libs.paging.compose)
+    testImplementation(libs.paging.testing)
 }

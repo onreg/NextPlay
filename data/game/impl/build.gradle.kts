@@ -13,4 +13,6 @@ dependencies {
     implementation(projects.core.db)
 
     implementation(libs.paging.runtime)
+
+    testImplementation(projects.testing.unit)
 }

@@ -12,5 +12,5 @@ dependencies {
     implementation(libs.junit.kotlin)
 
     implementation(libs.paging.common)
-    implementation(libs.paging.testing)
+    api(libs.paging.testing)
 }

@@ -23,12 +23,14 @@ internal class GameRepositoryTestDriver private constructor(
     val remoteMediator: RemoteMediator<Int, GameWithPlatforms>
 ) : GameRepository {
 
-    private val repository: GameRepository = GameRepositoryImpl(
-        gameDao = gameDao,
-        pagingConfig = pagingConfig,
-        gameEntityMapper = entityMapper,
-        gameRemoteMediatorProvider = { remoteMediator }
-    )
+    private val repository: GameRepository by lazy {
+        GameRepositoryImpl(
+            gameDao = gameDao,
+            pagingConfig = pagingConfig,
+            gameEntityMapper = entityMapper,
+            gameRemoteMediatorProvider = { remoteMediator }
+        )
+    }
 
     override fun getGames() = repository.getGames()
 

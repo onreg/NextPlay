@@ -3,6 +3,7 @@ package io.github.onreg.data.game.impl.paging
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
+import androidx.paging.RemoteMediator
 import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
 import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
@@ -27,19 +28,21 @@ internal class GameRemoteMediatorTestDriver private constructor(
     val entityMapper: GameEntityMapper,
     val pagingConfig: GamePagingConfig,
     private val transactionProvider: TransactionProvider
-) {
+) : RemoteMediator<Int, GameWithPlatforms>() {
 
-    private val mediator = GameRemoteMediator(
-        gameApi = gameApi,
-        gameDao = gameDao,
-        remoteKeysDao = remoteKeysDao,
-        pagingConfig = pagingConfig,
-        dtoMapper = dtoMapper,
-        entityMapper = entityMapper,
-        transactionProvider = transactionProvider
-    )
+    private val mediator by lazy {
+        GameRemoteMediator(
+            gameApi = gameApi,
+            gameDao = gameDao,
+            remoteKeysDao = remoteKeysDao,
+            pagingConfig = pagingConfig,
+            dtoMapper = dtoMapper,
+            entityMapper = entityMapper,
+            transactionProvider = transactionProvider
+        )
+    }
 
-    suspend fun load(loadType: LoadType, state: PagingState<Int, GameWithPlatforms>) =
+    override suspend fun load(loadType: LoadType, state: PagingState<Int, GameWithPlatforms>) =
         mediator.load(loadType, state)
 
     fun emptyPagingState(): PagingState<Int, GameWithPlatforms> =
