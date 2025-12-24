@@ -12,7 +12,7 @@ import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
 import io.github.onreg.testing.unit.flow.test
 import io.github.onreg.testing.unit.paging.asSnapshot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.mockito.kotlin.verify
@@ -27,6 +27,35 @@ internal class GamesViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    private val game = Game(
+        id = 1,
+        title = "Title",
+        imageUrl = "image",
+        releaseDate = null,
+        rating = 4.5,
+        platforms = setOf(GamePlatform.PC)
+    )
+    private val pagingData = PagingData.from(listOf(game))
+    private val defaultCard = GameCardUI(
+        id = "1",
+        title = "Title",
+        imageUrl = "image",
+        releaseDate = "",
+        platforms = setOf(PlatformUI(name = "PC", iconRes = 1)),
+        rating = ChipUI(text = "4.5"),
+        isBookmarked = false
+    )
+    private val bookmarkedCard = defaultCard.copy(isBookmarked = true)
+    private val mappedDefault = PagingData.from(listOf(defaultCard))
+    private val mappedBookmarked = PagingData.from(listOf(bookmarkedCard))
+    private val gamesFlow = flowOf(pagingData)
+
+    private val defaultDriver = GamesViewModelTestDriver.Builder()
+        .repositoryGames(gamesFlow)
+        .gameUiMapperMap(pagingData, emptySet(), mappedDefault)
+        .gameUiMapperMap(pagingData, setOf("1"), mappedBookmarked)
+        .build()
+
     @Test
     fun `should navigate to details`() = runTest {
         val driver = GamesViewModelTestDriver.Builder().build()
@@ -39,71 +68,25 @@ internal class GamesViewModelTest {
 
     @Test
     fun `should load games`() = runTest {
-        val fixture = createFixture()
-        fixture.driver.viewModel.state.test(this) {
+        defaultDriver.viewModel.state.test(this) {
             val items = (latestValue() as GamePaneState.Ready).gameCardsUI.asSnapshot()
-            assertEquals(listOf(fixture.defaultCard), items)
+            assertEquals(listOf(defaultCard), items)
         }
-        verify(fixture.driver.gameUiMapper).map(fixture.pagingData, emptySet())
+        verify(defaultDriver.gameUiMapper).map(pagingData, emptySet())
     }
 
     @Test
-    fun `should bookmark the game`() = runTest() {
-        val fixture = createFixture()
+    fun `should bookmark the game`() = runTest {
         val testItemId = "1"
-        fixture.driver.viewModel.state.test(this) {
+        defaultDriver.viewModel.state.test(this) {
             val itemsBefore = (latestValue() as GamePaneState.Ready).gameCardsUI.asSnapshot()
             assertFalse(itemsBefore.first { it.id == testItemId }.isBookmarked)
 
-            fixture.driver.viewModel.onBookMarkClicked(testItemId)
+            defaultDriver.viewModel.onBookMarkClicked(testItemId)
 
             val itemsAfter = (latestValue() as GamePaneState.Ready).gameCardsUI.asSnapshot()
             assertTrue(itemsAfter.first { it.id == testItemId }.isBookmarked)
         }
-        verify(fixture.driver.gameUiMapper).map(fixture.pagingData, setOf(testItemId))
+        verify(defaultDriver.gameUiMapper).map(pagingData, setOf(testItemId))
     }
-}
-
-private data class Fixture(
-    val pagingData: PagingData<Game>,
-    val driver: GamesViewModelTestDriver,
-    val defaultCard: GameCardUI,
-    val bookmarkedCard: GameCardUI
-)
-
-private fun createFixture(): Fixture {
-    val game = Game(
-        id = 1,
-        title = "Title",
-        imageUrl = "image",
-        releaseDate = null,
-        rating = 4.5,
-        platforms = setOf(GamePlatform.PC)
-    )
-    val pagingData = PagingData.from(listOf(game))
-    val defaultCard = GameCardUI(
-        id = "1",
-        title = "Title",
-        imageUrl = "image",
-        releaseDate = "",
-        platforms = setOf(PlatformUI(name = "PC", iconRes = 1)),
-        rating = ChipUI(text = "4.5"),
-        isBookmarked = false
-    )
-    val bookmarkedCard = defaultCard.copy(isBookmarked = true)
-    val mappedDefault = PagingData.from(listOf(defaultCard))
-    val mappedBookmarked = PagingData.from(listOf(bookmarkedCard))
-    val gamesFlow = MutableStateFlow(pagingData)
-    val driver = GamesViewModelTestDriver.Builder()
-        .repositoryGames(gamesFlow)
-        .gameUiMapperMap(pagingData, emptySet(), mappedDefault)
-        .gameUiMapperMap(pagingData, setOf("1"), mappedBookmarked)
-        .build()
-
-    return Fixture(
-        pagingData = pagingData,
-        driver = driver,
-        defaultCard = defaultCard,
-        bookmarkedCard = bookmarkedCard
-    )
 }

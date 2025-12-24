@@ -16,7 +16,7 @@ internal class GamesViewModelTestDriver private constructor(
     val gameUiMapper: GameUiMapper
 ) {
 
-    val viewModel = GamesViewModel(repository, gameUiMapper)
+    val viewModel by lazy { GamesViewModel(repository, gameUiMapper) }
 
     class Builder {
         private var gamesFlow: Flow<PagingData<Game>> = flowOf(PagingData.empty())
