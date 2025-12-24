@@ -13,14 +13,4 @@ dependencies {
     implementation(projects.core.db)
 
     implementation(libs.paging.runtime)
-    implementation(libs.room.ktx)
-    implementation(libs.room.paging)
-
-    testImplementation(libs.coroutines.test)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.kotlin)
-    testImplementation(libs.paging.common)
-    testImplementation(libs.room.testing)
-    testImplementation(libs.androidx.test.core)
-    testImplementation(libs.robolectric)
 }

@@ -9,6 +9,7 @@ class FeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         apply(plugin = "ui.convention.plugin")
         apply(plugin = "hilt.convention.plugin")
+        apply(plugin = "android-test.convention.plugin")
 
         extensions.configure<LibraryExtension> {
             defaultConfig {
@@ -17,12 +18,7 @@ class FeatureConventionPlugin : Plugin<Project> {
         }
         dependencies {
             "implementation"(catalog.findLibrary("androidx-lifecycle-runtime-ktx").get())
-
             "implementation"(catalog.findLibrary("hilt-navigation-compose").get())
-
-            "debugImplementation"(catalog.findLibrary("compose-test-manifest").get())
-            "androidTestImplementation"(catalog.findLibrary("junit-android").get())
-            "androidTestImplementation"(catalog.findLibrary("compose-test-junit4").get())
         }
     }
 }

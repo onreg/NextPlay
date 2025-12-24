@@ -24,6 +24,10 @@ gradlePlugin {
             id = "ui.convention.plugin"
             implementationClass = "UiConventionPlugin"
         }
+        register("AndroidTestConventionPlugin") {
+            id = "android-test.convention.plugin"
+            implementationClass = "AndroidTestConventionPlugin"
+        }
     }
 }
 

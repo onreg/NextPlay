@@ -1,5 +1,6 @@
 package io.github.onreg.testing.unit.flow
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
@@ -9,6 +10,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@VisibleForTesting
 public class TestObserver<T>(
     private val testScope: TestScope,
     flow: Flow<T>

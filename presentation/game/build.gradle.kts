@@ -11,8 +11,6 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.data.game.api)
     implementation(projects.presentation.platform)
-    implementation(libs.paging.common)
 
-    testImplementation(libs.coroutines.test)
-    testImplementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
 }

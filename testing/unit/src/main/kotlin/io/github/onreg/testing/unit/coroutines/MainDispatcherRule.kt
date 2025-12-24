@@ -1,5 +1,6 @@
 package io.github.onreg.testing.unit.coroutines
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -10,6 +11,7 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@VisibleForTesting
 public class MainDispatcherRule(
     public val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
 ) : TestWatcher() {

@@ -9,5 +9,9 @@ android {
 dependencies {
     implementation(projects.core.ui)
     implementation(projects.data.game.api)
+    implementation(projects.presentation.game)
+
     implementation(libs.paging.compose)
+
+    testImplementation(projects.testing.unit)
 }

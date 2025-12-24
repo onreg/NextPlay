@@ -13,6 +13,7 @@ class ApplicationConventionPlugin : Plugin<Project> {
         apply(plugin = "org.jetbrains.kotlin.plugin.compose")
         apply(plugin = "com.google.devtools.ksp")
         apply(plugin = "hilt.convention.plugin")
+        apply(plugin = "android-test.convention.plugin")
 
         extensions.configure<ApplicationExtension> {
             compileSdk = AndroidConfig.COMPILE_SDK
@@ -60,7 +61,6 @@ class ApplicationConventionPlugin : Plugin<Project> {
 
             "implementation"(catalog.findLibrary("hilt-navigation-compose").get())
 
-            "androidTestImplementation"(catalog.findLibrary("junit-android").get())
             "coreLibraryDesugaring"(catalog.findLibrary("desugar-jdk-libs").get())
         }
     }

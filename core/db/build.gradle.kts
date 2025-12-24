@@ -1,6 +1,7 @@
 plugins {
     id("library.convention.plugin")
     id("hilt.convention.plugin")
+    id("android-test.convention.plugin")
 }
 
 android {
@@ -18,9 +19,4 @@ dependencies {
     implementation(libs.room.paging)
 
     ksp(libs.room.compiler)
-
-    testImplementation(libs.coroutines.test)
-    testImplementation(libs.androidx.test.core)
-    testImplementation(libs.junit.android)
-    testImplementation(libs.robolectric)
 }
