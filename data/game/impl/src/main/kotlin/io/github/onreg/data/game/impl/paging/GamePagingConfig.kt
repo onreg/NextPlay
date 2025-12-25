@@ -14,6 +14,7 @@ public data class GamePagingConfig(
         pageSize = pageSize,
         prefetchDistance = prefetchDistance,
         initialLoadSize = initialLoadSize,
-        maxSize = maxSize
+        maxSize = maxSize,
+        enablePlaceholders = false
     )
 }

@@ -35,7 +35,6 @@ public fun ContentError(
         Icon(
             painter = painterResource(contentErrorUI.iconRes),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(IconsSize.xxl)
         )
         Text(

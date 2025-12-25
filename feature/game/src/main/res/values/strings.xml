@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="games_error_title">Unable to load games</string>
+    <string name="games_error_description">Check your connection and try again.</string>
+    <string name="games_error_retry">Retry</string>
+</resources>
