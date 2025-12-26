@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -29,6 +28,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.onreg.core.ui.components.card.GameCard
+import io.github.onreg.core.ui.components.card.GameCardLoading
 import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.core.ui.components.state.ContentError
 import io.github.onreg.core.ui.components.state.ContentErrorUI
@@ -47,7 +47,7 @@ public fun GamesPane(
     navController: NavHostController,
 ) {
     GamesPane(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         navController = navController,
         viewModel = hiltViewModel<GamesViewModel>()
     )
@@ -62,13 +62,13 @@ private fun GamesPane(
     val state by viewModel.state.collectAsStateWithLifecycle()
     when (state) {
         is GamePaneState.Ready -> Content(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier,
             viewModel = viewModel,
             navigate = navController::navigate
         )
 
         is GamePaneState.Error -> Error(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier,
             onRetry = viewModel::onRetryClicked
         )
     }
@@ -92,7 +92,7 @@ private fun Content(
     val showFullScreenError = !hasData && isError
 
     when {
-        showFullScreenLoading -> Loading(modifier = modifier)
+        showFullScreenLoading -> LoadingGrid(modifier = modifier)
         showFullScreenError -> Error(
             modifier = modifier,
             onRetry = viewModel::onRetryClicked
@@ -143,9 +143,10 @@ private fun GamesGrid(
     onBookmarkClicked: (String) -> Unit,
     onCardClicked: (String) -> Unit
 ) {
-    val isNextPageLoading = lazyPagingItems.loadState.append is LoadState.Loading
     val isNextPageError = lazyPagingItems.loadState.append is LoadState.Error
+    val isNextPageLoading = lazyPagingItems.loadState.append is LoadState.Loading
     val isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading
+    val loadingItemsCount = if (isNextPageLoading) 20 else 0
 
     val pullToRefreshState = rememberPullToRefreshState()
     PullToRefreshBox(
@@ -182,10 +183,9 @@ private fun GamesGrid(
                     )
                 }
             }
-
             if (isNextPageLoading) {
-                item {
-                    Loading()
+                items(count = loadingItemsCount) {
+                    GameCardLoading()
                 }
             }
             if (isNextPageError) {
@@ -198,14 +198,19 @@ private fun GamesGrid(
 }
 
 @Composable
-private fun Loading(
+private fun LoadingGrid(
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
+    LazyVerticalGrid(
+        modifier = modifier.fillMaxSize(),
+        columns = GridCells.Fixed(1),
+        contentPadding = PaddingValues(Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
-        CircularProgressIndicator()
+        items(20) {
+            GameCardLoading()
+        }
     }
 }
 
