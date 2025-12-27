@@ -1,4 +1,4 @@
-package io.github.onreg.core.ui.components.state
+package io.github.onreg.core.ui.components.content.error
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

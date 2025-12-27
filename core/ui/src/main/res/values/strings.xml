@@ -8,4 +8,6 @@
 
     <string name="games_error_title">Unable to load games</string>
     <string name="games_error_description">Check your connection and try again.</string>
+    <string name="games_empty_title">No games found</string>
+    <string name="games_empty_description">Try adjusting your filters or check back later.</string>
 </resources>

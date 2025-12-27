@@ -12,8 +12,8 @@ import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.onreg.core.ui.R
 import io.github.onreg.core.ui.components.list.GameList
-import io.github.onreg.core.ui.components.state.ContentError
-import io.github.onreg.core.ui.components.state.ContentErrorUI
+import io.github.onreg.core.ui.components.content.error.ContentError
+import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.runtime.collectWithLifecycle
 import io.github.onreg.feature.game.impl.GamesPaneViewModel
 import io.github.onreg.feature.game.impl.GamesViewModel

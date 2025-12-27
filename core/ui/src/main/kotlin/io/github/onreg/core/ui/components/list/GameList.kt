@@ -27,8 +27,10 @@ import io.github.onreg.core.ui.components.card.GameCardLoading
 import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.core.ui.components.card.PlatformUI
 import io.github.onreg.core.ui.components.chip.ChipUI
-import io.github.onreg.core.ui.components.state.ContentError
-import io.github.onreg.core.ui.components.state.ContentErrorUI
+import io.github.onreg.core.ui.components.content.error.ContentError
+import io.github.onreg.core.ui.components.content.error.ContentErrorUI
+import io.github.onreg.core.ui.components.content.info.ContentInfo
+import io.github.onreg.core.ui.components.content.info.ContentInfoUI
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
@@ -55,6 +57,7 @@ public fun GameList(
 
     val showFullScreenLoading = !hasData && (isLoading || isSourceLoading)
     val showFullScreenError = !hasData && isError
+    val showEmptyState = !hasData && !isLoading && !isSourceLoading && !isError
 
     when {
         showFullScreenLoading -> LoadingGrid(columns = columns)
@@ -62,8 +65,9 @@ public fun GameList(
             modifier = modifier,
             onRetry = onRetry
         )
+        showEmptyState -> Empty(modifier = modifier)
 
-        hasData -> {
+        else -> {
             GamesGrid(
                 modifier = modifier,
                 lazyPagingItems = lazyPagingItems,
@@ -175,6 +179,24 @@ private fun Error(
                 actionLabelResId = R.string.retry,
             ),
             onActionClick = onRetry
+        )
+    }
+}
+
+@Composable
+private fun Empty(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        ContentInfo(
+            contentInfoUI = ContentInfoUI(
+                iconRes = R.drawable.ic_controller_24,
+                titleResId = R.string.games_empty_title,
+                descriptionResId = R.string.games_empty_description
+            )
         )
     }
 }
