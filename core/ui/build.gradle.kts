@@ -5,3 +5,6 @@ plugins {
 android {
     namespace = "io.github.onreg.core.ui"
 }
+dependencies {
+    implementation(libs.paging.compose)
+}
