@@ -1,7 +1,6 @@
 package io.github.onreg.core.ui.components.list
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,14 +22,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.onreg.core.ui.R
 import io.github.onreg.core.ui.components.card.GameCard
+import io.github.onreg.core.ui.components.card.GameCardError
 import io.github.onreg.core.ui.components.card.GameCardLoading
 import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.core.ui.components.card.PlatformUI
 import io.github.onreg.core.ui.components.chip.ChipUI
-import io.github.onreg.core.ui.components.content.error.ContentError
-import io.github.onreg.core.ui.components.content.error.ContentErrorUI
-import io.github.onreg.core.ui.components.content.info.ContentInfo
-import io.github.onreg.core.ui.components.content.info.ContentInfoUI
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
@@ -47,7 +43,9 @@ public fun GameList(
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
     onBookmarkClicked: (String) -> Unit,
-    onCardClicked: (String) -> Unit
+    onCardClicked: (String) -> Unit,
+    onError: @Composable () -> Unit,
+    onEmpty: @Composable () -> Unit
 ) {
     val hasData = lazyPagingItems.itemCount > 0
 
@@ -61,11 +59,8 @@ public fun GameList(
 
     when {
         showFullScreenLoading -> LoadingGrid(columns = columns)
-        showFullScreenError -> Error(
-            modifier = modifier,
-            onRetry = onRetry
-        )
-        showEmptyState -> Empty(modifier = modifier)
+        showFullScreenError -> onError()
+        showEmptyState -> onEmpty()
 
         else -> {
             GamesGrid(
@@ -137,7 +132,7 @@ private fun GamesGrid(
             }
             if (isNextPageError) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Error(onRetry = onRetry)
+                    GameCardError(onRetry = onRetry)
                 }
             }
         }
@@ -159,45 +154,6 @@ private fun LoadingGrid(
         items(LOADING_ITEMS_COUNT) {
             GameCardLoading()
         }
-    }
-}
-
-@Composable
-private fun Error(
-    modifier: Modifier = Modifier,
-    onRetry: () -> Unit
-) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        ContentError(
-            contentErrorUI = ContentErrorUI(
-                iconRes = R.drawable.ic_controller_off_24,
-                titleResId = R.string.games_error_title,
-                descriptionResId = R.string.games_error_description,
-                actionLabelResId = R.string.retry,
-            ),
-            onActionClick = onRetry
-        )
-    }
-}
-
-@Composable
-private fun Empty(
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        ContentInfo(
-            contentInfoUI = ContentInfoUI(
-                iconRes = R.drawable.ic_controller_24,
-                titleResId = R.string.games_empty_title,
-                descriptionResId = R.string.games_empty_description
-            )
-        )
     }
 }
 
@@ -227,7 +183,9 @@ private fun PreviewGameList(
             onRefresh = {},
             onRetry = {},
             onBookmarkClicked = {},
-            onCardClicked = {}
+            onCardClicked = {},
+            onError = {},
+            onEmpty = {}
         )
     }
 }
@@ -317,17 +275,6 @@ private fun OneColumnRefreshingPreview() {
 }
 
 @Composable
-@ThemePreview
-private fun OneColumnEmptyPreview() {
-    NextPlayTheme {
-        PreviewGameList(
-            columns = 1,
-            items = emptyList()
-        )
-    }
-}
-
-@Composable
 @TabletThemePreview
 private fun FourColumnLoadingPreview() {
     NextPlayTheme {
@@ -394,17 +341,6 @@ private fun FourColumnRefreshingPreview() {
             columns = 4,
             items = previewItems(8),
             refresh = LoadState.Loading
-        )
-    }
-}
-
-@Composable
-@TabletThemePreview
-private fun FourColumnEmptyPreview() {
-    NextPlayTheme {
-        PreviewGameList(
-            columns = 4,
-            items = emptyList()
         )
     }
 }

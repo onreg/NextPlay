@@ -39,7 +39,7 @@ internal class GamesViewModel @Inject constructor(
 
     private val _retryEvent = MutableSharedFlow<Any>()
     private val bookMarks = MutableStateFlow(emptySet<String>())
-    override val dataState = _retryEvent
+    override val pagingState = _retryEvent
         .onStart { emit(Any()) }
         .flatMapLatest {
             combine(repository.getGames(), bookMarks, gameUiMapper::map)

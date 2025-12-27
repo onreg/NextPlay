@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 internal interface GamesPaneViewModel {
     val state: StateFlow<GamePaneState>
-    val dataState: StateFlow<PagingData<GameCardUI>>
+    val pagingState: StateFlow<PagingData<GameCardUI>>
     val events: Flow<Event>
 
     fun onCardClicked(gameId: String)
