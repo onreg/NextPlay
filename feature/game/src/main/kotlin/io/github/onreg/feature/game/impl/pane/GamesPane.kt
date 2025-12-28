@@ -2,6 +2,8 @@ package io.github.onreg.feature.game.impl.pane
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -9,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.onreg.core.ui.R
@@ -18,15 +21,21 @@ import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.components.content.info.ContentInfo
 import io.github.onreg.core.ui.components.content.info.ContentInfoUI
 import io.github.onreg.core.ui.components.list.GameList
+import io.github.onreg.core.ui.preview.TabletThemePreview
+import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.collectWithLifecycle
+import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.feature.game.impl.GamesViewModel
 import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
+import io.github.onreg.feature.game.impl.test.GamePaneTestData
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 public fun GamesPane(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    isLargeScreen: Boolean = false
 ) {
     val viewModel = hiltViewModel<GamesViewModel>()
 
@@ -35,6 +44,7 @@ public fun GamesPane(
 
     GamesPane(
         modifier = modifier.fillMaxSize(),
+        isLargeScreen = isLargeScreen,
         gamePaneState = state,
         pagingState = pagingState,
         onRetry = viewModel::onRetryClicked,
@@ -56,17 +66,19 @@ public fun GamesPane(
 @Composable
 private fun GamesPane(
     modifier: Modifier = Modifier,
+    isLargeScreen: Boolean = false,
     gamePaneState: GamePaneState,
     pagingState: LazyPagingItems<GameCardUI>,
-    onRetry: () -> Unit,
-    onRefreshClicked: () -> Unit,
-    onPageRetryClicked: () -> Unit,
-    onBookMarkClicked: (String) -> Unit,
-    onCardClicked: (String) -> Unit
+    onRetry: () -> Unit = {},
+    onRefreshClicked: () -> Unit = {},
+    onPageRetryClicked: () -> Unit = {},
+    onBookMarkClicked: (String) -> Unit = {},
+    onCardClicked: (String) -> Unit = {}
 ) {
     when (gamePaneState) {
         is GamePaneState.Ready -> ContentComponent(
             modifier = modifier,
+            isLargeScreen = isLargeScreen,
             pagingState = pagingState,
             onRefreshClicked = onRefreshClicked,
             onPageRetryClicked = onPageRetryClicked,
@@ -84,6 +96,7 @@ private fun GamesPane(
 @Composable
 private fun ContentComponent(
     modifier: Modifier = Modifier,
+    isLargeScreen: Boolean = false,
     pagingState: LazyPagingItems<GameCardUI>,
     onRefreshClicked: () -> Unit,
     onPageRetryClicked: () -> Unit,
@@ -93,7 +106,7 @@ private fun ContentComponent(
     GameList(
         modifier = modifier,
         lazyPagingItems = pagingState,
-        columns = 1,
+        columns = if (isLargeScreen) 4 else 1,
         onRefresh = onRefreshClicked,
         onRetry = onPageRetryClicked,
         onBookmarkClicked = onBookMarkClicked,
@@ -151,4 +164,120 @@ public object GamesRoute {
     public const val games: String = "GamesPane"
     public const val details: String = "GameDetails/{gameId}"
     public fun detailsRoute(gameId: String): String = "GameDetails/$gameId"
+}
+
+@Composable
+@ThemePreview
+private fun ErrorPreview() {
+    GamesPanePreview(
+        gamePaneState = GamePaneTestData.errorPaneState,
+        pagingState = GamePaneTestData.emptyState
+    )
+}
+
+@Composable
+@ThemePreview
+private fun EmptyPreview() {
+    GamesPanePreview(
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.emptyState
+    )
+}
+
+@Composable
+@ThemePreview
+private fun LoadingPreview() {
+    GamesPanePreview(
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.loadingState
+    )
+}
+
+@Composable
+@ThemePreview
+private fun LoadedPreview() {
+    GamesPanePreview(
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.loadedState
+    )
+}
+
+@Composable
+@ThemePreview
+private fun PagingErrorPreview() {
+    GamesPanePreview(
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.pagingErrorState
+    )
+}
+
+@Composable
+@TabletThemePreview
+private fun ErrorTabletPreview() {
+    GamesPanePreview(
+        isLargeScreen = true,
+        gamePaneState = GamePaneTestData.errorPaneState,
+        pagingState = GamePaneTestData.emptyState
+    )
+}
+
+@Composable
+@TabletThemePreview
+private fun EmptyTabletPreview() {
+    GamesPanePreview(
+        isLargeScreen = true,
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.emptyState
+    )
+}
+
+@Composable
+@TabletThemePreview
+private fun LoadingTabletPreview() {
+    GamesPanePreview(
+        isLargeScreen = true,
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.loadingState
+    )
+}
+
+@Composable
+@TabletThemePreview
+private fun PagingErrorTabletPreview() {
+    GamesPanePreview(
+        isLargeScreen = true,
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.pagingErrorState
+    )
+}
+
+@Composable
+@TabletThemePreview
+private fun LoadedTabletPreview() {
+    GamesPanePreview(
+        isLargeScreen = true,
+        gamePaneState = GamePaneTestData.readyPaneState,
+        pagingState = GamePaneTestData.loadedState
+    )
+}
+
+@Composable
+private fun GamesPanePreview(
+    isLargeScreen: Boolean = false,
+    gamePaneState: GamePaneState,
+    pagingState: Flow<PagingData<GameCardUI>>
+) {
+    NextPlayTheme {
+        val lazyPagingItems = pagingState.collectAsLazyPagingItems()
+        Scaffold { paddingValues ->
+            GamesPane(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+                isLargeScreen = isLargeScreen,
+                gamePaneState = gamePaneState,
+                pagingState = lazyPagingItems
+            )
+        }
+    }
 }
