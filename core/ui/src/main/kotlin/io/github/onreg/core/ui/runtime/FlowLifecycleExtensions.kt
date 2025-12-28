@@ -1,6 +1,5 @@
 package io.github.onreg.core.ui.runtime
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.collectLatest
  * with the provided [lifecycleOwner] and [minActiveState]. The collector suspends when the
  * lifecycle is below the given state and resumes when active again, always invoking the latest [action].
  */
-@SuppressLint("ComposableNaming")
 @Composable
 public fun <T> Flow<T>.collectWithLifecycle(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -25,7 +23,7 @@ public fun <T> Flow<T>.collectWithLifecycle(
     action: suspend (T) -> Unit
 ) {
     val currentAction by rememberUpdatedState(action)
-    LaunchedEffect(Unit) {
+    LaunchedEffect(this, lifecycleOwner, minActiveState) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(minActiveState) {
             this@collectWithLifecycle.collectLatest { value ->
                 currentAction(value)

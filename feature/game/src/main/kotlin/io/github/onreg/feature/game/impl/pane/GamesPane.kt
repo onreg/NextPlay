@@ -32,7 +32,7 @@ import io.github.onreg.feature.game.impl.test.GamePaneTestData
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-public fun GamesPane(
+public fun GamesPaneScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     isLargeScreen: Boolean = false
@@ -42,7 +42,7 @@ public fun GamesPane(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val pagingState = viewModel.pagingState.collectAsLazyPagingItems()
 
-    GamesPane(
+    GamesPaneScreen(
         modifier = modifier.fillMaxSize(),
         isLargeScreen = isLargeScreen,
         gamePaneState = state,
@@ -64,7 +64,7 @@ public fun GamesPane(
 }
 
 @Composable
-private fun GamesPane(
+private fun GamesPaneScreen(
     modifier: Modifier = Modifier,
     isLargeScreen: Boolean = false,
     gamePaneState: GamePaneState,
@@ -270,7 +270,7 @@ private fun GamesPanePreview(
     NextPlayTheme {
         val lazyPagingItems = pagingState.collectAsLazyPagingItems()
         Scaffold { paddingValues ->
-            GamesPane(
+            GamesPaneScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize(),

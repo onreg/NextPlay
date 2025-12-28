@@ -8,7 +8,7 @@ import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.ui.game.presentation.mapper.GameUiMapper
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,20 +30,23 @@ internal class GamesViewModel @Inject constructor(
     gameUiMapper: GameUiMapper
 ) : ViewModel(), GamesPaneViewModel {
 
-    private val _events = Channel<Event>()
+    private val _events = Channel<Event>(
+        capacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     override val events: Flow<Event> = _events.receiveAsFlow()
 
     private val _state = MutableStateFlow<GamePaneState>(GamePaneState.Ready)
     override val state: StateFlow<GamePaneState> = _state
 
-    private val _retryEvent = MutableSharedFlow<Any>()
+    private val _retryEvent = MutableSharedFlow<Unit>()
     private val bookMarks = MutableStateFlow(emptySet<String>())
     override val pagingState = _retryEvent
-        .onStart { emit(Any()) }
+        .onStart { emit(Unit) }
         .flatMapLatest {
             combine(repository.getGames(), bookMarks, gameUiMapper::map)
+                .catch { _state.value = GamePaneState.Error }
         }
-        .catch { _state.value = GamePaneState.Error }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000L),
@@ -52,9 +54,7 @@ internal class GamesViewModel @Inject constructor(
         )
 
     override fun onCardClicked(gameId: String) {
-        viewModelScope.launch {
-            _events.send(Event.GoToDetails(gameId))
-        }
+        _events.trySend(Event.GoToDetails(gameId))
     }
 
     override fun onBookMarkClicked(gameId: String) {
@@ -64,20 +64,15 @@ internal class GamesViewModel @Inject constructor(
     }
 
     override fun onRefreshClicked() {
-        viewModelScope.launch {
-            _events.send(Event.ListEvent.Refresh)
-        }
+        _events.trySend(Event.ListEvent.Refresh)
     }
 
     override fun onRetryClicked() {
-        viewModelScope.launch {
-            _retryEvent.emit(Any())
-        }
+        _state.update { GamePaneState.Ready }
+        _retryEvent.tryEmit(Unit)
     }
 
     override fun onPageRetryClicked() {
-        viewModelScope.launch {
-            _events.send(Event.ListEvent.Retry)
-        }
+        _events.trySend(Event.ListEvent.Retry)
     }
 }
