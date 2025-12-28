@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
 
+private const val TRANSITION_LABEL = "ShimmerTransition"
+private const val OFFSET_ANIMATION_LABEL = "ShimmerOffsetAnimation"
+
 @Composable
 public fun Modifier.shimmer(cardWidthPx: Float): Modifier {
     return background(rememberShimmerBrush(cardWidthPx))
@@ -27,7 +30,7 @@ public fun Modifier.shimmer(cardWidthPx: Float): Modifier {
 @Composable
 public fun rememberShimmerBrush(cardWidthPx: Float): Brush {
     val shimmerWidth = (cardWidthPx * 0.2f).coerceAtLeast(1f)
-    val transition = rememberInfiniteTransition(label = "Shimmer")
+    val transition = rememberInfiniteTransition(TRANSITION_LABEL)
     val offsetX = transition.animateFloat(
         initialValue = -shimmerWidth,
         targetValue = cardWidthPx + shimmerWidth,
@@ -35,9 +38,9 @@ public fun rememberShimmerBrush(cardWidthPx: Float): Brush {
             animation = tween(durationMillis = 900, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
-        label = "ShimmerOffset"
+        label = OFFSET_ANIMATION_LABEL
     )
-    val baseColor = MaterialTheme.colorScheme.surfaceVariant
+    val baseColor = MaterialTheme.colorScheme.surfaceContainerHigh
     return Brush.linearGradient(
         colors = listOf(
             baseColor.copy(alpha = 0.5f),
