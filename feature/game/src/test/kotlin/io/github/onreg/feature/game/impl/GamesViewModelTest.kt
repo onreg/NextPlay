@@ -12,6 +12,8 @@ import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
 import io.github.onreg.testing.unit.flow.test
 import io.github.onreg.testing.unit.paging.asSnapshot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -60,16 +62,16 @@ internal class GamesViewModelTest {
     fun `should navigate to details`() = runTest {
         val driver = GamesViewModelTestDriver.Builder().build()
 
-        driver.viewModel.onCardClicked("42")
-
-        val event = driver.viewModel.events.receive()
-        assertEquals(Event.GoToDetails("42"), event)
+        driver.viewModel.events.test(this) {
+            driver.viewModel.onCardClicked("42")
+            assertLatest(Event.GoToDetails("42"))
+        }
     }
 
     @Test
     fun `should load games`() = runTest {
-        defaultDriver.viewModel.state.test(this) {
-            val items = (latestValue() as GamePaneState.Ready).gameCardsUI.asSnapshot()
+        defaultDriver.viewModel.pagingState.test(this) {
+            val items = latestValue().asSnapshot()
             assertEquals(listOf(defaultCard), items)
         }
         verify(defaultDriver.gameUiMapper).map(pagingData, emptySet())
@@ -78,15 +80,51 @@ internal class GamesViewModelTest {
     @Test
     fun `should bookmark the game`() = runTest {
         val testItemId = "1"
-        defaultDriver.viewModel.state.test(this) {
-            val itemsBefore = (latestValue() as GamePaneState.Ready).gameCardsUI.asSnapshot()
+        defaultDriver.viewModel.pagingState.test(this) {
+            val itemsBefore = latestValue().asSnapshot()
             assertFalse(itemsBefore.first { it.id == testItemId }.isBookmarked)
 
             defaultDriver.viewModel.onBookMarkClicked(testItemId)
 
-            val itemsAfter = (latestValue() as GamePaneState.Ready).gameCardsUI.asSnapshot()
+            val itemsAfter = latestValue().asSnapshot()
             assertTrue(itemsAfter.first { it.id == testItemId }.isBookmarked)
         }
         verify(defaultDriver.gameUiMapper).map(pagingData, setOf(testItemId))
+    }
+
+    @Test
+    fun `page retry should emit event`() = runTest {
+        val driver = GamesViewModelTestDriver.Builder().build()
+
+        driver.viewModel.events.test(this) {
+            driver.viewModel.onPageRetryClicked()
+            assertLatest(Event.ListEvent.Retry)
+        }
+    }
+
+    @Test
+    fun `refresh should emit event`() = runTest {
+        val driver = GamesViewModelTestDriver.Builder().build()
+
+        driver.viewModel.events.test(this) {
+            driver.viewModel.onRefreshClicked()
+            assertLatest(Event.ListEvent.Refresh)
+        }
+    }
+
+    @Test
+    fun `retry resets error state to ready`() = runTest {
+        val failingFlow = flow<PagingData<Game>> { throw IllegalStateException("boom") }
+        val driver = GamesViewModelTestDriver.Builder()
+            .repositoryGames(failingFlow)
+            .build()
+
+        driver.viewModel.pagingState.first()
+
+        driver.viewModel.state.test(this) {
+            assertLatest(GamePaneState.Error)
+            driver.viewModel.onRetryClicked()
+            assertLatest(GamePaneState.Ready)
+        }
     }
 }
