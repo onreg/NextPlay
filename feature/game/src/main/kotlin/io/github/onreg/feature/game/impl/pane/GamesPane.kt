@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -21,6 +22,7 @@ import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.components.content.info.ContentInfo
 import io.github.onreg.core.ui.components.content.info.ContentInfoUI
 import io.github.onreg.core.ui.components.list.GameList
+import io.github.onreg.core.ui.components.list.test.GameListTestData
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.collectWithLifecycle
@@ -29,10 +31,11 @@ import io.github.onreg.feature.game.impl.GamesViewModel
 import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.test.GamePaneTestData
+import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-public fun GamesPaneScreen(
+public fun GamesPane(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     isLargeScreen: Boolean = false
@@ -64,7 +67,7 @@ public fun GamesPaneScreen(
 }
 
 @Composable
-private fun GamesPaneScreen(
+internal fun GamesPaneScreen(
     modifier: Modifier = Modifier,
     isLargeScreen: Boolean = false,
     gamePaneState: GamePaneState,
@@ -127,7 +130,7 @@ private fun ErrorComponent(
     onRetry: () -> Unit
 ) {
     Box(
-        modifier = modifier,
+        modifier = modifier.testTag(GamesPaneTestTags.TAG_COMPONENT_ERROR),
         contentAlignment = Alignment.Center
     ) {
         ContentError(
@@ -147,7 +150,7 @@ private fun EmptyComponent(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier,
+        modifier = modifier.testTag(GamesPaneTestTags.TAG_COMPONENT_EMPTY),
         contentAlignment = Alignment.Center
     ) {
         ContentInfo(
@@ -171,7 +174,7 @@ public object GamesRoute {
 private fun ErrorPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneTestData.errorPaneState,
-        pagingState = GamePaneTestData.emptyState
+        pagingState = GameListTestData.emptyState
     )
 }
 
@@ -180,7 +183,7 @@ private fun ErrorPreview() {
 private fun EmptyPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.emptyState
+        pagingState = GameListTestData.emptyState
     )
 }
 
@@ -189,7 +192,7 @@ private fun EmptyPreview() {
 private fun LoadingPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.loadingState
+        pagingState = GameListTestData.loadingState
     )
 }
 
@@ -198,7 +201,7 @@ private fun LoadingPreview() {
 private fun LoadedPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.loadedState
+        pagingState = GameListTestData.loadedState
     )
 }
 
@@ -207,7 +210,7 @@ private fun LoadedPreview() {
 private fun PagingErrorPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.pagingErrorState
+        pagingState = GameListTestData.pagingErrorState
     )
 }
 
@@ -217,7 +220,7 @@ private fun ErrorTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneTestData.errorPaneState,
-        pagingState = GamePaneTestData.emptyState
+        pagingState = GameListTestData.emptyState
     )
 }
 
@@ -227,7 +230,7 @@ private fun EmptyTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.emptyState
+        pagingState = GameListTestData.emptyState
     )
 }
 
@@ -237,7 +240,7 @@ private fun LoadingTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.loadingState
+        pagingState = GameListTestData.loadingState
     )
 }
 
@@ -247,7 +250,7 @@ private fun PagingErrorTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.pagingErrorState
+        pagingState = GameListTestData.pagingErrorState
     )
 }
 
@@ -257,7 +260,7 @@ private fun LoadedTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneTestData.readyPaneState,
-        pagingState = GamePaneTestData.loadedState
+        pagingState = GameListTestData.loadedState
     )
 }
 

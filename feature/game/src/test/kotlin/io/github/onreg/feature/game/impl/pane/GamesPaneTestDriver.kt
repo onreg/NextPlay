@@ -1,22 +1,27 @@
 package io.github.onreg.feature.game.impl.pane
 
+import android.content.Context
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
+import io.github.onreg.core.ui.components.card.GameCardTestTags
 import io.github.onreg.core.ui.components.card.GameCardUI
+import io.github.onreg.core.ui.components.list.test.GameListTestTags
 import io.github.onreg.feature.game.impl.model.GamePaneState
+import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.assertEquals
 import io.github.onreg.core.ui.R as CoreUiR
@@ -24,41 +29,30 @@ import io.github.onreg.core.ui.R as CoreUiR
 internal class GamesPaneTestDriver private constructor(
     private val composeRule: ComposeContentTestRule
 ) {
-    private val fullScreenLoadingNode =
-        composeRule.onNodeWithTag(GamesPaneTestTags.GAME_PANE_FULL_SCREEN_LOADING)
-
     private val fullScreenErrorNode =
-        composeRule.onNodeWithTag(GamesPaneTestTags.GAME_PANE_FULL_SCREEN_ERROR)
+        composeRule.onNodeWithTag(GamesPaneTestTags.TAG_COMPONENT_ERROR)
 
-    private val emptyStateNode = composeRule.onNodeWithTag(GamesPaneTestTags.GAME_PANE_EMPTY)
+    private val emptyStateNode = composeRule.onNodeWithTag(GamesPaneTestTags.TAG_COMPONENT_EMPTY)
 
-    private val listNode = composeRule.onNodeWithTag(GamesPaneTestTags.GAME_PANE_LIST)
-
-    private val appendLoadingNode =
-        composeRule.onNodeWithTag(GamesPaneTestTags.GAME_PANE_APPEND_LOADING)
-
-    private val appendErrorNode =
-        composeRule.onNodeWithTag(GamesPaneTestTags.GAME_PANE_APPEND_ERROR)
+    private val listNode = composeRule.onNodeWithTag(GameListTestTags.GAME_LIST)
 
     private val pullToRefreshIndicatorNode =
-        composeRule.onNodeWithTag(GamesPaneTestTags.GAME_PANE_PULL_TO_REFRESH_INDICATOR)
+        composeRule.onNodeWithTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR)
 
     private val retryButtonNode = composeRule.onNodeWithText(
-        ApplicationProvider.getApplicationContext<android.content.Context>()
-            .getString(CoreUiR.string.retry)
+        ApplicationProvider.getApplicationContext<Context>().getString(CoreUiR.string.retry)
     )
-    private val bookmarkButtonNode = composeRule.onNodeWithContentDescription(
-        ApplicationProvider.getApplicationContext<android.content.Context>()
-            .getString(CoreUiR.string.add_bookmark)
-    )
+    private val bookmarkButtonNode =
+        composeRule.onNodeWithTag(GameCardTestTags.GAME_CARD_ADD_BOOKMARK_BUTTON)
+
     private val cardNode: (String) -> SemanticsNodeInteraction =
         { cardId ->
-            composeRule.onNodeWithTag("${GamesPaneTestTags.GAME_PANE_CARD_PREFIX}$cardId")
+            composeRule.onNodeWithTag("${GameListTestTags.GAME_LIST_CARD_PREFIX}$cardId")
         }
 
     private var retryCount: Int = 0
-    private var refreshCount: Int = 0
     private var pageRetryCount: Int = 0
+    private var refreshCount: Int = 0
     private var lastBookmarkedId: String? = null
     private var lastCardClickedId: String? = null
 
@@ -106,16 +100,16 @@ internal class GamesPaneTestDriver private constructor(
         }
     }
 
-    fun assertFullScreenLoadingDisplayed() {
-        fullScreenLoadingNode.assertIsDisplayed()
-    }
-
     fun assertFullScreenErrorDisplayed() {
         fullScreenErrorNode.assertIsDisplayed()
     }
 
     fun assertEmptyStateDisplayed() {
         emptyStateNode.assertIsDisplayed()
+    }
+
+    fun assertEmptyStateIsNotDisplayed() {
+        emptyStateNode.assertIsNotDisplayed()
     }
 
     fun assertListDisplayed() {
@@ -126,20 +120,18 @@ internal class GamesPaneTestDriver private constructor(
         listNode.assertIsNotDisplayed()
     }
 
-    fun assertAppendLoadingDisplayed() {
-        appendLoadingNode.assertIsDisplayed()
-    }
-
-    fun assertAppendErrorDisplayed() {
-        appendErrorNode.assertIsDisplayed()
-    }
-
     fun assertFullScreenErrorIsNotDisplayed() {
         fullScreenErrorNode.assertIsNotDisplayed()
     }
 
     fun assertPullToRefreshIndicatorDisplayed() {
         pullToRefreshIndicatorNode.assertIsDisplayed()
+    }
+
+    fun assertRefreshCount(expected: Int) {
+        composeRule.runOnIdle {
+            assertEquals(expected, refreshCount)
+        }
     }
 
     fun assertRetryCount(expected: Int) {
@@ -154,13 +146,13 @@ internal class GamesPaneTestDriver private constructor(
         }
     }
 
-    fun assertLastBookmarkedId(expected: String?) {
+    fun assertBookmarkClicked(expected: String) {
         composeRule.runOnIdle {
             assertEquals(expected, lastBookmarkedId)
         }
     }
 
-    fun assertLastCardClickedId(expected: String?) {
+    fun assertCardClicked(expected: String) {
         composeRule.runOnIdle {
             assertEquals(expected, lastCardClickedId)
         }
@@ -170,11 +162,15 @@ internal class GamesPaneTestDriver private constructor(
         retryButtonNode.performClick()
     }
 
+    fun pullToRefresh() {
+        listNode.performTouchInput { swipeDown() }
+    }
+
     fun clickBookmarkButton() {
         bookmarkButtonNode.performClick()
     }
 
-    fun clickCard(cardId: String) {
-        cardNode(cardId).performClick()
+    fun clickCard(id: String) {
+        cardNode(id).performClick()
     }
 }
