@@ -18,7 +18,7 @@ internal class GamesPaneTest {
     private val defaultCard = GameListTestData.generateGameCards(1).first()
 
     @Test
-    fun `shows full screen error`() {
+    fun `should show full screen error`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(emptyList())
             .gamePaneState(GamePaneState.Error)
@@ -30,7 +30,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `no cached data and refresh error shows full screen error`() {
+    fun `should show full screen error when refresh fails without cached data`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(
                 emptyList(),
@@ -45,7 +45,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `no cached data and not loading shows empty state`() {
+    fun `should show empty state when not loading and no cached data`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(emptyList())
             .gamePaneState(GamePaneState.Ready)
@@ -57,7 +57,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `should display list`(){
+    fun `should display list`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .gamePaneState(GamePaneState.Ready)
@@ -68,7 +68,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `retry triggers callback`() {
+    fun `should trigger callback on retry`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(emptyList())
             .gamePaneState(GamePaneState.Error)
@@ -78,7 +78,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `retry after refresh error triggers callback`() {
+    fun `should trigger callback on retry after refresh error`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(
                 emptyList(),
@@ -92,7 +92,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `retry after append error triggers callback`() {
+    fun `should trigger callback on retry after append error`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(
                 listOf(defaultCard),
@@ -106,7 +106,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `pull to refresh triggers callback`() {
+    fun `should trigger callback on pull to refresh`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .gamePaneState(GamePaneState.Ready)
@@ -117,7 +117,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `bookmark click triggers callback`() {
+    fun `should trigger callback on bookmark click`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .gamePaneState(GamePaneState.Ready)
@@ -127,7 +127,7 @@ internal class GamesPaneTest {
     }
 
     @Test
-    fun `card click triggers callback`() {
+    fun `should trigger callback on card click`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .gamePaneState(GamePaneState.Ready)

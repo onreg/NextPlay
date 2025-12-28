@@ -93,7 +93,7 @@ internal class GamesViewModelTest {
     }
 
     @Test
-    fun `page retry should emit event`() = runTest {
+    fun `should emit event on page retry`() = runTest {
         val driver = GamesViewModelTestDriver.Builder().build()
 
         driver.viewModel.events.test(this) {
@@ -103,7 +103,7 @@ internal class GamesViewModelTest {
     }
 
     @Test
-    fun `refresh should emit event`() = runTest {
+    fun `should emit event on refresh`() = runTest {
         val driver = GamesViewModelTestDriver.Builder().build()
 
         driver.viewModel.events.test(this) {
@@ -113,7 +113,7 @@ internal class GamesViewModelTest {
     }
 
     @Test
-    fun `retry resets error state to ready`() = runTest {
+    fun `should reset error state to ready on retry`() = runTest {
         val failingFlow = flow<PagingData<Game>> { throw IllegalStateException("boom") }
         val driver = GamesViewModelTestDriver.Builder()
             .repositoryGames(failingFlow)

@@ -36,9 +36,6 @@ internal class GamesPaneTestDriver private constructor(
 
     private val listNode = composeRule.onNodeWithTag(GameListTestTags.GAME_LIST)
 
-    private val pullToRefreshIndicatorNode =
-        composeRule.onNodeWithTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR)
-
     private val retryButtonNode = composeRule.onNodeWithText(
         ApplicationProvider.getApplicationContext<Context>().getString(CoreUiR.string.retry)
     )
@@ -122,10 +119,6 @@ internal class GamesPaneTestDriver private constructor(
 
     fun assertFullScreenErrorIsNotDisplayed() {
         fullScreenErrorNode.assertIsNotDisplayed()
-    }
-
-    fun assertPullToRefreshIndicatorDisplayed() {
-        pullToRefreshIndicatorNode.assertIsDisplayed()
     }
 
     fun assertRefreshCount(expected: Int) {
