@@ -7,10 +7,12 @@ android {
 }
 
 dependencies {
-    implementation(libs.coroutines.test)
-    implementation(libs.junit)
-    implementation(libs.junit.kotlin)
+    api(libs.coroutines.test)
+    api(libs.junit)
+    api(libs.junit.kotlin)
+    api(libs.paging.testing)
+    api(libs.mockito.core)
+    api(libs.mockito.kotlin)
 
     implementation(libs.paging.common)
-    api(libs.paging.testing)
 }

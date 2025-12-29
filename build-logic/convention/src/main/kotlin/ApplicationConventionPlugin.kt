@@ -62,6 +62,7 @@ class ApplicationConventionPlugin : Plugin<Project> {
             "implementation"(catalog.findLibrary("hilt-navigation-compose").get())
 
             "coreLibraryDesugaring"(catalog.findLibrary("desugar-jdk-libs").get())
+            "testImplementation"(project(":testing:unit"))
         }
     }
 }

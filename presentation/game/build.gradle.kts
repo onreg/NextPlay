@@ -14,5 +14,4 @@ dependencies {
 
     implementation(libs.paging.compose)
     testImplementation(libs.paging.testing)
-    testImplementation(projects.testing.unit)
 }
