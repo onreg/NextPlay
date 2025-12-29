@@ -9,6 +9,7 @@ class UiConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         apply(plugin = "library.convention.plugin")
         apply(plugin = "org.jetbrains.kotlin.plugin.compose")
+        apply(plugin = "android-test.convention.plugin")
 
         extensions.configure<LibraryExtension> {
             buildFeatures {
@@ -16,6 +17,9 @@ class UiConventionPlugin : Plugin<Project> {
             }
             androidResources {
                 enable = true
+            }
+            testOptions {
+                unitTests.isIncludeAndroidResources = true
             }
         }
 
@@ -27,6 +31,7 @@ class UiConventionPlugin : Plugin<Project> {
             "implementation"(catalog.findLibrary("compose-tooling-preview").get())
             "implementation"(catalog.findLibrary("coil-compose").get())
             "implementation"(catalog.findLibrary("coil-network").get())
+            "implementation"(catalog.findLibrary("paging-compose").get())
 
             "debugImplementation"(catalog.findLibrary("compose-tooling").get())
         }

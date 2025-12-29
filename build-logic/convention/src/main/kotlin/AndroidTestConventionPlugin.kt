@@ -5,6 +5,7 @@ import org.gradle.kotlin.dsl.dependencies
 class AndroidTestConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         dependencies {
+            "testImplementation"(project(":testing:unit"))
             "androidTestImplementation"(catalog.findLibrary("junit-android").get())
             "testImplementation"(catalog.findLibrary("junit-android").get())
             "testImplementation"(catalog.findLibrary("androidx-test-core").get())
@@ -15,6 +16,7 @@ class AndroidTestConventionPlugin : Plugin<Project> {
             dependencies {
                 "debugImplementation"(catalog.findLibrary("compose-test-manifest").get())
                 "androidTestImplementation"(catalog.findLibrary("compose-test-junit4").get())
+                "testImplementation"(catalog.findLibrary("compose-test-junit4").get())
             }
         }
     }
