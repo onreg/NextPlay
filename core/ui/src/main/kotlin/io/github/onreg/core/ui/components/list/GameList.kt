@@ -1,6 +1,7 @@
 package io.github.onreg.core.ui.components.list
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -23,6 +25,8 @@ import io.github.onreg.core.ui.components.card.GameCard
 import io.github.onreg.core.ui.components.card.GameCardError
 import io.github.onreg.core.ui.components.card.GameCardLoading
 import io.github.onreg.core.ui.components.card.GameCardUI
+import io.github.onreg.core.ui.components.list.test.GameListTestData
+import io.github.onreg.core.ui.components.list.test.GameListTestTags
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
@@ -54,13 +58,20 @@ public fun GameList(
     val showEmptyState = !hasData && !isLoading && !isSourceLoading && !isError
 
     when {
-        showFullScreenLoading -> LoadingGrid(columns = columns)
-        showFullScreenError -> onError()
-        showEmptyState -> onEmpty()
+        showFullScreenLoading -> LoadingGrid(
+            modifier = modifier.testTag(GameListTestTags.GAME_LIST_FULL_SCREEN_LOADING),
+            columns = columns
+        )
+        showFullScreenError -> Box(modifier = modifier) {
+            onError()
+        }
+        showEmptyState -> Box(modifier = modifier) {
+            onEmpty()
+        }
 
         else -> {
             GamesGrid(
-                modifier = modifier,
+                modifier = modifier.testTag(GameListTestTags.GAME_LIST),
                 lazyPagingItems = lazyPagingItems,
                 columns = columns,
                 onRefresh = onRefresh,
@@ -95,7 +106,8 @@ private fun GamesGrid(
         indicator = {
             PullToRefreshDefaults.Indicator(
                 modifier = Modifier
-                    .align(Alignment.TopCenter),
+                    .align(Alignment.TopCenter)
+                    .testTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR),
                 isRefreshing = isRefreshing,
                 state = pullToRefreshState
             )
@@ -115,6 +127,9 @@ private fun GamesGrid(
                 val item = lazyPagingItems[index]
                 if (item != null) {
                     GameCard(
+                        modifier = Modifier.testTag(
+                            GameListTestTags.GAME_LIST_CARD_PREFIX.plus(item.id)
+                        ),
                         gameData = item,
                         onBookmarkClick = { onBookmarkClicked(item.id) },
                         onCardClicked = { onCardClicked(item.id) }
@@ -123,12 +138,17 @@ private fun GamesGrid(
             }
             if (isNextPageLoading) {
                 items(LOADING_ITEMS_COUNT) {
-                    GameCardLoading()
+                    GameCardLoading(
+                        modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_LOADING)
+                    )
                 }
             }
             if (isNextPageError) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    GameCardError(onRetry = onRetry)
+                    GameCardError(
+                        modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_ERROR),
+                        onRetry = onRetry
+                    )
                 }
             }
         }

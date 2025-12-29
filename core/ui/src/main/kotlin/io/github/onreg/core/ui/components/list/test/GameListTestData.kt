@@ -1,4 +1,4 @@
-package io.github.onreg.core.ui.components.list
+package io.github.onreg.core.ui.components.list.test
 
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -59,7 +59,7 @@ public object GameListTestData {
         )
     }
 
-    private fun generateGameCards(count: Int): List<GameCardUI> = List(count) { index ->
+    public fun generateGameCards(count: Int): List<GameCardUI> = List(count) { index ->
         val id = (index + 1).toString()
         GameCardUI(
             id = id,
