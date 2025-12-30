@@ -30,7 +30,7 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.feature.game.impl.GamesViewModel
 import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
-import io.github.onreg.feature.game.impl.test.GamePaneTestData
+import io.github.onreg.feature.game.impl.model.ListEvent
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
 import kotlinx.coroutines.flow.Flow
 
@@ -50,9 +50,8 @@ public fun GamesPane(
         isLargeScreen = isLargeScreen,
         gamePaneState = state,
         pagingState = pagingState,
-        onRetry = viewModel::onRetryClicked,
         onRefreshClicked = viewModel::onRefreshClicked,
-        onPageRetryClicked = viewModel::onPageRetryClicked,
+        onRetryClicked = viewModel::onRetryClicked,
         onBookMarkClicked = viewModel::onBookMarkClicked,
         onCardClicked = viewModel::onCardClicked
     )
@@ -60,8 +59,13 @@ public fun GamesPane(
     viewModel.events.collectWithLifecycle { event ->
         when (event) {
             is Event.GoToDetails -> navController.navigate(GamesRoute.detailsRoute(event.gameId))
-            Event.ListEvent.Retry -> pagingState.retry()
-            Event.ListEvent.Refresh -> pagingState.refresh()
+        }
+    }
+
+    viewModel.pagingEvents.collectWithLifecycle { event ->
+        when (event) {
+            ListEvent.Retry -> pagingState.retry()
+            ListEvent.Refresh -> pagingState.refresh()
         }
     }
 }
@@ -72,28 +76,20 @@ internal fun GamesPaneScreen(
     isLargeScreen: Boolean = false,
     gamePaneState: GamePaneState,
     pagingState: LazyPagingItems<GameCardUI>,
-    onRetry: () -> Unit = {},
     onRefreshClicked: () -> Unit = {},
-    onPageRetryClicked: () -> Unit = {},
+    onRetryClicked: () -> Unit = {},
     onBookMarkClicked: (String) -> Unit = {},
     onCardClicked: (String) -> Unit = {}
 ) {
-    when (gamePaneState) {
-        is GamePaneState.Ready -> ContentComponent(
-            modifier = modifier,
-            isLargeScreen = isLargeScreen,
-            pagingState = pagingState,
-            onRefreshClicked = onRefreshClicked,
-            onPageRetryClicked = onPageRetryClicked,
-            onBookMarkClicked = onBookMarkClicked,
-            onCardClicked = onCardClicked
-        )
-
-        is GamePaneState.Error -> ErrorComponent(
-            modifier = modifier,
-            onRetry = onRetry
-        )
-    }
+    ContentComponent(
+        modifier = modifier,
+        isLargeScreen = isLargeScreen,
+        pagingState = pagingState,
+        onRefreshClicked = onRefreshClicked,
+        onPageRetryClicked = onRetryClicked,
+        onBookMarkClicked = onBookMarkClicked,
+        onCardClicked = onCardClicked
+    )
 }
 
 @Composable
@@ -173,7 +169,7 @@ public object GamesRoute {
 @ThemePreview
 private fun ErrorPreview() {
     GamesPanePreview(
-        gamePaneState = GamePaneTestData.errorPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.emptyState
     )
 }
@@ -182,7 +178,7 @@ private fun ErrorPreview() {
 @ThemePreview
 private fun EmptyPreview() {
     GamesPanePreview(
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.emptyState
     )
 }
@@ -191,7 +187,7 @@ private fun EmptyPreview() {
 @ThemePreview
 private fun LoadingPreview() {
     GamesPanePreview(
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.loadingState
     )
 }
@@ -200,7 +196,7 @@ private fun LoadingPreview() {
 @ThemePreview
 private fun LoadedPreview() {
     GamesPanePreview(
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.loadedState
     )
 }
@@ -209,7 +205,7 @@ private fun LoadedPreview() {
 @ThemePreview
 private fun PagingErrorPreview() {
     GamesPanePreview(
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.pagingErrorState
     )
 }
@@ -219,7 +215,7 @@ private fun PagingErrorPreview() {
 private fun ErrorTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
-        gamePaneState = GamePaneTestData.errorPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.emptyState
     )
 }
@@ -229,7 +225,7 @@ private fun ErrorTabletPreview() {
 private fun EmptyTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.emptyState
     )
 }
@@ -239,7 +235,7 @@ private fun EmptyTabletPreview() {
 private fun LoadingTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.loadingState
     )
 }
@@ -249,7 +245,7 @@ private fun LoadingTabletPreview() {
 private fun PagingErrorTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.pagingErrorState
     )
 }
@@ -259,7 +255,7 @@ private fun PagingErrorTabletPreview() {
 private fun LoadedTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
-        gamePaneState = GamePaneTestData.readyPaneState,
+        gamePaneState = GamePaneState,
         pagingState = GameListTestData.loadedState
     )
 }

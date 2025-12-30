@@ -22,7 +22,9 @@ import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.core.ui.components.list.test.GameListTestTags
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlin.test.assertEquals
 import io.github.onreg.core.ui.R as CoreUiR
 
@@ -47,19 +49,14 @@ internal class GamesPaneTestDriver private constructor(
             composeRule.onNodeWithTag("${GameListTestTags.GAME_LIST_CARD_PREFIX}$cardId")
         }
 
-    private var retryCount: Int = 0
     private var pageRetryCount: Int = 0
     private var refreshCount: Int = 0
     private var lastBookmarkedId: String? = null
     private var lastCardClickedId: String? = null
 
     class Builder(private val composeRule: ComposeContentTestRule) {
-        private val gamePaneState = MutableStateFlow<GamePaneState>(GamePaneState.Ready)
         private val pagingState = MutableStateFlow<PagingData<GameCardUI>>(PagingData.empty())
-
-        fun gamePaneState(state: GamePaneState): Builder = apply {
-            gamePaneState.value = state
-        }
+        private val gamePaneState = MutableStateFlow(GamePaneState)
 
         fun pagingState(
             data: List<GameCardUI>,
@@ -80,15 +77,14 @@ internal class GamesPaneTestDriver private constructor(
         fun build(isLargeScreen: Boolean = false): GamesPaneTestDriver {
             val driver = GamesPaneTestDriver(composeRule)
             composeRule.setContent {
+                val gamePaneState by gamePaneState.collectAsState()
                 val lazyPagingItems = pagingState.collectAsLazyPagingItems()
-                val currentState by gamePaneState.collectAsState()
                 GamesPaneScreen(
                     isLargeScreen = isLargeScreen,
-                    gamePaneState = currentState,
+                    gamePaneState = gamePaneState,
                     pagingState = lazyPagingItems,
-                    onRetry = { driver.retryCount += 1 },
                     onRefreshClicked = { driver.refreshCount += 1 },
-                    onPageRetryClicked = { driver.pageRetryCount += 1 },
+                    onRetryClicked = { driver.pageRetryCount += 1 },
                     onBookMarkClicked = { driver.lastBookmarkedId = it },
                     onCardClicked = { driver.lastCardClickedId = it }
                 )
@@ -124,12 +120,6 @@ internal class GamesPaneTestDriver private constructor(
     fun assertRefreshCount(expected: Int) {
         composeRule.runOnIdle {
             assertEquals(expected, refreshCount)
-        }
-    }
-
-    fun assertRetryCount(expected: Int) {
-        composeRule.runOnIdle {
-            assertEquals(expected, retryCount)
         }
     }
 

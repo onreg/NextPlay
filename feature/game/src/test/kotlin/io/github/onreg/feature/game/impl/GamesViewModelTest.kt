@@ -7,13 +7,11 @@ import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
 import io.github.onreg.feature.game.impl.model.Event
-import io.github.onreg.feature.game.impl.model.GamePaneState
+import io.github.onreg.feature.game.impl.model.ListEvent
 import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
 import io.github.onreg.testing.unit.flow.test
 import io.github.onreg.testing.unit.paging.asSnapshot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -96,9 +94,9 @@ internal class GamesViewModelTest {
     fun `should emit event on page retry`() = runTest {
         val driver = GamesViewModelTestDriver.Builder().build()
 
-        driver.viewModel.events.test(this) {
-            driver.viewModel.onPageRetryClicked()
-            assertLatest(Event.ListEvent.Retry)
+        driver.viewModel.pagingEvents.test(this) {
+            driver.viewModel.onRetryClicked()
+            assertLatest(ListEvent.Retry)
         }
     }
 
@@ -106,25 +104,9 @@ internal class GamesViewModelTest {
     fun `should emit event on refresh`() = runTest {
         val driver = GamesViewModelTestDriver.Builder().build()
 
-        driver.viewModel.events.test(this) {
+        driver.viewModel.pagingEvents.test(this) {
             driver.viewModel.onRefreshClicked()
-            assertLatest(Event.ListEvent.Refresh)
-        }
-    }
-
-    @Test
-    fun `should reset error state to ready on retry`() = runTest {
-        val failingFlow = flow<PagingData<Game>> { throw IllegalStateException("boom") }
-        val driver = GamesViewModelTestDriver.Builder()
-            .repositoryGames(failingFlow)
-            .build()
-
-        driver.viewModel.pagingState.first()
-
-        driver.viewModel.state.test(this) {
-            assertLatest(GamePaneState.Error)
-            driver.viewModel.onRetryClicked()
-            assertLatest(GamePaneState.Ready)
+            assertLatest(ListEvent.Refresh)
         }
     }
 }
