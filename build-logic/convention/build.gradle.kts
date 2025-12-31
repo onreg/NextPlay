@@ -6,35 +6,35 @@ gradlePlugin {
     plugins {
         register("LibraryConventionPlugin") {
             id = "library.convention.plugin"
-            implementationClass = "LibraryConventionPlugin"
+            implementationClass = "core.LibraryConventionPlugin"
         }
         register("HiltConventionPlugin") {
             id = "hilt.convention.plugin"
-            implementationClass = "HiltConventionPlugin"
+            implementationClass = "core.HiltConventionPlugin"
         }
         register("FeatureConventionPlugin") {
             id = "feature.convention.plugin"
-            implementationClass = "FeatureConventionPlugin"
+            implementationClass = "presets.FeatureConventionPlugin"
         }
         register("ApplicationConventionPlugin") {
             id = "application.convention.plugin"
-            implementationClass = "ApplicationConventionPlugin"
+            implementationClass = "core.ApplicationConventionPlugin"
         }
         register("UiConventionPlugin") {
             id = "ui.convention.plugin"
-            implementationClass = "UiConventionPlugin"
+            implementationClass = "presets.UiConventionPlugin"
         }
         register("AndroidTestConventionPlugin") {
             id = "android-test.convention.plugin"
-            implementationClass = "AndroidTestConventionPlugin"
+            implementationClass = "core.AndroidTestConventionPlugin"
         }
         register("UnitTestConventionPlugin") {
             id = "unit-test.convention.plugin"
-            implementationClass = "UnitTestConventionPlugin"
+            implementationClass = "core.UnitTestConventionPlugin"
         }
         register("NonUiConventionPlugin") {
             id = "non-ui.convention.plugin"
-            implementationClass = "NonUiConventionPlugin"
+            implementationClass = "presets.NonUiConventionPlugin"
         }
     }
 }
