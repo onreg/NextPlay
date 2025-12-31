@@ -12,7 +12,6 @@ import org.mockito.kotlin.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class GameRepositoryTest {
 
     private val mappedGame = Game(

@@ -19,7 +19,6 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 
-@OptIn(ExperimentalPagingApi::class)
 internal class GameRemoteMediatorTestDriver private constructor(
     val gameApi: GameApi,
     val gameDao: GameDao,

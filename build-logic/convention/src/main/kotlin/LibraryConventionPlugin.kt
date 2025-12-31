@@ -36,6 +36,8 @@ class LibraryConventionPlugin : Plugin<Project> {
             jvmToolchain(AndroidConfig.KOTLIN_JVM_TOOLCHAIN)
             compilerOptions {
                 jvmTarget.set(AndroidConfig.KOTLIN_JVM_TARGET)
+                freeCompilerArgs.add("-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi")
+                freeCompilerArgs.add("-opt-in=androidx.paging.ExperimentalPagingApi")
             }
         }
 

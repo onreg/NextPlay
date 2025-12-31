@@ -1,6 +1,5 @@
 package io.github.onreg.data.game.impl.paging
 
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
@@ -14,7 +13,6 @@ import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 import java.net.URI
 
-@OptIn(ExperimentalPagingApi::class)
 public class GameRemoteMediator(
     private val gameApi: GameApi,
     private val gameDao: GameDao,

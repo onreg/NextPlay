@@ -47,7 +47,6 @@ public abstract class GameModule {
         )
 
         @Provides
-        @OptIn(ExperimentalPagingApi::class)
         public fun provideGameRemoteMediator(
             gameApi: GameApi,
             gameDao: GameDao,

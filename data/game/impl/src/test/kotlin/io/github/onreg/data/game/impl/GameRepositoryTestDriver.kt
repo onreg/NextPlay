@@ -15,7 +15,6 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 
-@OptIn(ExperimentalPagingApi::class)
 internal class GameRepositoryTestDriver private constructor(
     val gameDao: GameDao,
     val entityMapper: GameEntityMapper,

@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @VisibleForTesting
 public suspend fun <T> Flow<T>.test(
     testScope: TestScope,

@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
 
-@OptIn(ExperimentalPagingApi::class)
 public class GameRepositoryImpl @Inject constructor(
     private val gameDao: GameDao,
     private val pagingConfig: GamePagingConfig,

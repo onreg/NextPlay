@@ -19,7 +19,6 @@ import org.mockito.kotlin.verify
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalPagingApi::class)
 internal class GameRemoteMediatorTest {
 
     private val dto = GameDto(
