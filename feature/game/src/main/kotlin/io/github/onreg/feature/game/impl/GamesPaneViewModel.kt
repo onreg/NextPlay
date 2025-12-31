@@ -6,23 +6,23 @@ import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.onreg.core.util.android.lifecycle.ViewModelDelegateImpl
 import io.github.onreg.data.game.api.GameRepository
-import io.github.onreg.feature.game.impl.model.Event
+import io.github.onreg.feature.game.impl.model.GamesPaneEvent
 import io.github.onreg.feature.game.impl.model.GamePaneState
-import io.github.onreg.feature.game.impl.model.ListEvent
+import io.github.onreg.feature.game.impl.model.GamesPaneListEvent
 import io.github.onreg.ui.game.presentation.mapper.GameUiMapper
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @HiltViewModel
-internal class GamesViewModel @Inject constructor(
+internal class GamesPaneViewModel @Inject constructor(
     repository: GameRepository,
     gameUiMapper: GameUiMapper
 ) : ViewModel() {
 
-    private val gamePaneStateDelegate = ViewModelDelegateImpl<GamePaneState, Event>(GamePaneState)
-    private val pagingStateDelegate = ViewModelDelegateImpl<Set<String>, ListEvent>(emptySet())
+    private val gamePaneStateDelegate = ViewModelDelegateImpl<GamePaneState, GamesPaneEvent>(GamePaneState)
+    private val pagingStateDelegate = ViewModelDelegateImpl<Set<String>, GamesPaneListEvent>(emptySet())
 
-    val events: Flow<Event> = gamePaneStateDelegate.events
+    val events: Flow<GamesPaneEvent> = gamePaneStateDelegate.events
     val state = gamePaneStateDelegate.state()
 
     val pagingState = with(pagingStateDelegate) {
@@ -37,7 +37,7 @@ internal class GamesViewModel @Inject constructor(
     val pagingEvents = pagingStateDelegate.events
 
     fun onCardClicked(gameId: String) {
-        with(gamePaneStateDelegate) { viewModelScope.sendEvent(Event.GoToDetails(gameId)) }
+        with(gamePaneStateDelegate) { viewModelScope.sendEvent(GamesPaneEvent.GoToDetails(gameId)) }
     }
 
     fun onBookMarkClicked(gameId: String) {
@@ -47,10 +47,10 @@ internal class GamesViewModel @Inject constructor(
     }
 
     fun onRefreshClicked() {
-        with(pagingStateDelegate) { viewModelScope.sendEvent(ListEvent.Refresh) }
+        with(pagingStateDelegate) { viewModelScope.sendEvent(GamesPaneListEvent.Refresh) }
     }
 
     fun onRetryClicked() {
-        with(pagingStateDelegate) { viewModelScope.sendEvent(ListEvent.Retry) }
+        with(pagingStateDelegate) { viewModelScope.sendEvent(GamesPaneListEvent.Retry) }
     }
 }

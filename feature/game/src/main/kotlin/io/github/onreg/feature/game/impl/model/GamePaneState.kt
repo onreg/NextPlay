@@ -2,11 +2,11 @@ package io.github.onreg.feature.game.impl.model
 
 public data object GamePaneState
 
-internal sealed interface Event {
-    data class GoToDetails(val gameId: String) : Event
+internal sealed interface GamesPaneEvent {
+    data class GoToDetails(val gameId: String) : GamesPaneEvent
 }
 
-internal sealed interface ListEvent {
-    data object Retry : ListEvent
-    data object Refresh : ListEvent
+internal sealed interface GamesPaneListEvent {
+    data object Retry : GamesPaneListEvent
+    data object Refresh : GamesPaneListEvent
 }

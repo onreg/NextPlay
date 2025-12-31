@@ -27,10 +27,10 @@ import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.collectWithLifecycle
 import io.github.onreg.core.ui.theme.NextPlayTheme
-import io.github.onreg.feature.game.impl.GamesViewModel
-import io.github.onreg.feature.game.impl.model.Event
+import io.github.onreg.feature.game.impl.GamesPaneViewModel
+import io.github.onreg.feature.game.impl.model.GamesPaneEvent
 import io.github.onreg.feature.game.impl.model.GamePaneState
-import io.github.onreg.feature.game.impl.model.ListEvent
+import io.github.onreg.feature.game.impl.model.GamesPaneListEvent
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +41,7 @@ public fun GamesPane(
     navController: NavHostController,
     isLargeScreen: Boolean = false
 ) {
-    val viewModel = hiltViewModel<GamesViewModel>()
+    val viewModel = hiltViewModel<GamesPaneViewModel>()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val pagingState = viewModel.pagingState.collectAsLazyPagingItems()
@@ -59,14 +59,14 @@ public fun GamesPane(
 
     viewModel.events.collectWithLifecycle { event ->
         when (event) {
-            is Event.GoToDetails -> navController.navigate(GamesRoute.detailsRoute(event.gameId))
+            is GamesPaneEvent.GoToDetails -> navController.navigate(GamesRoute.detailsRoute(event.gameId))
         }
     }
 
     viewModel.pagingEvents.collectWithLifecycle { event ->
         when (event) {
-            ListEvent.Retry -> pagingState.retry()
-            ListEvent.Refresh -> pagingState.refresh()
+            GamesPaneListEvent.Retry -> pagingState.retry()
+            GamesPaneListEvent.Refresh -> pagingState.refresh()
         }
     }
 }

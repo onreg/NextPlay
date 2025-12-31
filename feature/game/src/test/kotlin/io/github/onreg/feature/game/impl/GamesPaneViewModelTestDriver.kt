@@ -6,18 +6,16 @@ import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.game.presentation.mapper.GameUiMapper
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 
-internal class GamesViewModelTestDriver private constructor(
+internal class GamesPaneViewModelTestDriver private constructor(
     val repository: GameRepository,
     val gameUiMapper: GameUiMapper
 ) {
 
-    val viewModel by lazy { GamesViewModel(repository, gameUiMapper) }
+    val viewModel by lazy { GamesPaneViewModel(repository, gameUiMapper) }
 
     class Builder {
         private val repository: GameRepository = mock()
@@ -35,7 +33,7 @@ internal class GamesViewModelTestDriver private constructor(
             gameUiMapper.stub { on { map(games, bookMarks) } doReturn mapped }
         }
 
-        fun build(): GamesViewModelTestDriver = GamesViewModelTestDriver(
+        fun build(): GamesPaneViewModelTestDriver = GamesPaneViewModelTestDriver(
             repository = repository,
             gameUiMapper = gameUiMapper
         )

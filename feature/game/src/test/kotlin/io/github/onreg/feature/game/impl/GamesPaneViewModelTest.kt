@@ -4,8 +4,8 @@ import androidx.paging.PagingData
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
-import io.github.onreg.feature.game.impl.model.Event
-import io.github.onreg.feature.game.impl.model.ListEvent
+import io.github.onreg.feature.game.impl.model.GamesPaneEvent
+import io.github.onreg.feature.game.impl.model.GamesPaneListEvent
 import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
 import io.github.onreg.testing.unit.flow.test
 import io.github.onreg.testing.unit.paging.asSnapshot
@@ -20,7 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-internal class GamesViewModelTest {
+internal class GamesPaneViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -48,7 +48,7 @@ internal class GamesViewModelTest {
     private val mappedBookmarked = PagingData.from(listOf(bookmarkedCard))
     private val gamesFlow = flowOf(pagingData)
 
-    private val defaultDriverBuilder = GamesViewModelTestDriver.Builder()
+    private val defaultDriverBuilder = GamesPaneViewModelTestDriver.Builder()
         .repositoryGames(gamesFlow)
         .gameUiMapperMap(pagingData, emptySet(), mappedDefault)
         .gameUiMapperMap(pagingData, setOf("1"), mappedBookmarked)
@@ -59,7 +59,7 @@ internal class GamesViewModelTest {
 
         driver.viewModel.events.test(this) {
             driver.viewModel.onCardClicked("42")
-            assertLatest(Event.GoToDetails("42"))
+            assertLatest(GamesPaneEvent.GoToDetails("42"))
         }
     }
 
@@ -95,7 +95,7 @@ internal class GamesViewModelTest {
 
         driver.viewModel.pagingEvents.test(this) {
             driver.viewModel.onRetryClicked()
-            assertLatest(ListEvent.Retry)
+            assertLatest(GamesPaneListEvent.Retry)
         }
     }
 
@@ -105,7 +105,7 @@ internal class GamesViewModelTest {
 
         driver.viewModel.pagingEvents.test(this) {
             driver.viewModel.onRefreshClicked()
-            assertLatest(ListEvent.Refresh)
+            assertLatest(GamesPaneListEvent.Refresh)
         }
     }
 }
