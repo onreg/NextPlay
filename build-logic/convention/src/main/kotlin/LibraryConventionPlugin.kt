@@ -44,7 +44,6 @@ class LibraryConventionPlugin : Plugin<Project> {
         dependencies {
             "coreLibraryDesugaring"(catalog.findLibrary("desugar-jdk-libs").get())
             "implementation"(catalog.findLibrary("kotlinx-coroutines").get())
-            "testImplementation"(project(":testing:unit"))
         }
     }
 }

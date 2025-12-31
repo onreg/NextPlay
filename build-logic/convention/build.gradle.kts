@@ -28,6 +28,14 @@ gradlePlugin {
             id = "android-test.convention.plugin"
             implementationClass = "AndroidTestConventionPlugin"
         }
+        register("UnitTestConventionPlugin") {
+            id = "unit-test.convention.plugin"
+            implementationClass = "UnitTestConventionPlugin"
+        }
+        register("NonUiConventionPlugin") {
+            id = "non-ui.convention.plugin"
+            implementationClass = "NonUiConventionPlugin"
+        }
     }
 }
 

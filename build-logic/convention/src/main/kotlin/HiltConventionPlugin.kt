@@ -10,6 +10,7 @@ class HiltConventionPlugin : Plugin<Project> {
 
         dependencies {
             "implementation"(catalog.findLibrary("hilt.android").get())
+            "implementation"(catalog.findLibrary("hilt-navigation-compose").get())
             "ksp"(catalog.findLibrary("hilt.compiler").get())
         }
     }

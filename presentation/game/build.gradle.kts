@@ -1,7 +1,5 @@
 plugins {
-    id("ui.convention.plugin")
-    id("hilt.convention.plugin")
-    id("android-test.convention.plugin")
+    id("feature.convention.plugin")
 }
 
 android {
@@ -12,7 +10,4 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.data.game.api)
     implementation(projects.presentation.platform)
-
-    implementation(libs.paging.compose)
-    testImplementation(libs.paging.testing)
 }

@@ -1,6 +1,5 @@
 plugins {
-    id("library.convention.plugin")
-    id("hilt.convention.plugin")
+    id("non-ui.convention.plugin")
 }
 
 android {
