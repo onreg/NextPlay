@@ -46,9 +46,9 @@
 
 ## Build, Test, and Development Commands
 
-- `./gradlew assembleDevDebug` compiles the dev flavour for local installs.
-- `./gradlew testDevDebugUnitTest` runs unit tests.
-- `./gradlew :app:testDevDebugUnitTest --tests "com.reedcouk.jobs.feature.profile.languages.data.LanguageRepositoryTest"` runs a specific test class.
+- `./gradlew assembleDebug` compiles the dev flavour for local installs.
+- `./gradlew testDebugUnitTest` runs unit tests.
+- `./gradlew :app:testDebugUnitTest --tests "com.reedcouk.jobs.feature.profile.languages.data.LanguageRepositoryTest"` runs a specific test class.
 
 ## Verification reports locations
 - Unit Tests: `app/build/reports/tests/testDevDebugUnitTest/index.html`
@@ -91,4 +91,10 @@
             verify(api).sendEvent(JobEventRequest(listOf(dto1, dto2)))
         ```
 - Prefer comparing objects with `assertEquals` when possible instead of asserting individual fields repeatedly.
-- If the class under test has complex logic, introduce a test driver/DSL abstraction to reduce boilerplate; see `data/game/impl/src/test/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediatorTest.kt` and `data/game/impl/src/test/kotlin/io/github/onreg/data/game/impl/paging/GameRemoteMediatorTestDriver.kt`.
+- All unit tests must use a test driver/DSL abstraction to reduce boilerplate;
+    - For tests without UI:
+      `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/GamesViewModelTest.kt`
+      `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/GamesViewModelTestDriver.kt`
+    - For compose tests:
+      `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/components/list/GameListTest.kt`
+      `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/components/list/GameListTestDriver.kt`
