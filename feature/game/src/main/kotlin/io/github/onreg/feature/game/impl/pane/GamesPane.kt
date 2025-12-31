@@ -15,14 +15,14 @@ import androidx.navigation.NavHostController
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.onreg.core.ui.R
-import io.github.onreg.core.ui.components.card.GameCardUI
+import io.github.onreg.core.ui.R as CoreUiR
+import io.github.onreg.ui.game.presentation.R
 import io.github.onreg.core.ui.components.content.error.ContentError
 import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.components.content.info.ContentInfo
 import io.github.onreg.core.ui.components.content.info.ContentInfoUI
-import io.github.onreg.core.ui.components.list.GameList
-import io.github.onreg.core.ui.components.list.test.GameListTestData
+import io.github.onreg.ui.game.presentation.components.list.GameList
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.collectWithLifecycle
@@ -32,6 +32,7 @@ import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.model.ListEvent
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -131,7 +132,7 @@ private fun ErrorComponent(
     ) {
         ContentError(
             contentErrorUI = ContentErrorUI(
-                iconRes = R.drawable.ic_controller_off_24,
+                iconRes = CoreUiR.drawable.ic_controller_off_24,
                 titleResId = R.string.games_error_title,
                 descriptionResId = R.string.games_error_description,
                 actionLabelResId = R.string.retry,
@@ -151,7 +152,7 @@ private fun EmptyComponent(
     ) {
         ContentInfo(
             contentInfoUI = ContentInfoUI(
-                iconRes = R.drawable.ic_controller_24,
+                iconRes = CoreUiR.drawable.ic_controller_24,
                 titleResId = R.string.games_empty_title,
                 descriptionResId = R.string.games_empty_description
             )

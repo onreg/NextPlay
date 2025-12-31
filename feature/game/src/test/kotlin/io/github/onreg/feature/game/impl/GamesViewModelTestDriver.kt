@@ -1,11 +1,13 @@
 package io.github.onreg.feature.game.impl
 
 import androidx.paging.PagingData
-import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.api.model.Game
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.game.presentation.mapper.GameUiMapper
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub

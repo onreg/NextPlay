@@ -2,9 +2,9 @@ package io.github.onreg.ui.game.presentation.mapper
 
 import androidx.paging.PagingData
 import androidx.paging.map
-import io.github.onreg.core.ui.components.card.GameCardUI
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.data.game.api.model.Game
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.mapper.PlatformUiMapper
 import javax.inject.Inject
 

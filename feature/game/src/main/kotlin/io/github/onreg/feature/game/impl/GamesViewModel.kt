@@ -10,12 +10,10 @@ import io.github.onreg.feature.game.impl.model.Event
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.model.ListEvent
 import io.github.onreg.ui.game.presentation.mapper.GameUiMapper
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @HiltViewModel
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class GamesViewModel @Inject constructor(
     repository: GameRepository,
     gameUiMapper: GameUiMapper

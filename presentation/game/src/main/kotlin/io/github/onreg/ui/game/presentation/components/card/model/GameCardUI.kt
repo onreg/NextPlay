@@ -1,6 +1,7 @@
-package io.github.onreg.core.ui.components.card
+package io.github.onreg.ui.game.presentation.components.card.model
 
 import io.github.onreg.core.ui.components.chip.ChipUI
+import io.github.onreg.ui.platform.model.PlatformUI
 
 public data class GameCardUI(
     val id: String,
@@ -10,9 +11,4 @@ public data class GameCardUI(
     val platforms: Set<PlatformUI>,
     val rating: ChipUI,
     val isBookmarked: Boolean
-)
-
-public data class PlatformUI(
-    val name: String,
-    val iconRes: Int
 )

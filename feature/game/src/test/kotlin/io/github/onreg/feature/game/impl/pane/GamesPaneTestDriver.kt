@@ -17,16 +17,14 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
-import io.github.onreg.core.ui.components.card.GameCardTestTags
-import io.github.onreg.core.ui.components.card.GameCardUI
-import io.github.onreg.core.ui.components.list.test.GameListTestTags
+import io.github.onreg.ui.game.presentation.components.card.test.GameCardTestTags
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestTags
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
-import kotlinx.coroutines.flow.Flow
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlin.test.assertEquals
-import io.github.onreg.core.ui.R as CoreUiR
+import io.github.onreg.ui.game.presentation.R as GamePresentationR
 
 internal class GamesPaneTestDriver private constructor(
     private val composeRule: ComposeContentTestRule
@@ -39,7 +37,7 @@ internal class GamesPaneTestDriver private constructor(
     private val listNode = composeRule.onNodeWithTag(GameListTestTags.GAME_LIST)
 
     private val retryButtonNode = composeRule.onNodeWithText(
-        ApplicationProvider.getApplicationContext<Context>().getString(CoreUiR.string.retry)
+        ApplicationProvider.getApplicationContext<Context>().getString(GamePresentationR.string.retry)
     )
     private val bookmarkButtonNode =
         composeRule.onNodeWithTag(GameCardTestTags.GAME_CARD_ADD_BOOKMARK_BUTTON)

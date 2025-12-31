@@ -1,4 +1,4 @@
-package io.github.onreg.core.ui.components.list
+package io.github.onreg.ui.game.presentation.components.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,16 +21,16 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import io.github.onreg.core.ui.components.card.GameCard
-import io.github.onreg.core.ui.components.card.GameCardError
-import io.github.onreg.core.ui.components.card.GameCardLoading
-import io.github.onreg.core.ui.components.card.GameCardUI
-import io.github.onreg.core.ui.components.list.test.GameListTestData
-import io.github.onreg.core.ui.components.list.test.GameListTestTags
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
+import io.github.onreg.ui.game.presentation.components.card.GameCard
+import io.github.onreg.ui.game.presentation.components.card.GameCardError
+import io.github.onreg.ui.game.presentation.components.card.GameCardLoading
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.Flow
 
 private const val LOADING_ITEMS_COUNT = 20

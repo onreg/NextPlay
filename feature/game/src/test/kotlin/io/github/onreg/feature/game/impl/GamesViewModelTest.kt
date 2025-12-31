@@ -1,8 +1,6 @@
 package io.github.onreg.feature.game.impl
 
 import androidx.paging.PagingData
-import io.github.onreg.core.ui.components.card.GameCardUI
-import io.github.onreg.core.ui.components.card.PlatformUI
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
@@ -11,7 +9,8 @@ import io.github.onreg.feature.game.impl.model.ListEvent
 import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
 import io.github.onreg.testing.unit.flow.test
 import io.github.onreg.testing.unit.paging.asSnapshot
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
+import io.github.onreg.ui.platform.model.PlatformUI
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -21,7 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class GamesViewModelTest {
 
     @get:Rule
@@ -50,15 +48,14 @@ internal class GamesViewModelTest {
     private val mappedBookmarked = PagingData.from(listOf(bookmarkedCard))
     private val gamesFlow = flowOf(pagingData)
 
-    private val defaultDriver = GamesViewModelTestDriver.Builder()
+    private val defaultDriverBuilder = GamesViewModelTestDriver.Builder()
         .repositoryGames(gamesFlow)
         .gameUiMapperMap(pagingData, emptySet(), mappedDefault)
         .gameUiMapperMap(pagingData, setOf("1"), mappedBookmarked)
-        .build()
 
     @Test
     fun `should navigate to details`() = runTest {
-        val driver = GamesViewModelTestDriver.Builder().build()
+        val driver = defaultDriverBuilder.build()
 
         driver.viewModel.events.test(this) {
             driver.viewModel.onCardClicked("42")
@@ -68,31 +65,33 @@ internal class GamesViewModelTest {
 
     @Test
     fun `should load games`() = runTest {
-        defaultDriver.viewModel.pagingState.test(this) {
+        val driver = defaultDriverBuilder.build()
+        driver.viewModel.pagingState.test(this) {
             val items = latestValue().asSnapshot()
             assertEquals(listOf(defaultCard), items)
         }
-        verify(defaultDriver.gameUiMapper).map(pagingData, emptySet())
+        verify(driver.gameUiMapper).map(pagingData, emptySet())
     }
 
     @Test
     fun `should bookmark the game`() = runTest {
+        val driver = defaultDriverBuilder.build()
         val testItemId = "1"
-        defaultDriver.viewModel.pagingState.test(this) {
+        driver.viewModel.pagingState.test(this) {
             val itemsBefore = latestValue().asSnapshot()
             assertFalse(itemsBefore.first { it.id == testItemId }.isBookmarked)
 
-            defaultDriver.viewModel.onBookMarkClicked(testItemId)
+            driver.viewModel.onBookMarkClicked(testItemId)
 
             val itemsAfter = latestValue().asSnapshot()
             assertTrue(itemsAfter.first { it.id == testItemId }.isBookmarked)
         }
-        verify(defaultDriver.gameUiMapper).map(pagingData, setOf(testItemId))
+        verify(driver.gameUiMapper).map(pagingData, setOf(testItemId))
     }
 
     @Test
     fun `should emit event on page retry`() = runTest {
-        val driver = GamesViewModelTestDriver.Builder().build()
+        val driver = defaultDriverBuilder.build()
 
         driver.viewModel.pagingEvents.test(this) {
             driver.viewModel.onRetryClicked()
@@ -102,7 +101,7 @@ internal class GamesViewModelTest {
 
     @Test
     fun `should emit event on refresh`() = runTest {
-        val driver = GamesViewModelTestDriver.Builder().build()
+        val driver = defaultDriverBuilder.build()
 
         driver.viewModel.pagingEvents.test(this) {
             driver.viewModel.onRefreshClicked()

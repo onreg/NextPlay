@@ -2,12 +2,4 @@
 <resources>
     <string name="preview_text">Sample content!</string>
     <string name="preview_text_long">We could not load the content right now. Please check your connection, try again in a moment, or return later if the issue keeps happening.</string>
-    <string name="add_bookmark">Add bookmark</string>
-    <string name="remove_bookmark">Remove bookmark</string>
-    <string name="retry">Retry</string>
-
-    <string name="games_error_title">Unable to load games</string>
-    <string name="games_error_description">Check your connection and try again.</string>
-    <string name="games_empty_title">No games found</string>
-    <string name="games_empty_description">Try adjusting your filters or check back later.</string>
 </resources>

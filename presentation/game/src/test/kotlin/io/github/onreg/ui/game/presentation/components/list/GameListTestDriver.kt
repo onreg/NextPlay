@@ -1,4 +1,4 @@
-package io.github.onreg.core.ui.components.list
+package io.github.onreg.ui.game.presentation.components.list
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
@@ -18,11 +18,11 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
-import io.github.onreg.core.ui.components.card.GameCardUI
-import io.github.onreg.core.ui.components.list.test.GameListTestTags
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
+import io.github.onreg.ui.game.presentation.R as GamePresentationR
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.assertEquals
-import io.github.onreg.core.ui.R as CoreUiR
 
 internal class GameListTestDriver private constructor(
     private val composeRule: ComposeContentTestRule
@@ -43,11 +43,11 @@ internal class GameListTestDriver private constructor(
 
     private val retryButtonNode = composeRule.onNodeWithText(
         ApplicationProvider.getApplicationContext<android.content.Context>()
-            .getString(CoreUiR.string.retry)
+            .getString(GamePresentationR.string.retry)
     )
     private val bookmarkButtonNode = composeRule.onNodeWithContentDescription(
         ApplicationProvider.getApplicationContext<android.content.Context>()
-            .getString(CoreUiR.string.add_bookmark)
+            .getString(GamePresentationR.string.add_bookmark)
     )
     private val cardNode: (String) -> SemanticsNodeInteraction =
         { cardId ->

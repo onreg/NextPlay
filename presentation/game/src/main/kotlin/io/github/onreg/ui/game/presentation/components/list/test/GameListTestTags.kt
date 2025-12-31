@@ -1,4 +1,4 @@
-package io.github.onreg.core.ui.components.list.test
+package io.github.onreg.ui.game.presentation.components.list.test
 
 public object GameListTestTags {
     public const val GAME_LIST_FULL_SCREEN_LOADING: String = "GAME_LIST_FULL_SCREEN_LOADING"

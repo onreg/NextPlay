@@ -1,24 +1,20 @@
 package io.github.onreg.ui.game.presentation.mapper
 
 import androidx.paging.PagingData
-import io.github.onreg.core.ui.components.card.GameCardUI
-import io.github.onreg.core.ui.components.card.PlatformUI
+import io.github.onreg.ui.platform.model.PlatformUI
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
-import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
 import io.github.onreg.testing.unit.paging.asSnapshot
+import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.mapper.PlatformUiMapper
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class GameUiMapperTest {
     private val platformUiMapper: PlatformUiMapper = mock()
     private val mapper = GameUiMapperImpl(platformUiMapper)

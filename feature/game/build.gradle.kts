@@ -11,4 +11,5 @@ dependencies {
     implementation(projects.data.game.api)
     implementation(projects.presentation.game)
     implementation(projects.core.utilAndroid)
+    testImplementation(projects.presentation.platform)
 }

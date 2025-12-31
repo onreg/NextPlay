@@ -1,8 +1,8 @@
-package io.github.onreg.core.ui.components.list
+package io.github.onreg.ui.game.presentation.components.list
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.paging.LoadState
-import io.github.onreg.core.ui.components.list.test.GameListTestData
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
