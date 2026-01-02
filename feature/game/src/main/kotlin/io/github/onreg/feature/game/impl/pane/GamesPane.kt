@@ -134,7 +134,6 @@ private fun ErrorComponent(
         contentAlignment = Alignment.Center
     ) {
         GameCardError(
-            modifier = Modifier.testTag(GamesPaneTestTags.TAG_COMPONENT_ERROR),
             errorType = errorType,
             onRetry = onRetry
         )

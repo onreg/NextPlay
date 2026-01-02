@@ -1,11 +1,12 @@
 package io.github.onreg.ui.game.presentation.components.list
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -19,14 +20,18 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
-import io.github.onreg.ui.game.presentation.R as GamePresentationR
+import io.github.onreg.ui.game.presentation.components.card.model.GameListErrorType
 import io.github.onreg.ui.game.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import io.github.onreg.ui.game.presentation.R as GamePresentationR
 
 internal class GameListTestDriver private constructor(
     private val composeRule: ComposeContentTestRule
 ) {
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
     private val fullScreenLoadingNode =
         composeRule.onNodeWithTag(GameListTestTags.GAME_LIST_FULL_SCREEN_LOADING)
 
@@ -42,12 +47,23 @@ internal class GameListTestDriver private constructor(
         composeRule.onNodeWithTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR)
 
     private val retryButtonNode = composeRule.onNodeWithText(
-        ApplicationProvider.getApplicationContext<android.content.Context>()
-            .getString(GamePresentationR.string.retry)
+        context.getString(GamePresentationR.string.retry)
     )
+
+    private val errorTitle = composeRule.onNodeWithText(
+        context.getString(GamePresentationR.string.games_error_title)
+    )
+    private val errorDescriptionNode = composeRule.onNodeWithText(
+        context.getString(io.github.onreg.core.ui.R.string.error_message)
+    )
+    private val networkErrorDescriptionNode = composeRule.onNodeWithText(
+        context.getString(io.github.onreg.core.ui.R.string.error_network_message)
+    )
+
+    private val errorItem = composeRule.onNodeWithTag(GameListTestTags.GAME_LIST_APPEND_ERROR)
+
     private val bookmarkButtonNode = composeRule.onNodeWithContentDescription(
-        ApplicationProvider.getApplicationContext<android.content.Context>()
-            .getString(GamePresentationR.string.add_bookmark)
+        context.getString(GamePresentationR.string.add_bookmark)
     )
     private val cardNode: (String) -> SemanticsNodeInteraction =
         { cardId ->
@@ -58,6 +74,7 @@ internal class GameListTestDriver private constructor(
     private var pageRetryCount: Int = 0
     private var errorContentCount: Int = 0
     private var emptyContentCount: Int = 0
+    private var lastErrorType: GameListErrorType? = null
     private var lastBookmarkedId: String? = null
     private var lastCardClickedId: String? = null
 
@@ -91,8 +108,11 @@ internal class GameListTestDriver private constructor(
                     onRetry = { driver.pageRetryCount += 1 },
                     onBookmarkClicked = { driver.lastBookmarkedId = it },
                     onCardClicked = { driver.lastCardClickedId = it },
-                    onError = { LaunchedEffect(Unit) { driver.errorContentCount += 1 } },
-                    onEmpty = { LaunchedEffect(Unit) { driver.emptyContentCount += 1 } }
+                    onError = { errorType ->
+                        driver.errorContentCount += 1
+                        driver.lastErrorType = errorType
+                    },
+                    onEmpty = { driver.emptyContentCount += 1 }
                 )
             }
             return driver
@@ -131,19 +151,45 @@ internal class GameListTestDriver private constructor(
         appendErrorNode.assertIsNotDisplayed()
     }
 
+    fun asserErrorItemDisplayed() {
+        errorItem.isDisplayed()
+        errorTitle.isDisplayed()
+        errorDescriptionNode.isDisplayed()
+    }
+
+    fun assertNetworkErrorItemDisplayed() {
+        errorItem.isDisplayed()
+        errorTitle.isDisplayed()
+        networkErrorDescriptionNode.isDisplayed()
+    }
+
     fun assertPullToRefreshIndicatorDisplayed() {
         pullToRefreshIndicatorNode.assertIsDisplayed()
     }
 
-    fun assertErrorContentCount(expected: Int) {
+    fun assertErrorCallbackTriggered(type: GameListErrorType?) {
         composeRule.runOnIdle {
-            assertEquals(expected, errorContentCount)
+            assertEquals(1, errorContentCount)
+            assertEquals(type, lastErrorType)
         }
     }
 
-    fun assertEmptyContentCount(expected: Int) {
+    fun assertErrorCallbackNotTriggered() {
         composeRule.runOnIdle {
-            assertEquals(expected, emptyContentCount)
+            assertEquals(0, errorContentCount)
+            assertNull(lastErrorType)
+        }
+    }
+
+    fun assertEmptyCallbackTriggered() {
+        composeRule.runOnIdle {
+            assertEquals(1, emptyContentCount)
+        }
+    }
+
+    fun assertEmptyCallbackNotTriggered() {
+        composeRule.runOnIdle {
+            assertEquals(0, emptyContentCount)
         }
     }
 

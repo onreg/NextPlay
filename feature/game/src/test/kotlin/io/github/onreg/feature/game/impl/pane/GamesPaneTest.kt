@@ -7,6 +7,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 internal class GamesPaneTest {
@@ -26,7 +27,21 @@ internal class GamesPaneTest {
             .build()
 
         driver.assertListIsNotDisplayed()
-        driver.assertFullScreenErrorDisplayed()
+        driver.asserErrorDisplayed()
+        driver.assertEmptyStateIsNotDisplayed()
+    }
+
+    @Test
+    fun `should show network error message when refresh fails with io exception`() {
+        val driver = GamesPaneTestDriver.Builder(composeRule)
+            .pagingState(
+                emptyList(),
+                refresh = LoadState.Error(IOException("boom"))
+            )
+            .build()
+
+        driver.assertListIsNotDisplayed()
+        driver.assertNetworkErrorMessageDisplayed()
         driver.assertEmptyStateIsNotDisplayed()
     }
 
@@ -61,7 +76,7 @@ internal class GamesPaneTest {
             .build()
 
         driver.clickRetryButton()
-        driver.assertPageRetryCount(1)
+        driver.assertPageRetryClicked()
     }
 
     @Test
@@ -74,7 +89,7 @@ internal class GamesPaneTest {
             .build()
 
         driver.clickRetryButton()
-        driver.assertPageRetryCount(1)
+        driver.assertPageRetryClicked()
     }
 
     @Test
@@ -84,7 +99,7 @@ internal class GamesPaneTest {
             .build()
 
         driver.pullToRefresh()
-        driver.assertRefreshCount(1)
+        driver.assertRefreshClicked()
     }
 
     @Test

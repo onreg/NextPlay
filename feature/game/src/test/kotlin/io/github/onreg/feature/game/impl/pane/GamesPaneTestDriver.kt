@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -29,18 +30,30 @@ import io.github.onreg.ui.game.presentation.R as GamePresentationR
 internal class GamesPaneTestDriver private constructor(
     private val composeRule: ComposeContentTestRule
 ) {
-    private val fullScreenErrorNode =
-        composeRule.onNodeWithTag(GamesPaneTestTags.TAG_COMPONENT_ERROR)
 
     private val emptyStateNode = composeRule.onNodeWithTag(GamesPaneTestTags.TAG_COMPONENT_EMPTY)
 
     private val listNode = composeRule.onNodeWithTag(GameListTestTags.GAME_LIST)
 
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
     private val retryButtonNode = composeRule.onNodeWithText(
-        ApplicationProvider.getApplicationContext<Context>().getString(GamePresentationR.string.retry)
+        context.getString(GamePresentationR.string.retry)
     )
     private val bookmarkButtonNode =
         composeRule.onNodeWithTag(GameCardTestTags.GAME_CARD_ADD_BOOKMARK_BUTTON)
+
+    private val errorNode = composeRule.onNodeWithTag(GamesPaneTestTags.TAG_COMPONENT_ERROR)
+
+    private val errorTitleNode = composeRule.onNodeWithText(
+        context.getString(GamePresentationR.string.games_error_title)
+    )
+    private val errorDescriptionNode = composeRule.onNodeWithText(
+        context.getString(io.github.onreg.core.ui.R.string.error_message)
+    )
+    private val networkErrorDescriptionNode = composeRule.onNodeWithText(
+        context.getString(io.github.onreg.core.ui.R.string.error_network_message)
+    )
 
     private val cardNode: (String) -> SemanticsNodeInteraction =
         { cardId ->
@@ -91,8 +104,16 @@ internal class GamesPaneTestDriver private constructor(
         }
     }
 
-    fun assertFullScreenErrorDisplayed() {
-        fullScreenErrorNode.assertIsDisplayed()
+    fun asserErrorDisplayed() {
+        errorNode.isDisplayed()
+        errorTitleNode.assertIsDisplayed()
+        errorDescriptionNode.assertIsDisplayed()
+    }
+
+    fun assertNetworkErrorMessageDisplayed() {
+        errorNode.isDisplayed()
+        errorTitleNode.assertIsDisplayed()
+        networkErrorDescriptionNode.assertIsDisplayed()
     }
 
     fun assertEmptyStateDisplayed() {
@@ -112,18 +133,18 @@ internal class GamesPaneTestDriver private constructor(
     }
 
     fun assertFullScreenErrorIsNotDisplayed() {
-        fullScreenErrorNode.assertIsNotDisplayed()
+        errorNode.assertIsNotDisplayed()
     }
 
-    fun assertRefreshCount(expected: Int) {
+    fun assertRefreshClicked() {
         composeRule.runOnIdle {
-            assertEquals(expected, refreshCount)
+            assertEquals(1, refreshCount)
         }
     }
 
-    fun assertPageRetryCount(expected: Int) {
+    fun assertPageRetryClicked() {
         composeRule.runOnIdle {
-            assertEquals(expected, pageRetryCount)
+            assertEquals(1, pageRetryCount)
         }
     }
 

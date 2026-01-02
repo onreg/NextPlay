@@ -2,11 +2,13 @@ package io.github.onreg.ui.game.presentation.components.list
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.paging.LoadState
+import io.github.onreg.ui.game.presentation.components.card.model.GameListErrorType
 import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 internal class GameListTest {
@@ -24,8 +26,8 @@ internal class GameListTest {
 
         driver.assertFullScreenLoadingDisplayed()
         driver.assertListIsNotDisplayed()
-        driver.assertErrorContentCount(0)
-        driver.assertEmptyContentCount(0)
+        driver.assertErrorCallbackNotTriggered()
+        driver.assertEmptyCallbackNotTriggered()
     }
 
     @Test
@@ -39,8 +41,23 @@ internal class GameListTest {
 
         driver.assertListIsNotDisplayed()
         driver.assertFullScreenLoadingIsNotDisplayed()
-        driver.assertErrorContentCount(1)
-        driver.assertEmptyContentCount(0)
+        driver.assertErrorCallbackTriggered(GameListErrorType.OTHER)
+        driver.assertEmptyCallbackNotTriggered()
+    }
+
+    @Test
+    fun `should show full screen network error when no cached data and refresh error`() {
+        val driver = GameListTestDriver.Builder(composeRule)
+            .pagingState(
+                emptyList(),
+                refresh = LoadState.Error(IOException("boom"))
+            )
+            .build()
+
+        driver.assertListIsNotDisplayed()
+        driver.assertFullScreenLoadingIsNotDisplayed()
+        driver.assertErrorCallbackTriggered(GameListErrorType.NETWORK)
+        driver.assertEmptyCallbackNotTriggered()
     }
 
     @Test
@@ -51,8 +68,8 @@ internal class GameListTest {
 
         driver.assertListIsNotDisplayed()
         driver.assertFullScreenLoadingIsNotDisplayed()
-        driver.assertErrorContentCount(0)
-        driver.assertEmptyContentCount(1)
+        driver.assertErrorCallbackNotTriggered()
+        driver.assertEmptyCallbackTriggered()
     }
 
     @Test
@@ -65,8 +82,8 @@ internal class GameListTest {
         driver.assertFullScreenLoadingIsNotDisplayed()
         driver.assertAppendLoadingIsNotDisplayed()
         driver.assertAppendErrorIsNotDisplayed()
-        driver.assertErrorContentCount(0)
-        driver.assertEmptyContentCount(0)
+        driver.assertErrorCallbackNotTriggered()
+        driver.assertEmptyCallbackNotTriggered()
     }
 
     @Test
@@ -91,6 +108,22 @@ internal class GameListTest {
 
         driver.assertListDisplayed()
         driver.assertAppendErrorDisplayed()
+        driver.asserErrorItemDisplayed()
+        driver.assertAppendLoadingIsNotDisplayed()
+    }
+
+    @Test
+    fun `should show network append error when cached data and append fails with network`() {
+        val driver = GameListTestDriver.Builder(composeRule)
+            .pagingState(
+                listOf(defaultCard),
+                append = LoadState.Error(IOException("boom"))
+            )
+            .build()
+
+        driver.assertListDisplayed()
+        driver.assertAppendErrorDisplayed()
+        driver.assertNetworkErrorItemDisplayed()
         driver.assertAppendLoadingIsNotDisplayed()
     }
 
@@ -115,8 +148,8 @@ internal class GameListTest {
         driver.assertListDisplayed()
         driver.assertPullToRefreshIndicatorDisplayed()
         driver.assertFullScreenLoadingIsNotDisplayed()
-        driver.assertErrorContentCount(0)
-        driver.assertEmptyContentCount(0)
+        driver.assertErrorCallbackNotTriggered()
+        driver.assertEmptyCallbackNotTriggered()
     }
 
     @Test
