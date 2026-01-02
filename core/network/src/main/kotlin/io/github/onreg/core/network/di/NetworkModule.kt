@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.onreg.core.network.BuildConfig
 import io.github.onreg.core.network.moshi.InstantJsonAdapter
 import io.github.onreg.core.network.rawg.interceptor.RawgApiKeyInterceptor
+import io.github.onreg.core.network.retrofit.NetworkResponseCallAdapterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -63,6 +64,7 @@ public object NetworkModule {
     ): Retrofit = Retrofit.Builder()
         .baseUrl(RAWG_BASE_URL)
         .client(okHttpClient)
+        .addCallAdapterFactory(NetworkResponseCallAdapterFactory())
         .addConverterFactory(MoshiConverterFactory.create(moshi))
         .build()
 }
