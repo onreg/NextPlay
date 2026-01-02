@@ -9,6 +9,9 @@ import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
 import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
+import io.github.onreg.core.network.rawg.dto.GameDto
+import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
+import io.github.onreg.core.network.retrofit.NetworkResponse
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 import java.net.URI
@@ -40,28 +43,39 @@ public class GameRemoteMediator(
             pageSize = pagingConfig.pageSize
         )
 
-        val games = response.results.map(dtoMapper::map)
-        val insertionOrderStart =
-            (page - pagingConfig.startingPage).toLong() * pagingConfig.pageSize
-        val databaseBundle = entityMapper.map(games, insertionOrderStart)
-        val nextPage = response.next?.let(::getNextPage)
 
-        val keys = databaseBundle.games.map { entity ->
-            GameRemoteKeysEntity(
-                gameId = entity.id,
-                prevKey = if (page == pagingConfig.startingPage) null else page - 1,
-                nextKey = nextPage
-            )
-        }
-        transactionProvider.run {
-            if (loadType == LoadType.REFRESH) {
-                gameDao.clearGames()
+        return when (response) {
+            is NetworkResponse.Success<PaginatedResponseDto<GameDto>> -> {
+                val responseBody = response.body
+
+                val games = responseBody.results.map(dtoMapper::map)
+                val insertionOrderStart =
+                    (page - pagingConfig.startingPage).toLong() * pagingConfig.pageSize
+                val databaseBundle = entityMapper.map(games, insertionOrderStart)
+                val nextPage = responseBody.next?.let(::getNextPage)
+
+                val keys = databaseBundle.games.map { entity ->
+                    GameRemoteKeysEntity(
+                        gameId = entity.id,
+                        prevKey = if (page == pagingConfig.startingPage) null else page - 1,
+                        nextKey = nextPage
+                    )
+                }
+                transactionProvider.run {
+                    if (loadType == LoadType.REFRESH) {
+                        gameDao.clearGames()
+                    }
+                    gameDao.insertGamesWithPlatforms(databaseBundle)
+                    remoteKeysDao.insertRemoteKeys(keys)
+                }
+
+                MediatorResult.Success(endOfPaginationReached = nextPage == null)
             }
-            gameDao.insertGamesWithPlatforms(databaseBundle)
-            remoteKeysDao.insertRemoteKeys(keys)
-        }
 
-        return MediatorResult.Success(endOfPaginationReached = nextPage == null)
+            is NetworkResponse.Failure -> {
+                MediatorResult.Error(response.exception ?: IllegalStateException("Unknown error"))
+            }
+        }
     }
 
     private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, GameWithPlatforms>): GameRemoteKeysEntity? {

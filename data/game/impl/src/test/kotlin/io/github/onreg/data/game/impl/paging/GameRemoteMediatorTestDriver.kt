@@ -12,6 +12,7 @@ import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
 import io.github.onreg.core.network.rawg.dto.GameDto
 import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
+import io.github.onreg.core.network.retrofit.NetworkResponse
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
@@ -68,7 +69,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
             maxSize = 10
         )
 
-        fun gameApiGetGames(response: PaginatedResponseDto<GameDto>): Builder = apply {
+        fun gameApiGetGames(response: NetworkResponse<PaginatedResponseDto<GameDto>>): Builder = apply {
             gameApi.stub {
                 onBlocking {
                     getGames(

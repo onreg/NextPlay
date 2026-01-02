@@ -1,8 +1,8 @@
 package io.github.onreg.data.game.impl.paging
 
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.RemoteMediator
+import java.io.IOException
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
 import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
@@ -12,6 +12,7 @@ import io.github.onreg.core.network.rawg.dto.GameDto
 import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
 import io.github.onreg.core.network.rawg.dto.PlatformDto
 import io.github.onreg.core.network.rawg.dto.PlatformWrapperDto
+import io.github.onreg.core.network.retrofit.NetworkResponse
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
 import kotlinx.coroutines.test.runTest
@@ -56,11 +57,13 @@ internal class GameRemoteMediatorTest {
 
     private val driver = GameRemoteMediatorTestDriver.Builder()
         .gameApiGetGames(
-            PaginatedResponseDto(
-                count = 1,
-                next = "https://example.com?page=2",
-                previous = null,
-                results = listOf(dto)
+            NetworkResponse.Success(
+                PaginatedResponseDto(
+                    count = 1,
+                    next = "https://example.com?page=2",
+                    previous = null,
+                    results = listOf(dto)
+                )
             )
         )
         .gameDtoMapperMap(dto, mappedGame)
@@ -90,5 +93,27 @@ internal class GameRemoteMediatorTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun `load refresh returns error on network failure`() = runTest {
+        val driver = GameRemoteMediatorTestDriver.Builder()
+            .gameApiGetGames(NetworkResponse.Failure.NetworkError(IOException("boom")))
+            .build()
+
+        val result = driver.load(LoadType.REFRESH, driver.emptyPagingState())
+
+        assertTrue(result is RemoteMediator.MediatorResult.Error)
+    }
+
+    @Test
+    fun `load refresh returns error on server failure`() = runTest {
+        val driver = GameRemoteMediatorTestDriver.Builder()
+            .gameApiGetGames(NetworkResponse.Failure.OtherError(null))
+            .build()
+
+        val result = driver.load(LoadType.REFRESH, driver.emptyPagingState())
+
+        assertTrue(result is RemoteMediator.MediatorResult.Error)
     }
 }
