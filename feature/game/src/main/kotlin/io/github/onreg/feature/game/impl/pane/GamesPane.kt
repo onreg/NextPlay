@@ -15,25 +15,26 @@ import androidx.navigation.NavHostController
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.onreg.core.ui.R as CoreUiR
-import io.github.onreg.ui.game.presentation.R
-import io.github.onreg.core.ui.components.content.error.ContentError
-import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.components.content.info.ContentInfo
 import io.github.onreg.core.ui.components.content.info.ContentInfoUI
-import io.github.onreg.ui.game.presentation.components.list.GameList
-import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.collectWithLifecycle
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.feature.game.impl.GamesPaneViewModel
-import io.github.onreg.feature.game.impl.model.GamesPaneEvent
 import io.github.onreg.feature.game.impl.model.GamePaneState
+import io.github.onreg.feature.game.impl.model.GamesPaneEvent
 import io.github.onreg.feature.game.impl.model.GamesPaneListEvent
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
+import io.github.onreg.ui.game.presentation.components.card.GameCardError
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
+import io.github.onreg.ui.game.presentation.components.card.model.GameListErrorType
+import io.github.onreg.ui.game.presentation.components.list.GameList
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
 import kotlinx.coroutines.flow.Flow
+import io.github.onreg.core.ui.R as CoreUiR
+import io.github.onreg.feature.game.impl.R
+import io.github.onreg.ui.game.presentation.R as PresentationR
 
 @Composable
 public fun GamesPane(
@@ -111,9 +112,10 @@ private fun ContentComponent(
         onRetry = onPageRetryClicked,
         onBookmarkClicked = onBookMarkClicked,
         onCardClicked = onCardClicked,
-        onError = {
+        onError = { errorType ->
             ErrorComponent(
                 modifier = modifier,
+                errorType = errorType,
                 onRetry = onPageRetryClicked
             )
         },
@@ -124,20 +126,17 @@ private fun ContentComponent(
 @Composable
 private fun ErrorComponent(
     modifier: Modifier = Modifier,
+    errorType: GameListErrorType,
     onRetry: () -> Unit
 ) {
     Box(
         modifier = modifier.testTag(GamesPaneTestTags.TAG_COMPONENT_ERROR),
         contentAlignment = Alignment.Center
     ) {
-        ContentError(
-            contentErrorUI = ContentErrorUI(
-                iconRes = CoreUiR.drawable.ic_controller_off_24,
-                titleResId = R.string.games_error_title,
-                descriptionResId = R.string.games_error_description,
-                actionLabelResId = R.string.retry,
-            ),
-            onActionClick = onRetry
+        GameCardError(
+            modifier = Modifier.testTag(GamesPaneTestTags.TAG_COMPONENT_ERROR),
+            errorType = errorType,
+            onRetry = onRetry
         )
     }
 }
@@ -153,7 +152,7 @@ private fun EmptyComponent(
         ContentInfo(
             contentInfoUI = ContentInfoUI(
                 iconRes = CoreUiR.drawable.ic_controller_24,
-                titleResId = R.string.games_empty_title,
+                titleResId = PresentationR.string.games_empty_title,
                 descriptionResId = R.string.games_empty_description
             )
         )
@@ -171,7 +170,16 @@ public object GamesRoute {
 private fun ErrorPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.emptyState
+        pagingState = GameListTestData.errorState
+    )
+}
+
+@Composable
+@ThemePreview
+private fun NetworkErrorPreview() {
+    GamesPanePreview(
+        gamePaneState = GamePaneState,
+        pagingState = GameListTestData.networkErrorState
     )
 }
 
@@ -186,28 +194,10 @@ private fun EmptyPreview() {
 
 @Composable
 @ThemePreview
-private fun LoadingPreview() {
-    GamesPanePreview(
-        gamePaneState = GamePaneState,
-        pagingState = GameListTestData.loadingState
-    )
-}
-
-@Composable
-@ThemePreview
 private fun LoadedPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneState,
         pagingState = GameListTestData.loadedState
-    )
-}
-
-@Composable
-@ThemePreview
-private fun PagingErrorPreview() {
-    GamesPanePreview(
-        gamePaneState = GamePaneState,
-        pagingState = GameListTestData.pagingErrorState
     )
 }
 
@@ -217,7 +207,17 @@ private fun ErrorTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.emptyState
+        pagingState = GameListTestData.errorState
+    )
+}
+
+@Composable
+@TabletThemePreview
+private fun NetworkErrorTabletPreview() {
+    GamesPanePreview(
+        isLargeScreen = true,
+        gamePaneState = GamePaneState,
+        pagingState = GameListTestData.networkErrorState
     )
 }
 
@@ -228,26 +228,6 @@ private fun EmptyTabletPreview() {
         isLargeScreen = true,
         gamePaneState = GamePaneState,
         pagingState = GameListTestData.emptyState
-    )
-}
-
-@Composable
-@TabletThemePreview
-private fun LoadingTabletPreview() {
-    GamesPanePreview(
-        isLargeScreen = true,
-        gamePaneState = GamePaneState,
-        pagingState = GameListTestData.loadingState
-    )
-}
-
-@Composable
-@TabletThemePreview
-private fun PagingErrorTabletPreview() {
-    GamesPanePreview(
-        isLargeScreen = true,
-        gamePaneState = GamePaneState,
-        pagingState = GameListTestData.pagingErrorState
     )
 }
 

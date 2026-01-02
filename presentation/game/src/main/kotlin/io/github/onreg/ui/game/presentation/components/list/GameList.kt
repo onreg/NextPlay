@@ -1,7 +1,6 @@
 package io.github.onreg.ui.game.presentation.components.list
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -29,9 +28,11 @@ import io.github.onreg.ui.game.presentation.components.card.GameCard
 import io.github.onreg.ui.game.presentation.components.card.GameCardError
 import io.github.onreg.ui.game.presentation.components.card.GameCardLoading
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
+import io.github.onreg.ui.game.presentation.components.card.model.GameListErrorType
 import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
 import io.github.onreg.ui.game.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.Flow
+import java.io.IOException
 
 private const val LOADING_ITEMS_COUNT = 20
 
@@ -44,30 +45,27 @@ public fun GameList(
     onRetry: () -> Unit = {},
     onBookmarkClicked: (String) -> Unit = {},
     onCardClicked: (String) -> Unit = {},
-    onError: @Composable () -> Unit = {},
+    onError: @Composable (error: GameListErrorType) -> Unit = {},
     onEmpty: @Composable () -> Unit = {}
 ) {
     val hasData = lazyPagingItems.itemCount > 0
 
     val isLoading = lazyPagingItems.loadState.refresh is LoadState.Loading
     val isSourceLoading = lazyPagingItems.loadState.source.refresh is LoadState.Loading
-    val isError = lazyPagingItems.loadState.refresh is LoadState.Error
+    val refreshError = (lazyPagingItems.loadState.source.refresh as? LoadState.Error)
+        ?.toGameListErrorType()
 
     val showFullScreenLoading = !hasData && (isLoading || isSourceLoading)
-    val showFullScreenError = !hasData && isError
-    val showEmptyState = !hasData && !isLoading && !isSourceLoading && !isError
+    val showFullScreenError = !hasData && refreshError != null
+    val showEmptyState = !hasData && !isLoading && !isSourceLoading && refreshError == null
 
     when {
         showFullScreenLoading -> LoadingGrid(
             modifier = modifier.testTag(GameListTestTags.GAME_LIST_FULL_SCREEN_LOADING),
             columns = columns
         )
-        showFullScreenError -> Box(modifier = modifier) {
-            onError()
-        }
-        showEmptyState -> Box(modifier = modifier) {
-            onEmpty()
-        }
+        showFullScreenError -> onError(refreshError)
+        showEmptyState -> onEmpty()
 
         else -> {
             GamesGrid(
@@ -93,7 +91,8 @@ private fun GamesGrid(
     onBookmarkClicked: (String) -> Unit,
     onCardClicked: (String) -> Unit
 ) {
-    val isNextPageError = lazyPagingItems.loadState.append is LoadState.Error
+    val nextPageError = (lazyPagingItems.loadState.append as? LoadState.Error)
+        ?.toGameListErrorType()
     val isNextPageLoading = lazyPagingItems.loadState.append is LoadState.Loading
     val isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading
 
@@ -143,10 +142,11 @@ private fun GamesGrid(
                     )
                 }
             }
-            if (isNextPageError) {
+            if (nextPageError != null) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     GameCardError(
                         modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_ERROR),
+                        errorType = nextPageError,
                         onRetry = onRetry
                     )
                 }
@@ -171,6 +171,10 @@ private fun LoadingGrid(
             GameCardLoading()
         }
     }
+}
+
+private fun LoadState.Error.toGameListErrorType(): GameListErrorType {
+    return if (error is IOException) GameListErrorType.NETWORK else GameListErrorType.OTHER
 }
 
 @Composable
@@ -206,6 +210,15 @@ private fun OneColumnNextPageErrorPreview() {
     GameListPreview(
         columns = 1,
         pagingState = GameListTestData.nextPageErrorState
+    )
+}
+
+@Composable
+@ThemePreview
+private fun OneColumnNextPageNetworkErrorPreview() {
+    GameListPreview(
+        columns = 1,
+        pagingState = GameListTestData.nextPageNetworkErrorState
     )
 }
 
@@ -253,6 +266,16 @@ private fun FourColumnNextPageErrorPreview() {
         pagingState = GameListTestData.nextPageErrorLargeState
     )
 }
+
+@Composable
+@TabletThemePreview
+private fun FourColumnNextPageNetworkErrorPreview() {
+    GameListPreview(
+        columns = 4,
+        pagingState = GameListTestData.nextPageNetworkErrorLargeState
+    )
+}
+
 
 @Composable
 @TabletThemePreview
