@@ -1,5 +1,6 @@
 package io.github.onreg.data.game.impl.paging
 
+import android.util.Log
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
@@ -9,8 +10,6 @@ import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
 import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
-import io.github.onreg.core.network.rawg.dto.GameDto
-import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
 import io.github.onreg.core.network.retrofit.NetworkResponse
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
@@ -33,7 +32,14 @@ public class GameRemoteMediator(
         val page = when (loadType) {
             LoadType.REFRESH -> pagingConfig.startingPage
             LoadType.PREPEND -> null
-            LoadType.APPEND -> getRemoteKeyForLastItem(state)?.nextKey
+
+            LoadType.APPEND -> {
+                val remoteKeyEntity =
+                    getRemoteKeyForLastItem(state) ?: return MediatorResult.Success(
+                        endOfPaginationReached = false
+                    )
+                remoteKeyEntity.nextKey
+            }
         }
 
         if (page == null) return MediatorResult.Success(endOfPaginationReached = true)
@@ -45,7 +51,7 @@ public class GameRemoteMediator(
 
 
         return when (response) {
-            is NetworkResponse.Success<PaginatedResponseDto<GameDto>> -> {
+            is NetworkResponse.Success -> {
                 val responseBody = response.body
 
                 val games = responseBody.results.map(dtoMapper::map)

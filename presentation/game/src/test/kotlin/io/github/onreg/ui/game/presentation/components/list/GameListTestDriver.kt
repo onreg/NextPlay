@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -85,15 +84,31 @@ internal class GameListTestDriver private constructor(
             data: List<GameCardUI>,
             refresh: LoadState = LoadState.NotLoading(false),
             append: LoadState = LoadState.NotLoading(false),
-            prepend: LoadState = LoadState.NotLoading(false)
+            prepend: LoadState = LoadState.NotLoading(false),
+            mediatorRefresh: LoadState? = null,
+            mediatorAppend: LoadState? = null,
+            mediatorPrepend: LoadState? = null
         ): Builder = apply {
+            val mediatorLoadStates = if (
+                mediatorRefresh != null || mediatorAppend != null || mediatorPrepend != null
+            ) {
+                LoadStates(
+                    refresh = mediatorRefresh ?: LoadState.NotLoading(false),
+                    append = mediatorAppend ?: LoadState.NotLoading(false),
+                    prepend = mediatorPrepend ?: LoadState.NotLoading(false)
+                )
+            } else {
+                null
+            }
+
             pagingState.value = PagingData.from(
                 data,
                 sourceLoadStates = LoadStates(
                     refresh = refresh,
                     append = append,
                     prepend = prepend
-                )
+                ),
+                mediatorLoadStates = mediatorLoadStates
             )
         }
 
@@ -151,16 +166,16 @@ internal class GameListTestDriver private constructor(
         appendErrorNode.assertIsNotDisplayed()
     }
 
-    fun asserErrorItemDisplayed() {
-        errorItem.isDisplayed()
-        errorTitle.isDisplayed()
-        errorDescriptionNode.isDisplayed()
+    fun assertErrorItemDisplayed() {
+        errorItem.assertIsDisplayed()
+        errorTitle.assertIsDisplayed()
+        errorDescriptionNode.assertIsDisplayed()
     }
 
     fun assertNetworkErrorItemDisplayed() {
-        errorItem.isDisplayed()
-        errorTitle.isDisplayed()
-        networkErrorDescriptionNode.isDisplayed()
+        errorItem.assertIsDisplayed()
+        errorTitle.assertIsDisplayed()
+        networkErrorDescriptionNode.assertIsDisplayed()
     }
 
     fun assertPullToRefreshIndicatorDisplayed() {

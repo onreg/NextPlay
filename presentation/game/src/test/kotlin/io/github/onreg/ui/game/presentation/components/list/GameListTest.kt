@@ -31,6 +31,18 @@ internal class GameListTest {
     }
 
     @Test
+    fun `should show full screen loading when no cached data and mediator loading`() {
+        val driver = GameListTestDriver.Builder(composeRule)
+            .pagingState(emptyList(), mediatorRefresh = LoadState.Loading)
+            .build()
+
+        driver.assertFullScreenLoadingDisplayed()
+        driver.assertListIsNotDisplayed()
+        driver.assertErrorCallbackNotTriggered()
+        driver.assertEmptyCallbackNotTriggered()
+    }
+
+    @Test
     fun `should show full screen error when no cached data and refresh error`() {
         val driver = GameListTestDriver.Builder(composeRule)
             .pagingState(
@@ -61,15 +73,46 @@ internal class GameListTest {
     }
 
     @Test
-    fun `should show empty state when no cached data and not loading`() {
+    fun `should prefer mediator error when both refresh errors are present`() {
         val driver = GameListTestDriver.Builder(composeRule)
-            .pagingState(emptyList())
+            .pagingState(
+                emptyList(),
+                refresh = LoadState.Error(IllegalStateException("boom")),
+                mediatorRefresh = LoadState.Error(IOException("boom"))
+            )
+            .build()
+
+        driver.assertListIsNotDisplayed()
+        driver.assertFullScreenLoadingIsNotDisplayed()
+        driver.assertErrorCallbackTriggered(GameListErrorType.NETWORK)
+        driver.assertEmptyCallbackNotTriggered()
+    }
+
+    @Test
+    fun `should show empty state when no cached data and end reached`() {
+        val driver = GameListTestDriver.Builder(composeRule)
+            .pagingState(
+                emptyList(),
+                append = LoadState.NotLoading(true)
+            )
             .build()
 
         driver.assertListIsNotDisplayed()
         driver.assertFullScreenLoadingIsNotDisplayed()
         driver.assertErrorCallbackNotTriggered()
         driver.assertEmptyCallbackTriggered()
+    }
+
+    @Test
+    fun `should show full screen loading when no cached data and initial load pending`() {
+        val driver = GameListTestDriver.Builder(composeRule)
+            .pagingState(emptyList())
+            .build()
+
+        driver.assertListIsNotDisplayed()
+        driver.assertFullScreenLoadingDisplayed()
+        driver.assertErrorCallbackNotTriggered()
+        driver.assertEmptyCallbackNotTriggered()
     }
 
     @Test
@@ -82,6 +125,21 @@ internal class GameListTest {
         driver.assertFullScreenLoadingIsNotDisplayed()
         driver.assertAppendLoadingIsNotDisplayed()
         driver.assertAppendErrorIsNotDisplayed()
+        driver.assertErrorCallbackNotTriggered()
+        driver.assertEmptyCallbackNotTriggered()
+    }
+
+    @Test
+    fun `should keep list visible when cached data and refresh error`() {
+        val driver = GameListTestDriver.Builder(composeRule)
+            .pagingState(
+                listOf(defaultCard),
+                mediatorRefresh = LoadState.Error(IllegalStateException("boom"))
+            )
+            .build()
+
+        driver.assertListDisplayed()
+        driver.assertFullScreenLoadingIsNotDisplayed()
         driver.assertErrorCallbackNotTriggered()
         driver.assertEmptyCallbackNotTriggered()
     }
@@ -108,7 +166,7 @@ internal class GameListTest {
 
         driver.assertListDisplayed()
         driver.assertAppendErrorDisplayed()
-        driver.asserErrorItemDisplayed()
+        driver.assertErrorItemDisplayed()
         driver.assertAppendLoadingIsNotDisplayed()
     }
 

@@ -1,5 +1,6 @@
 package io.github.onreg.ui.game.presentation.components.list
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,14 +51,18 @@ public fun GameList(
 ) {
     val hasData = lazyPagingItems.itemCount > 0
 
-    val isLoading = lazyPagingItems.loadState.refresh is LoadState.Loading
-    val isSourceLoading = lazyPagingItems.loadState.source.refresh is LoadState.Loading
-    val refreshError = (lazyPagingItems.loadState.source.refresh as? LoadState.Error)
-        ?.toGameListErrorType()
+    val srcRefresh = lazyPagingItems.loadState.source.refresh
+    val medRefresh = lazyPagingItems.loadState.mediator?.refresh
 
-    val showFullScreenLoading = !hasData && (isLoading || isSourceLoading)
-    val showFullScreenError = !hasData && refreshError != null
-    val showEmptyState = !hasData && !isLoading && !isSourceLoading && refreshError == null
+    val isLoading = srcRefresh is LoadState.Loading || medRefresh is LoadState.Loading
+    val refreshErrorState = (medRefresh as? LoadState.Error) ?: (srcRefresh as? LoadState.Error)
+    val refreshError = refreshErrorState?.toGameListErrorType()
+
+    val endReached = lazyPagingItems.loadState.append.endOfPaginationReached
+
+    val showFullScreenError = !hasData && !isLoading && refreshError != null
+    val showEmptyState = !hasData && !isLoading && endReached
+    val showFullScreenLoading = !hasData && !showFullScreenError && !showEmptyState
 
     when {
         showFullScreenLoading -> LoadingGrid(
