@@ -36,7 +36,10 @@ internal class MainActivity : ComponentActivity() {
                         }
                         composable(GamesRoute.details) { backStackEntry ->
                             GameDetailsPane(
-                                gameId = backStackEntry.arguments?.getString("gameId").orEmpty()
+                                gameId = backStackEntry.arguments?.getString("gameId").orEmpty(),
+                                goBack = {
+                                    nav.popBackStack()
+                                }
                             )
                         }
                     }

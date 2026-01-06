@@ -14,7 +14,6 @@ import io.github.onreg.ui.platform.model.PlatformUI
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
-import org.mockito.kotlin.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -40,18 +39,14 @@ internal class GamesPaneViewModelTest {
         imageUrl = "image",
         releaseDate = "",
         platforms = setOf(PlatformUI(name = "PC", iconRes = 1)),
-        rating = ChipUI(text = "4.5"),
+        rating = ChipUI(text = "4.5", isSelected = true),
         isBookmarked = false
     )
-    private val bookmarkedCard = defaultCard.copy(isBookmarked = true)
-    private val mappedDefault = PagingData.from(listOf(defaultCard))
-    private val mappedBookmarked = PagingData.from(listOf(bookmarkedCard))
     private val gamesFlow = flowOf(pagingData)
 
     private val defaultDriverBuilder = GamesPaneViewModelTestDriver.Builder()
         .repositoryGames(gamesFlow)
-        .gameUiMapperMap(pagingData, emptySet(), mappedDefault)
-        .gameUiMapperMap(pagingData, setOf("1"), mappedBookmarked)
+        .platformUiMapperMapPlatform(setOf(GamePlatform.PC), setOf(PlatformUI(name = "PC", iconRes = 1)))
 
     @Test
     fun `should navigate to details`() = runTest {
@@ -70,7 +65,6 @@ internal class GamesPaneViewModelTest {
             val items = latestValue().asSnapshot()
             assertEquals(listOf(defaultCard), items)
         }
-        verify(driver.gameUiMapper).map(pagingData, emptySet())
     }
 
     @Test
@@ -86,7 +80,6 @@ internal class GamesPaneViewModelTest {
             val itemsAfter = latestValue().asSnapshot()
             assertTrue(itemsAfter.first { it.id == testItemId }.isBookmarked)
         }
-        verify(driver.gameUiMapper).map(pagingData, setOf(testItemId))
     }
 
     @Test

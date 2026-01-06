@@ -3,11 +3,12 @@ package io.github.onreg.feature.game.impl
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.onreg.core.util.android.lifecycle.ViewModelDelegateImpl
 import io.github.onreg.data.game.api.GameRepository
-import io.github.onreg.feature.game.impl.model.GamesPaneEvent
 import io.github.onreg.feature.game.impl.model.GamePaneState
+import io.github.onreg.feature.game.impl.model.GamesPaneEvent
 import io.github.onreg.feature.game.impl.model.GamesPaneListEvent
 import io.github.onreg.ui.game.presentation.mapper.GameUiMapper
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +28,7 @@ internal class GamesPaneViewModel @Inject constructor(
 
     val pagingState = with(pagingStateDelegate) {
         viewModelScope.mergedState(
-            remote = repository.getGames(),
+            remote = repository.getGames().cachedIn(viewModelScope),
             merge = { state, pagingData ->
                 gameUiMapper.map(pagingData, state)
             },
