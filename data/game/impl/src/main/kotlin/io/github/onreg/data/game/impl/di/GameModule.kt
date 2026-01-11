@@ -1,6 +1,6 @@
 package io.github.onreg.data.game.impl.di
 
-import androidx.paging.ExperimentalPagingApi
+import androidx.paging.PagingConfig
 import androidx.paging.RemoteMediator
 import dagger.Binds
 import dagger.Module
@@ -15,10 +15,9 @@ import io.github.onreg.core.network.rawg.api.GameApi
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.impl.GameRepositoryImpl
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
+import io.github.onreg.data.game.impl.mapper.GameDtoMapperImpl
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapperImpl
-import io.github.onreg.data.game.impl.mapper.GameDtoMapperImpl
-import io.github.onreg.data.game.impl.paging.GamePagingConfig
 import io.github.onreg.data.game.impl.paging.GameRemoteMediator
 import javax.inject.Singleton
 
@@ -39,11 +38,12 @@ public abstract class GameModule {
     public companion object {
         @Provides
         @Singleton
-        public fun providePagingConfig(): GamePagingConfig = GamePagingConfig(
-            pageSize = 20,
-            prefetchDistance = 2,
-            initialLoadSize = 40,
-            maxSize = 200
+        public fun providePagingConfig(): PagingConfig = PagingConfig(
+            pageSize = 10,
+            prefetchDistance = 3,
+            initialLoadSize = 20,
+            maxSize = 200,
+            enablePlaceholders = false
         )
 
         @Provides
@@ -51,7 +51,7 @@ public abstract class GameModule {
             gameApi: GameApi,
             gameDao: GameDao,
             gameRemoteKeysDao: GameRemoteKeysDao,
-            pagingConfig: GamePagingConfig,
+            pagingConfig: PagingConfig,
             gameDtoMapper: GameDtoMapper,
             gameEntityMapper: GameEntityMapper,
             transactionProvider: TransactionProvider
@@ -59,7 +59,6 @@ public abstract class GameModule {
             gameApi = gameApi,
             gameDao = gameDao,
             remoteKeysDao = gameRemoteKeysDao,
-            pagingConfig = pagingConfig,
             dtoMapper = gameDtoMapper,
             entityMapper = gameEntityMapper,
             transactionProvider = transactionProvider

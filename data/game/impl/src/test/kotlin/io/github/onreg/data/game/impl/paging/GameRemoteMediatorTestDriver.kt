@@ -2,6 +2,7 @@ package io.github.onreg.data.game.impl.paging
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
+import androidx.paging.PagingConfig
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import io.github.onreg.core.db.TransactionProvider
@@ -26,7 +27,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
     val remoteKeysDao: GameRemoteKeysDao,
     val dtoMapper: GameDtoMapper,
     val entityMapper: GameEntityMapper,
-    val pagingConfig: GamePagingConfig,
+    val pagingConfig: PagingConfig,
     private val transactionProvider: TransactionProvider
 ) : RemoteMediator<Int, GameWithPlatforms>() {
 
@@ -35,7 +36,6 @@ internal class GameRemoteMediatorTestDriver private constructor(
             gameApi = gameApi,
             gameDao = gameDao,
             remoteKeysDao = remoteKeysDao,
-            pagingConfig = pagingConfig,
             dtoMapper = dtoMapper,
             entityMapper = entityMapper,
             transactionProvider = transactionProvider
@@ -49,7 +49,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
         PagingState(
             pages = emptyList(),
             anchorPosition = null,
-            config = pagingConfig.asPagingConfig(),
+            config = pagingConfig,
             leadingPlaceholderCount = 0
         )
 
@@ -60,9 +60,11 @@ internal class GameRemoteMediatorTestDriver private constructor(
         private val dtoMapper: GameDtoMapper = mock()
         private val entityMapper: GameEntityMapper = mock()
         private val transactionProvider = object : TransactionProvider {
-            override suspend fun <T> run(block: suspend () -> T): T = block()
+            override fun <T> run(block: suspend () -> T): T = kotlinx.coroutines.runBlocking {
+                block()
+            }
         }
-        private val pagingConfig = GamePagingConfig(
+        private val pagingConfig = PagingConfig(
             pageSize = 2,
             prefetchDistance = 1,
             initialLoadSize = 2,
@@ -73,7 +75,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
             gameApi.stub {
                 onBlocking {
                     getGames(
-                        page = pagingConfig.startingPage,
+                        page = 0,
                         pageSize = pagingConfig.pageSize
                     )
                 } doReturn response

@@ -1,6 +1,7 @@
 package io.github.onreg.data.game.impl
 
 import androidx.paging.ExperimentalPagingApi
+import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.RemoteMediator
@@ -9,7 +10,6 @@ import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
-import io.github.onreg.data.game.impl.paging.GamePagingConfig
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -18,7 +18,7 @@ import org.mockito.kotlin.stub
 internal class GameRepositoryTestDriver private constructor(
     val gameDao: GameDao,
     val entityMapper: GameEntityMapper,
-    val pagingConfig: GamePagingConfig,
+    val pagingConfig: PagingConfig,
     val remoteMediator: RemoteMediator<Int, GameWithPlatforms>
 ) : GameRepository {
 
@@ -36,7 +36,7 @@ internal class GameRepositoryTestDriver private constructor(
     class Builder {
         private val gameDao: GameDao = mock()
         private val entityMapper: GameEntityMapper = mock()
-        private val pagingConfig = GamePagingConfig(
+        private val pagingConfig = PagingConfig(
             pageSize = 2,
             prefetchDistance = 1,
             initialLoadSize = 2,

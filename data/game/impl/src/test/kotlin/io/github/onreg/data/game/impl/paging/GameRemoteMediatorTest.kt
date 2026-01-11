@@ -77,7 +77,7 @@ internal class GameRemoteMediatorTest {
         assertTrue(result is RemoteMediator.MediatorResult.Success && !result.endOfPaginationReached)
 
         verify(driver.gameApi).getGames(
-            page = driver.pagingConfig.startingPage,
+            page = 0,
             pageSize = driver.pagingConfig.pageSize
         )
         verify(driver.dtoMapper).map(dto)

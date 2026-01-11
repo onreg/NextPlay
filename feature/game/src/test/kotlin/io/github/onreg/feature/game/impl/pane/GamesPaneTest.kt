@@ -48,7 +48,10 @@ internal class GamesPaneTest {
     @Test
     fun `should show empty state when not loading and no cached data`() {
         val driver = GamesPaneTestDriver.Builder(composeRule)
-            .pagingState(emptyList())
+            .pagingState(
+                emptyList(),
+                append = LoadState.NotLoading(true)
+            )
             .build()
 
         driver.assertListIsNotDisplayed()
