@@ -15,7 +15,10 @@ import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
 import io.github.onreg.core.network.retrofit.NetworkResponse
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
+import kotlinx.coroutines.delay
 import java.net.URI
+
+private const val INITIAL_PAGE = 1
 
 public class GameRemoteMediator(
     private val gameApi: GameApi,
@@ -69,14 +72,14 @@ public class GameRemoteMediator(
     ): Int? {
         val games = response.results.map(dtoMapper::map)
         val insertionOrderStart =
-            (page - 0).toLong() * config.pageSize
+            (page - INITIAL_PAGE).toLong() * config.pageSize
         val databaseBundle = entityMapper.map(games, insertionOrderStart)
         val nextPage = response.next?.let(::getNextPageFromResponse)
 
         val keys = databaseBundle.games.map { entity ->
             GameRemoteKeysEntity(
                 entity.id,
-                if (page == 0) null else page - 1,
+                if (page == INITIAL_PAGE) null else page - 1,
                 nextPage
             )
         }
@@ -107,7 +110,7 @@ public class GameRemoteMediator(
         state: PagingState<Int, GameWithPlatforms>
     ): NextPage {
         return when (loadType) {
-            LoadType.REFRESH -> NextPage.Value(nextPage = 0)
+            LoadType.REFRESH -> NextPage.Value(nextPage = INITIAL_PAGE)
             LoadType.PREPEND -> NextPage.Value(nextPage = null)
             LoadType.APPEND -> {
                 val lastItem =
