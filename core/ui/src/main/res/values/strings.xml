@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="preview_test_15">Sample content!</string>
-    <string name="add_bookmark">Add bookmark</string>
-    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="preview_text">Sample content!</string>
+    <string name="preview_text_long">We could not load the content right now. Please check your connection, try again in a moment, or return later if the issue keeps happening.</string>
+
+    <string name="error_network_message">Please check your network settings and try again</string>
+    <string name="error_message">Please try again</string>
 </resources>

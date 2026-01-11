@@ -64,15 +64,15 @@ private fun AppHeaderPreview() {
     NextPlayTheme {
         AppHeader(
             appHeaderUI = AppHeaderUI(
-                titleResId = R.string.preview_test_15,
+                titleResId = R.string.preview_text,
                 navigationItem = AppHeaderMenu(
                     iconResId = R.drawable.ic_back_24,
-                    contentDescriptionResId = R.string.preview_test_15
+                    contentDescriptionResId = R.string.preview_text
                 ),
                 menuItems = listOf(
                     AppHeaderMenu(
                         iconResId = R.drawable.ic_share_24,
-                        contentDescriptionResId = R.string.preview_test_15
+                        contentDescriptionResId = R.string.preview_text
                     )
                 )
             )

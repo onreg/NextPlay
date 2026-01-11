@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_bookmark">Add bookmark</string>
+    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="retry">Retry</string>
+
+    <string name="games_error_title">Unable to load games</string>
+    <string name="games_empty_title">No games found</string>
+</resources>
