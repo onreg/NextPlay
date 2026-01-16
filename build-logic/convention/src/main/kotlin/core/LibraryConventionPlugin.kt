@@ -13,7 +13,6 @@ class LibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         apply(plugin = "com.android.library")
         apply(plugin = "org.jetbrains.kotlin.android")
-        apply(plugin = "io.gitlab.arturbosch.detekt")
 
         extensions.configure<LibraryExtension> {
             compileSdk = AndroidConfig.COMPILE_SDK

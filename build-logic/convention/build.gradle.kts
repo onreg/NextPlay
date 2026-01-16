@@ -1,6 +1,5 @@
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.detekt)
 }
 
 gradlePlugin {
@@ -43,4 +42,5 @@ gradlePlugin {
 dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.android.gradlePlugin)
+    implementation(libs.detekt.gradlePlugin)
 }

@@ -8,12 +8,14 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.version.catalog.update)
     id("ktlint")
+    id("detekt")
 }
 
 tasks.register("codeQuality") {
     group = "verification"
-    description = "Runs detekt and ktlint across all modules (including build-logic)."
+    description = "Runs detekt and ktlint across the whole repo."
     dependsOn(
         tasks.named("ktlintCheck"),
+        tasks.named("detektCheck"),
     )
 }

@@ -15,7 +15,6 @@ class ApplicationConventionPlugin : Plugin<Project> {
         apply(plugin = "org.jetbrains.kotlin.android")
         apply(plugin = "org.jetbrains.kotlin.plugin.compose")
         apply(plugin = "hilt.convention.plugin")
-        apply(plugin = "io.gitlab.arturbosch.detekt")
 
         extensions.configure<ApplicationExtension> {
             compileSdk = AndroidConfig.COMPILE_SDK
