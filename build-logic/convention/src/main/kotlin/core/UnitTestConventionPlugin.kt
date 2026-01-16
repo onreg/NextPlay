@@ -3,6 +3,7 @@ package core
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import utils.catalog
 
 class UnitTestConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {

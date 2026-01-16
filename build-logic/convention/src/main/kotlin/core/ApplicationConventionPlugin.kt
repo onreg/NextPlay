@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import utils.catalog
 
 class ApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -15,7 +16,6 @@ class ApplicationConventionPlugin : Plugin<Project> {
         apply(plugin = "org.jetbrains.kotlin.plugin.compose")
         apply(plugin = "hilt.convention.plugin")
         apply(plugin = "io.gitlab.arturbosch.detekt")
-        apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
         extensions.configure<ApplicationExtension> {
             compileSdk = AndroidConfig.COMPILE_SDK

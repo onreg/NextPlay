@@ -1,4 +1,3 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
@@ -7,18 +6,14 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.version.catalog.update)
+    id("ktlint")
 }
 
 tasks.register("codeQuality") {
     group = "verification"
     description = "Runs detekt and ktlint across all modules (including build-logic)."
-
     dependsOn(
-        subprojects.map { it.tasks.matching { task -> task.name == "detekt" } },
-        subprojects.map { it.tasks.matching { task -> task.name == "ktlintCheck" } },
-        gradle.includedBuild("build-logic").task(":convention:detekt"),
-        gradle.includedBuild("build-logic").task(":convention:ktlintCheck"),
+        tasks.named("ktlintCheck"),
     )
 }

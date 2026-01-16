@@ -1,7 +1,6 @@
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.detekt)
-    alias(libs.plugins.ktlint)
 }
 
 gradlePlugin {

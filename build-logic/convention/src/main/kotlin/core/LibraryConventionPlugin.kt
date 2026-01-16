@@ -7,14 +7,13 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import utils.catalog
 
 class LibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         apply(plugin = "com.android.library")
         apply(plugin = "org.jetbrains.kotlin.android")
         apply(plugin = "io.gitlab.arturbosch.detekt")
-        apply(plugin = "org.jlleitschuh.gradle.ktlint")
-
 
         extensions.configure<LibraryExtension> {
             compileSdk = AndroidConfig.COMPILE_SDK
