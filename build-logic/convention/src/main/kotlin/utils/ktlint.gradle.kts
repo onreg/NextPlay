@@ -1,6 +1,27 @@
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
+/**
+ * Ktlint Gradle convention (CLI-based).
+ *
+ * Configuration files:
+ * - `.editorconfig` (root project): Formatting rules and ktlint options used by the CLI.
+ *
+ * Options:
+ * - `ktlint-cli` dependency version: taken from `libs.versions.toml` (`versions.ktlint`).
+ * - `ktlintPatterns`: includes `*.kt` and `*.kts` while excluding build output and common generated/IDE
+ *   directories.
+ * - `workingDir = rootDir`: makes `--relative` paths stable in reports.
+ * - `ktlintCheck`:
+ *   - uses `--relative` for stable paths.
+ *   - writes reports as `ktlint.txt` (plain) and `ktlint.html` (html).
+ * - `ktlintFormat`:
+ *   - uses `-F` to apply formatting changes.
+ *   - writes reports as `ktlint-format.txt` (plain) and `ktlint-format.html` (html).
+ *
+ * Reports:
+ * - Generates only HTML and plain text reports under `build/reports/ktlint/`.
+ */
 private val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 private val ktlint by configurations.creating
 
@@ -43,7 +64,7 @@ tasks.register<JavaExec>("ktlintCheck") {
             "**/out/**",
             "**/node_modules/**",
             "**/vendor/**",
-            "**/.git/**"
+            "**/.git/**",
         )
     })
     outputs.dir(ktlintReportDir)
@@ -55,9 +76,7 @@ tasks.register<JavaExec>("ktlintCheck") {
         args = listOf(
             "--relative",
             "--reporter=plain?group_by_file,output=${reportDir.resolve("ktlint.txt")}",
-            "--reporter=checkstyle,output=${reportDir.resolve("ktlint-checkstyle.xml")}",
-            "--reporter=json,output=${reportDir.resolve("ktlint.json")}",
-            "--reporter=sarif,output=${reportDir.resolve("ktlint.sarif.json")}",
+            "--reporter=html,output=${reportDir.resolve("ktlint.html")}",
         ) + ktlintPatterns
     }
 }
@@ -79,7 +98,7 @@ tasks.register<JavaExec>("ktlintFormat") {
             "**/out/**",
             "**/node_modules/**",
             "**/vendor/**",
-            "**/.git/**"
+            "**/.git/**",
         )
     })
     outputs.dir(ktlintReportDir)
@@ -92,9 +111,7 @@ tasks.register<JavaExec>("ktlintFormat") {
             "-F",
             "--relative",
             "--reporter=plain?group_by_file,output=${reportDir.resolve("ktlint-format.txt")}",
-            "--reporter=checkstyle,output=${reportDir.resolve("ktlint-format-checkstyle.xml")}",
-            "--reporter=json,output=${reportDir.resolve("ktlint-format.json")}",
-            "--reporter=sarif,output=${reportDir.resolve("ktlint-format.sarif.json")}",
+            "--reporter=html,output=${reportDir.resolve("ktlint-format.html")}",
         ) + ktlintPatterns
     }
 }
