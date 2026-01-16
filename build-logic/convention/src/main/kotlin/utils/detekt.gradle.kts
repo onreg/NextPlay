@@ -1,8 +1,12 @@
-import io.gitlab.arturbosch.detekt.Detekt
+import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.extensions.DetektExtension
+import dev.detekt.gradle.extensions.FailOnSeverity
 
 plugins {
-    id("io.gitlab.arturbosch.detekt")
+    id("dev.detekt")
 }
+
+private val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 private val detektSource = fileTree(rootDir) {
     include("**/*.kt", "**/*.kts")
@@ -19,27 +23,54 @@ private val detektSource = fileTree(rootDir) {
 }
 
 private val detektReportDir = layout.buildDirectory.dir("reports/detekt")
+private val detektConfigFiles = listOf(rootProject.file("detekt.yml"))
+private val detektBaselineFile = rootProject.file("detekt-baseline.xml")
 
-private val detektConfigFile = rootProject.file("config/detekt/detekt.yml")
-private val detektBaselineFile = rootProject.file("config/detekt/baseline.xml")
+configure<DetektExtension> {
+    toolVersion.set(libs.findVersion("detekt").get().requiredVersion)
+    source.setFrom(detektSource)
+
+    parallel.set(true)
+    buildUponDefaultConfig.set(true)
+    allRules.set(false)
+    ignoreFailures.set(false)
+    failOnSeverity.set(FailOnSeverity.Error)
+
+    if (detektConfigFiles.isNotEmpty()) config.setFrom(files(detektConfigFiles))
+    if (detektBaselineFile.exists()) baseline.set(detektBaselineFile)
+
+    basePath.set(layout.projectDirectory)
+    reportsDir.set(detektReportDir)
+}
 
 tasks.register<Detekt>("detektCheck") {
     group = "verification"
     description = "Runs detekt across the entire repository."
 
-    source = detektSource
-    basePath = rootDir.absolutePath
+    setSource(detektSource)
+    basePath.set(rootDir.absolutePath)
 
-    if (detektConfigFile.exists()) config.setFrom(files(detektConfigFile))
+    parallel.set(true)
+    buildUponDefaultConfig.set(true)
+    allRules.set(false)
+    ignoreFailures.set(false)
+    failOnSeverity.set(FailOnSeverity.Error)
+
+    if (detektConfigFiles.isNotEmpty()) config.setFrom(files(detektConfigFiles))
     if (detektBaselineFile.exists()) baseline.set(detektBaselineFile)
 
     reports {
-        sarif.required.set(false)
-        xml.required.set(false)
-        html.required.set(false)
-        md.required.set(false)
+        checkstyle.required.set(true)
+        checkstyle.outputLocation.set(detektReportDir.map { it.file("detekt.xml") })
 
-        txt.required.set(true)
-        txt.outputLocation.set(detektReportDir.map { it.file("detekt.txt") })
+        html.required.set(true)
+        html.outputLocation.set(detektReportDir.map { it.file("detekt.html") })
+
+        sarif.required.set(true)
+        sarif.outputLocation.set(detektReportDir.map { it.file("detekt.sarif") })
+
+        markdown.required.set(true)
+        markdown.outputLocation.set(detektReportDir.map { it.file("detekt.md") })
     }
 }
+

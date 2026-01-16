@@ -55,7 +55,46 @@ tasks.register<JavaExec>("ktlintCheck") {
         args = listOf(
             "--relative",
             "--reporter=plain?group_by_file,output=${reportDir.resolve("ktlint.txt")}",
+            "--reporter=checkstyle,output=${reportDir.resolve("ktlint-checkstyle.xml")}",
+            "--reporter=json,output=${reportDir.resolve("ktlint.json")}",
+            "--reporter=sarif,output=${reportDir.resolve("ktlint.sarif.json")}",
         ) + ktlintPatterns
     }
 }
 
+tasks.register<JavaExec>("ktlintFormat") {
+    group = "formatting"
+    description = "Runs ktlint formatting across the entire repository."
+    classpath = ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    workingDir = rootDir
+
+    inputs.files(fileTree(rootDir) {
+        include("**/*.kt", "**/*.kts")
+        exclude(
+            "**/build/**",
+            "**/.gradle/**",
+            "**/.idea/**",
+            "**/generated/**",
+            "**/out/**",
+            "**/node_modules/**",
+            "**/vendor/**",
+            "**/.git/**"
+        )
+    })
+    outputs.dir(ktlintReportDir)
+
+    doFirst {
+        val reportDir = ktlintReportDir.get().asFile
+        reportDir.mkdirs()
+
+        args = listOf(
+            "-F",
+            "--relative",
+            "--reporter=plain?group_by_file,output=${reportDir.resolve("ktlint-format.txt")}",
+            "--reporter=checkstyle,output=${reportDir.resolve("ktlint-format-checkstyle.xml")}",
+            "--reporter=json,output=${reportDir.resolve("ktlint-format.json")}",
+            "--reporter=sarif,output=${reportDir.resolve("ktlint-format.sarif.json")}",
+        ) + ktlintPatterns
+    }
+}

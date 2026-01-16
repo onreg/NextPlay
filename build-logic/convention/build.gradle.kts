@@ -40,7 +40,7 @@ gradlePlugin {
 }
 
 dependencies {
-    compileOnly(libs.kotlin.gradlePlugin)
+    implementation(libs.kotlin.gradlePlugin)
     compileOnly(libs.android.gradlePlugin)
     implementation(libs.detekt.gradlePlugin)
 }
