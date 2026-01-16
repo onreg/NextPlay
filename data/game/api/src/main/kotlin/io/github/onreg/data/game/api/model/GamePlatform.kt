@@ -1,5 +1,6 @@
 package io.github.onreg.data.game.api.model
 
+@Suppress("MagicNumber")
 public enum class GamePlatform(public val id: Int) {
     PC(4),
     PLAYSTATION_5(187),
