@@ -161,7 +161,7 @@ complexity:
     ignorePrivate: false
     ignoreInternal: false
     ignoreOverridden: false
-    ignoreAnnotatedFunctions: ['Preview']
+    ignoreAnnotatedFunctions: ['Preview', 'androidx.compose.ui.tooling.preview.Preview', 'ThemePreview', 'io.github.onreg.core.ui.preview.ThemePreview', 'TabletThemePreview', 'io.github.onreg.core.ui.preview.TabletThemePreview']
 
 coroutines:
   active: true
@@ -331,7 +331,7 @@ naming:
     aliases: ['FunctionName']
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
     functionPattern: '[a-z][a-zA-Z0-9]*'
-    ignoreAnnotated: ['Composable']
+    ignoreAnnotated: ['Composable', 'androidx.compose.runtime.Composable']
     excludeClassPattern: '$^'
   FunctionParameterNaming:
     active: true

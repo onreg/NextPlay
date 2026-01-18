@@ -22,6 +22,7 @@ public class PlatformUiMapperImpl
         override fun mapPlatform(model: Set<GamePlatform>): Set<PlatformUI> =
             model.mapNotNull(::mapPlatform).toSet()
 
+        @Suppress("CyclomaticComplexMethod", "LongMethod")
         private fun mapName(platform: GamePlatform): String = when (platform) {
             GamePlatform.PC -> {
                 resourcesProvider.getString(R.string.platform_pc)
@@ -224,6 +225,7 @@ public class PlatformUiMapperImpl
             }
         }
 
+        @Suppress("CyclomaticComplexMethod", "LongMethod")
         private fun mapPlatform(platform: GamePlatform): PlatformUI? = when (platform) {
             GamePlatform.PC -> PlatformUI(
                 name = resourcesProvider.getString(R.string.platform_pc),
