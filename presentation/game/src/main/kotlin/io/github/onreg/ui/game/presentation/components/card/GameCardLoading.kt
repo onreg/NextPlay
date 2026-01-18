@@ -23,14 +23,18 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 
 @Composable
-public fun GameCardLoading(
-    modifier: Modifier = Modifier
-) {
+public fun GameCardLoading(modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier = modifier) {
         val density = LocalDensity.current
         val cardWidthPx = with(density) { maxWidth.toPx() }
-        val titleHeight = with(density) { MaterialTheme.typography.titleMedium.fontSize.toDp() }
-        val bodyHeight = with(density) { MaterialTheme.typography.bodyMedium.fontSize.toDp() }
+        val titleHeight = with(density) {
+            MaterialTheme.typography.titleMedium.fontSize
+                .toDp()
+        }
+        val bodyHeight = with(density) {
+            MaterialTheme.typography.bodyMedium.fontSize
+                .toDp()
+        }
         val shimmerModifier = Modifier.shimmer(cardWidthPx)
         ElevatedCard {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -39,7 +43,7 @@ public fun GameCardLoading(
                         .aspectRatio(2f)
                         .fillMaxWidth()
                         .clip(MaterialTheme.shapes.small)
-                        .then(shimmerModifier)
+                        .then(shimmerModifier),
                 )
                 Column(modifier = Modifier.padding(Spacing.lg)) {
                     Box(
@@ -47,7 +51,7 @@ public fun GameCardLoading(
                             .fillMaxWidth()
                             .height(titleHeight)
                             .clip(MaterialTheme.shapes.small)
-                            .then(shimmerModifier)
+                            .then(shimmerModifier),
                     )
 
                     Box(
@@ -56,7 +60,7 @@ public fun GameCardLoading(
                             .fillMaxWidth(0.72f)
                             .height(bodyHeight)
                             .clip(MaterialTheme.shapes.small)
-                            .then(shimmerModifier)
+                            .then(shimmerModifier),
                     )
 
                     Box(
@@ -65,20 +69,20 @@ public fun GameCardLoading(
                             .fillMaxWidth(0.45f)
                             .height(bodyHeight)
                             .clip(MaterialTheme.shapes.small)
-                            .then(shimmerModifier)
+                            .then(shimmerModifier),
                     )
 
                     FlowRow(
                         modifier = Modifier.padding(top = Spacing.sm),
                         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                        verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+                        verticalArrangement = Arrangement.spacedBy(Spacing.sm),
                     ) {
                         repeat(4) {
                             Box(
                                 modifier = Modifier
                                     .size(IconsSize.sm)
                                     .clip(MaterialTheme.shapes.small)
-                                    .then(shimmerModifier)
+                                    .then(shimmerModifier),
                             )
                         }
                     }

@@ -11,7 +11,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class GameEntityMapperTest {
-
     private val mapper: GameEntityMapper = GameEntityMapperImpl()
 
     @Test
@@ -23,7 +22,7 @@ internal class GameEntityMapperTest {
                 imageUrl = "image1",
                 releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
                 rating = 4.5,
-                platforms = emptySet()
+                platforms = emptySet(),
             ),
             Game(
                 id = 2,
@@ -31,8 +30,8 @@ internal class GameEntityMapperTest {
                 imageUrl = "image2",
                 releaseDate = Instant.parse("2024-02-01T00:00:00Z"),
                 rating = 4.0,
-                platforms = emptySet()
-            )
+                platforms = emptySet(),
+            ),
         )
 
         val expected = listOf(
@@ -42,7 +41,7 @@ internal class GameEntityMapperTest {
                 imageUrl = "image1",
                 releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
                 rating = 4.5,
-                insertionOrder = 5
+                insertionOrder = 5,
             ),
             GameEntity(
                 id = 2,
@@ -50,8 +49,8 @@ internal class GameEntityMapperTest {
                 imageUrl = "image2",
                 releaseDate = Instant.parse("2024-02-01T00:00:00Z"),
                 rating = 4.0,
-                insertionOrder = 6
-            )
+                insertionOrder = 6,
+            ),
         )
 
         val result = mapper.map(games, startOrder = 5)
@@ -68,7 +67,7 @@ internal class GameEntityMapperTest {
                 imageUrl = "image1",
                 releaseDate = null,
                 rating = 1.0,
-                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE)
+                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE),
             ),
             Game(
                 id = 2,
@@ -76,13 +75,13 @@ internal class GameEntityMapperTest {
                 imageUrl = "image2",
                 releaseDate = null,
                 rating = 2.0,
-                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE)
-            )
+                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE),
+            ),
         )
 
         val expected = setOf(
             PlatformEntity(GamePlatform.PC.id),
-            PlatformEntity(GamePlatform.XBOX_ONE.id)
+            PlatformEntity(GamePlatform.XBOX_ONE.id),
         )
 
         val result = mapper.map(games, startOrder = 0)
@@ -99,7 +98,7 @@ internal class GameEntityMapperTest {
                 imageUrl = "image1",
                 releaseDate = null,
                 rating = 1.0,
-                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE)
+                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE),
             ),
             Game(
                 id = 2,
@@ -107,15 +106,15 @@ internal class GameEntityMapperTest {
                 imageUrl = "image2",
                 releaseDate = null,
                 rating = 2.0,
-                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE)
-            )
+                platforms = setOf(GamePlatform.PC, GamePlatform.XBOX_ONE),
+            ),
         )
 
         val expected = setOf(
             GamePlatformCrossRef(gameId = 1, platformId = GamePlatform.PC.id),
             GamePlatformCrossRef(gameId = 1, platformId = GamePlatform.XBOX_ONE.id),
             GamePlatformCrossRef(gameId = 2, platformId = GamePlatform.PC.id),
-            GamePlatformCrossRef(gameId = 2, platformId = GamePlatform.XBOX_ONE.id)
+            GamePlatformCrossRef(gameId = 2, platformId = GamePlatform.XBOX_ONE.id),
         )
 
         val result = mapper.map(games, startOrder = 0)
@@ -132,12 +131,12 @@ internal class GameEntityMapperTest {
                 imageUrl = "image",
                 releaseDate = Instant.parse("2024-03-03T00:00:00Z"),
                 rating = 3.5,
-                insertionOrder = 10
+                insertionOrder = 10,
             ),
             platforms = listOf(
                 PlatformEntity(GamePlatform.PC.id),
-                PlatformEntity(GamePlatform.ANDROID.id)
-            )
+                PlatformEntity(GamePlatform.ANDROID.id),
+            ),
         )
 
         val expected = Game(
@@ -146,7 +145,7 @@ internal class GameEntityMapperTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-03-03T00:00:00Z"),
             rating = 3.5,
-            platforms = setOf(GamePlatform.PC, GamePlatform.ANDROID)
+            platforms = setOf(GamePlatform.PC, GamePlatform.ANDROID),
         )
 
         val actual = mapper.map(model)

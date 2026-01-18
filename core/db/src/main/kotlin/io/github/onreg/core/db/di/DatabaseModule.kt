@@ -17,13 +17,14 @@ private const val DB_NAME = "next_play.db"
 @Module
 @InstallIn(SingletonComponent::class)
 public object DatabaseModule {
-
     @Provides
     @Singleton
-    public fun provideGameDatabase(@ApplicationContext context: Context): NextPlayDatabase =
-        Room.databaseBuilder(context, NextPlayDatabase::class.java, DB_NAME)
-            .fallbackToDestructiveMigration()
-            .build()
+    public fun provideGameDatabase(
+        @ApplicationContext context: Context,
+    ): NextPlayDatabase = Room
+        .databaseBuilder(context, NextPlayDatabase::class.java, DB_NAME)
+        .fallbackToDestructiveMigration()
+        .build()
 
     @Provides
     @Singleton

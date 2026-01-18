@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 @VisibleForTesting
 public suspend fun <T> Flow<T>.test(
     testScope: TestScope,
-    block: suspend TestObserver<T>.() -> Unit
+    block: suspend TestObserver<T>.() -> Unit,
 ) {
     val observer = TestObserver(testScope = testScope, flow = this)
     testScope.advanceUntilIdle()

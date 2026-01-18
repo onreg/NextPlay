@@ -27,7 +27,7 @@ import kotlin.test.assertNull
 import io.github.onreg.ui.game.presentation.R as GamePresentationR
 
 internal class GameListTestDriver private constructor(
-    private val composeRule: ComposeContentTestRule
+    private val composeRule: ComposeContentTestRule,
 ) {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -46,23 +46,23 @@ internal class GameListTestDriver private constructor(
         composeRule.onNodeWithTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR)
 
     private val retryButtonNode = composeRule.onNodeWithText(
-        context.getString(GamePresentationR.string.retry)
+        context.getString(GamePresentationR.string.retry),
     )
 
     private val errorTitle = composeRule.onNodeWithText(
-        context.getString(GamePresentationR.string.games_error_title)
+        context.getString(GamePresentationR.string.games_error_title),
     )
     private val errorDescriptionNode = composeRule.onNodeWithText(
-        context.getString(io.github.onreg.core.ui.R.string.error_message)
+        context.getString(io.github.onreg.core.ui.R.string.error_message),
     )
     private val networkErrorDescriptionNode = composeRule.onNodeWithText(
-        context.getString(io.github.onreg.core.ui.R.string.error_network_message)
+        context.getString(io.github.onreg.core.ui.R.string.error_network_message),
     )
 
     private val errorItem = composeRule.onNodeWithTag(GameListTestTags.GAME_LIST_APPEND_ERROR)
 
     private val bookmarkButtonNode = composeRule.onNodeWithContentDescription(
-        context.getString(GamePresentationR.string.add_bookmark)
+        context.getString(GamePresentationR.string.add_bookmark),
     )
     private val cardNode: (String) -> SemanticsNodeInteraction =
         { cardId ->
@@ -87,7 +87,7 @@ internal class GameListTestDriver private constructor(
             prepend: LoadState = LoadState.NotLoading(false),
             mediatorRefresh: LoadState? = null,
             mediatorAppend: LoadState? = null,
-            mediatorPrepend: LoadState? = null
+            mediatorPrepend: LoadState? = null,
         ): Builder = apply {
             val mediatorLoadStates = if (
                 mediatorRefresh != null || mediatorAppend != null || mediatorPrepend != null
@@ -95,7 +95,7 @@ internal class GameListTestDriver private constructor(
                 LoadStates(
                     refresh = mediatorRefresh ?: LoadState.NotLoading(false),
                     append = mediatorAppend ?: LoadState.NotLoading(false),
-                    prepend = mediatorPrepend ?: LoadState.NotLoading(false)
+                    prepend = mediatorPrepend ?: LoadState.NotLoading(false),
                 )
             } else {
                 null
@@ -106,9 +106,9 @@ internal class GameListTestDriver private constructor(
                 sourceLoadStates = LoadStates(
                     refresh = refresh,
                     append = append,
-                    prepend = prepend
+                    prepend = prepend,
                 ),
-                mediatorLoadStates = mediatorLoadStates
+                mediatorLoadStates = mediatorLoadStates,
             )
         }
 
@@ -127,7 +127,7 @@ internal class GameListTestDriver private constructor(
                         driver.errorContentCount += 1
                         driver.lastErrorType = errorType
                     },
-                    onEmpty = { driver.emptyContentCount += 1 }
+                    onEmpty = { driver.emptyContentCount += 1 },
                 )
             }
             return driver

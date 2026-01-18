@@ -11,7 +11,6 @@ import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 internal class GamesPaneTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -19,12 +18,12 @@ internal class GamesPaneTest {
 
     @Test
     fun `should show full screen error when refresh fails without cached data`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(
                 emptyList(),
-                refresh = LoadState.Error(IllegalStateException("boom"))
-            )
-            .build()
+                refresh = LoadState.Error(IllegalStateException("boom")),
+            ).build()
 
         driver.assertListIsNotDisplayed()
         driver.asserErrorDisplayed()
@@ -33,12 +32,12 @@ internal class GamesPaneTest {
 
     @Test
     fun `should show network error message when refresh fails with io exception`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(
                 emptyList(),
-                refresh = LoadState.Error(IOException("boom"))
-            )
-            .build()
+                refresh = LoadState.Error(IOException("boom")),
+            ).build()
 
         driver.assertListIsNotDisplayed()
         driver.assertNetworkErrorMessageDisplayed()
@@ -47,12 +46,12 @@ internal class GamesPaneTest {
 
     @Test
     fun `should show empty state when not loading and no cached data`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(
                 emptyList(),
-                append = LoadState.NotLoading(true)
-            )
-            .build()
+                append = LoadState.NotLoading(true),
+            ).build()
 
         driver.assertListIsNotDisplayed()
         driver.assertEmptyStateDisplayed()
@@ -61,7 +60,8 @@ internal class GamesPaneTest {
 
     @Test
     fun `should display list`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .build()
         driver.assertListDisplayed()
@@ -71,12 +71,12 @@ internal class GamesPaneTest {
 
     @Test
     fun `should trigger callback on retry after refresh error`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(
                 emptyList(),
-                refresh = LoadState.Error(IllegalStateException("boom"))
-            )
-            .build()
+                refresh = LoadState.Error(IllegalStateException("boom")),
+            ).build()
 
         driver.clickRetryButton()
         driver.assertPageRetryClicked()
@@ -84,12 +84,12 @@ internal class GamesPaneTest {
 
     @Test
     fun `should trigger callback on retry after append error`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(
                 listOf(defaultCard),
-                append = LoadState.Error(IllegalStateException("boom"))
-            )
-            .build()
+                append = LoadState.Error(IllegalStateException("boom")),
+            ).build()
 
         driver.clickRetryButton()
         driver.assertPageRetryClicked()
@@ -97,7 +97,8 @@ internal class GamesPaneTest {
 
     @Test
     fun `should trigger callback on pull to refresh`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .build()
 
@@ -107,7 +108,8 @@ internal class GamesPaneTest {
 
     @Test
     fun `should trigger callback on bookmark click`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .build()
         driver.clickBookmarkButton()
@@ -116,7 +118,8 @@ internal class GamesPaneTest {
 
     @Test
     fun `should trigger callback on card click`() {
-        val driver = GamesPaneTestDriver.Builder(composeRule)
+        val driver = GamesPaneTestDriver
+            .Builder(composeRule)
             .pagingState(listOf(defaultCard))
             .build()
         driver.clickCard(defaultCard.id)

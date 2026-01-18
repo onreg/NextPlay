@@ -51,7 +51,8 @@ public enum class GamePlatform(public val id: Int) {
     P_3DO(111),
     JAGUAR(112),
     GAME_GEAR(77),
-    NEO_GEO(12);
+    NEO_GEO(12),
+    ;
 
     public companion object {
         private val idMap: Map<Int, GamePlatform> = entries.associateBy(GamePlatform::id)

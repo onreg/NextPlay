@@ -20,7 +20,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 internal class GamesPaneViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -30,7 +29,7 @@ internal class GamesPaneViewModelTest {
         imageUrl = "image",
         releaseDate = null,
         rating = 4.5,
-        platforms = setOf(GamePlatform.PC)
+        platforms = setOf(GamePlatform.PC),
     )
     private val pagingData = PagingData.from(listOf(game))
     private val defaultCard = GameCardUI(
@@ -40,13 +39,17 @@ internal class GamesPaneViewModelTest {
         releaseDate = "",
         platforms = setOf(PlatformUI(name = "PC", iconRes = 1)),
         rating = ChipUI(text = "4.5", isSelected = true),
-        isBookmarked = false
+        isBookmarked = false,
     )
     private val gamesFlow = flowOf(pagingData)
 
-    private val defaultDriverBuilder = GamesPaneViewModelTestDriver.Builder()
+    private val defaultDriverBuilder = GamesPaneViewModelTestDriver
+        .Builder()
         .repositoryGames(gamesFlow)
-        .platformUiMapperMapPlatform(setOf(GamePlatform.PC), setOf(PlatformUI(name = "PC", iconRes = 1)))
+        .platformUiMapperMapPlatform(
+            setOf(GamePlatform.PC),
+            setOf(PlatformUI(name = "PC", iconRes = 1)),
+        )
 
     @Test
     fun `should navigate to details`() = runTest {

@@ -22,10 +22,9 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = Gray92,
     surfaceContainerLow = Gray12,
     surfaceContainerHigh = Gray33,
-
     outlineVariant = Gray70,
     onSecondaryContainer = Gray92,
-    secondaryContainer = Orange60
+    secondaryContainer = Orange60,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -40,17 +39,16 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = Gray20,
     surfaceContainerLow = Gray100,
     surfaceContainerHigh = Gray94,
-
     outlineVariant = Gray40,
     onSecondaryContainer = Gray20,
-    secondaryContainer = Orange60
+    secondaryContainer = Orange60,
 )
 
 @Composable
 public fun NextPlayTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false, // TODO Check dynamic color support
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -58,11 +56,13 @@ public fun NextPlayTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        else -> if (darkTheme) DarkColorScheme else LightColorScheme
+        else -> {
+            if (darkTheme) DarkColorScheme else LightColorScheme
+        }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        content = content
+        content = content,
     )
 }

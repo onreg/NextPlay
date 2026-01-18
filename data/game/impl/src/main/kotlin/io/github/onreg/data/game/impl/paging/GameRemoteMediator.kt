@@ -26,25 +26,26 @@ public class GameRemoteMediator(
     private val remoteKeysDao: GameRemoteKeysDao,
     private val dtoMapper: GameDtoMapper,
     private val entityMapper: GameEntityMapper,
-    private val transactionProvider: TransactionProvider
+    private val transactionProvider: TransactionProvider,
 ) : RemoteMediator<Int, GameWithPlatforms>() {
-
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, GameWithPlatforms>
+        state: PagingState<Int, GameWithPlatforms>,
     ): MediatorResult {
         val page = when (val getNextPageResult = resolvePageToLoad(loadType, state)) {
             is NextPage.Error -> return MediatorResult.Error(getNextPageResult.exception)
+
             NextPage.WaitForRefresh -> return MediatorResult.Success(endOfPaginationReached = false)
+
             is NextPage.Value -> getNextPageResult.nextPage ?: return MediatorResult.Success(
-                endOfPaginationReached = true
+                endOfPaginationReached = true,
             )
         }
 
         val config = state.config
         val response = gameApi.getGames(
             page = page,
-            pageSize = config.pageSize
+            pageSize = config.pageSize,
         )
 
         return when (response) {
@@ -53,7 +54,7 @@ public class GameRemoteMediator(
                     page = page,
                     response = response.body,
                     isRefresh = loadType == LoadType.REFRESH,
-                    config = config
+                    config = config,
                 )
                 MediatorResult.Success(endOfPaginationReached = nextPage == null)
             }
@@ -80,7 +81,7 @@ public class GameRemoteMediator(
             GameRemoteKeysEntity(
                 entity.id,
                 if (page == INITIAL_PAGE) null else page - 1,
-                nextPage
+                nextPage,
             )
         }
         transactionProvider.run {
@@ -95,30 +96,39 @@ public class GameRemoteMediator(
 
     private fun getNextPageFromResponse(next: String): Int? {
         val query = runCatching { URI(next).query }.getOrNull() ?: return null
-        return query.split('&')
+        return query
+            .split('&')
             .mapNotNull {
                 val parts = it.split('=', limit = 2)
                 if (parts.size == 2) parts[0] to parts[1] else null
-            }
-            .firstOrNull { it.first == "page" }
+            }.firstOrNull { it.first == "page" }
             ?.second
             ?.toIntOrNull()
     }
 
     private suspend fun resolvePageToLoad(
         loadType: LoadType,
-        state: PagingState<Int, GameWithPlatforms>
+        state: PagingState<Int, GameWithPlatforms>,
     ): NextPage {
         return when (loadType) {
-            LoadType.REFRESH -> NextPage.Value(nextPage = INITIAL_PAGE)
-            LoadType.PREPEND -> NextPage.Value(nextPage = null)
+            LoadType.REFRESH -> {
+                NextPage.Value(nextPage = INITIAL_PAGE)
+            }
+
+            LoadType.PREPEND -> {
+                NextPage.Value(nextPage = null)
+            }
+
             LoadType.APPEND -> {
                 val lastItem =
-                    state.pages.lastOrNull()?.data?.lastOrNull()
+                    state.pages
+                        .lastOrNull()
+                        ?.data
+                        ?.lastOrNull()
                         ?: return NextPage.WaitForRefresh
                 val remoteKey = remoteKeysDao.getRemoteKey(lastItem.game.id)
                     ?: return NextPage.Error(
-                        IllegalStateException("Missing remote key for id=${lastItem.game.id}")
+                        IllegalStateException("Missing remote key for id=${lastItem.game.id}"),
                     )
 
                 return NextPage.Value(nextPage = remoteKey.nextKey)
@@ -129,6 +139,8 @@ public class GameRemoteMediator(
 
 private sealed interface NextPage {
     object WaitForRefresh : NextPage
+
     data class Value(val nextPage: Int?) : NextPage
+
     data class Error(val exception: Throwable) : NextPage
 }

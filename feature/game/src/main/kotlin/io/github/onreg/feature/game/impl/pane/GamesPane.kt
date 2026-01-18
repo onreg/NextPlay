@@ -22,6 +22,7 @@ import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.collectWithLifecycle
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.feature.game.impl.GamesPaneViewModel
+import io.github.onreg.feature.game.impl.R
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.model.GamesPaneEvent
 import io.github.onreg.feature.game.impl.model.GamesPaneListEvent
@@ -33,14 +34,13 @@ import io.github.onreg.ui.game.presentation.components.list.GameList
 import io.github.onreg.ui.game.presentation.components.list.test.GameListTestData
 import kotlinx.coroutines.flow.Flow
 import io.github.onreg.core.ui.R as CoreUiR
-import io.github.onreg.feature.game.impl.R
 import io.github.onreg.ui.game.presentation.R as PresentationR
 
 @Composable
 public fun GamesPane(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    isLargeScreen: Boolean = false
+    isLargeScreen: Boolean = false,
 ) {
     val viewModel = hiltViewModel<GamesPaneViewModel>()
 
@@ -55,12 +55,14 @@ public fun GamesPane(
         onRefreshClicked = viewModel::onRefreshClicked,
         onRetryClicked = viewModel::onRetryClicked,
         onBookMarkClicked = viewModel::onBookMarkClicked,
-        onCardClicked = viewModel::onCardClicked
+        onCardClicked = viewModel::onCardClicked,
     )
 
     viewModel.events.collectWithLifecycle { event ->
         when (event) {
-            is GamesPaneEvent.GoToDetails -> navController.navigate(GamesRoute.detailsRoute(event.gameId))
+            is GamesPaneEvent.GoToDetails -> navController.navigate(
+                GamesRoute.detailsRoute(event.gameId),
+            )
         }
     }
 
@@ -81,7 +83,7 @@ internal fun GamesPaneScreen(
     onRefreshClicked: () -> Unit = {},
     onRetryClicked: () -> Unit = {},
     onBookMarkClicked: (String) -> Unit = {},
-    onCardClicked: (String) -> Unit = {}
+    onCardClicked: (String) -> Unit = {},
 ) {
     ContentComponent(
         modifier = modifier,
@@ -90,7 +92,7 @@ internal fun GamesPaneScreen(
         onRefreshClicked = onRefreshClicked,
         onPageRetryClicked = onRetryClicked,
         onBookMarkClicked = onBookMarkClicked,
-        onCardClicked = onCardClicked
+        onCardClicked = onCardClicked,
     )
 }
 
@@ -102,7 +104,7 @@ private fun ContentComponent(
     onRefreshClicked: () -> Unit,
     onPageRetryClicked: () -> Unit,
     onBookMarkClicked: (String) -> Unit,
-    onCardClicked: (String) -> Unit
+    onCardClicked: (String) -> Unit,
 ) {
     GameList(
         modifier = modifier,
@@ -116,10 +118,10 @@ private fun ContentComponent(
             ErrorComponent(
                 modifier = modifier,
                 errorType = errorType,
-                onRetry = onPageRetryClicked
+                onRetry = onPageRetryClicked,
             )
         },
-        onEmpty = { EmptyComponent(modifier) }
+        onEmpty = { EmptyComponent(modifier) },
     )
 }
 
@@ -127,33 +129,31 @@ private fun ContentComponent(
 private fun ErrorComponent(
     modifier: Modifier = Modifier,
     errorType: GameListErrorType,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
 ) {
     Box(
         modifier = modifier.testTag(GamesPaneTestTags.TAG_COMPONENT_ERROR),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         GameCardError(
             errorType = errorType,
-            onRetry = onRetry
+            onRetry = onRetry,
         )
     }
 }
 
 @Composable
-private fun EmptyComponent(
-    modifier: Modifier = Modifier
-) {
+private fun EmptyComponent(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.testTag(GamesPaneTestTags.TAG_COMPONENT_EMPTY),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         ContentInfo(
             contentInfoUI = ContentInfoUI(
                 iconRes = CoreUiR.drawable.ic_controller_24,
                 titleResId = PresentationR.string.games_empty_title,
-                descriptionResId = R.string.games_empty_description
-            )
+                descriptionResId = R.string.games_empty_description,
+            ),
         )
     }
 }
@@ -161,6 +161,7 @@ private fun EmptyComponent(
 public object GamesRoute {
     public const val games: String = "GamesPane"
     public const val details: String = "GameDetails/{gameId}"
+
     public fun detailsRoute(gameId: String): String = "GameDetails/$gameId"
 }
 
@@ -169,7 +170,7 @@ public object GamesRoute {
 private fun ErrorPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.errorState
+        pagingState = GameListTestData.errorState,
     )
 }
 
@@ -178,7 +179,7 @@ private fun ErrorPreview() {
 private fun NetworkErrorPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.networkErrorState
+        pagingState = GameListTestData.networkErrorState,
     )
 }
 
@@ -187,7 +188,7 @@ private fun NetworkErrorPreview() {
 private fun EmptyPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.emptyState
+        pagingState = GameListTestData.emptyState,
     )
 }
 
@@ -196,7 +197,7 @@ private fun EmptyPreview() {
 private fun LoadedPreview() {
     GamesPanePreview(
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.loadedState
+        pagingState = GameListTestData.loadedState,
     )
 }
 
@@ -206,7 +207,7 @@ private fun ErrorTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.errorState
+        pagingState = GameListTestData.errorState,
     )
 }
 
@@ -216,7 +217,7 @@ private fun NetworkErrorTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.networkErrorState
+        pagingState = GameListTestData.networkErrorState,
     )
 }
 
@@ -226,7 +227,7 @@ private fun EmptyTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.emptyState
+        pagingState = GameListTestData.emptyState,
     )
 }
 
@@ -236,7 +237,7 @@ private fun LoadedTabletPreview() {
     GamesPanePreview(
         isLargeScreen = true,
         gamePaneState = GamePaneState,
-        pagingState = GameListTestData.loadedState
+        pagingState = GameListTestData.loadedState,
     )
 }
 
@@ -244,7 +245,7 @@ private fun LoadedTabletPreview() {
 private fun GamesPanePreview(
     isLargeScreen: Boolean = false,
     gamePaneState: GamePaneState,
-    pagingState: Flow<PagingData<GameCardUI>>
+    pagingState: Flow<PagingData<GameCardUI>>,
 ) {
     NextPlayTheme {
         val lazyPagingItems = pagingState.collectAsLazyPagingItems()
@@ -255,7 +256,7 @@ private fun GamesPanePreview(
                     .fillMaxSize(),
                 isLargeScreen = isLargeScreen,
                 gamePaneState = gamePaneState,
-                pagingState = lazyPagingItems
+                pagingState = lazyPagingItems,
             )
         }
     }

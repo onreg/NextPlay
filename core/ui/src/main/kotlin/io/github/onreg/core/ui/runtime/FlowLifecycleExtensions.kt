@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 public fun <T> Flow<T>.collectWithLifecycle(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    action: suspend (T) -> Unit
+    action: suspend (T) -> Unit,
 ) {
     val currentAction by rememberUpdatedState(action)
     LaunchedEffect(this, lifecycleOwner, minActiveState) {

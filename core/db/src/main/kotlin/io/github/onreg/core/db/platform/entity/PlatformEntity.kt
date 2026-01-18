@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 public data class PlatformEntity(
     @PrimaryKey
     @ColumnInfo(name = ID)
-    val id: Int
+    val id: Int,
 ) {
     internal companion object {
         const val TABLE_NAME: String = "platforms"

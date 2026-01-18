@@ -6,11 +6,10 @@ import io.github.onreg.core.network.rawg.dto.PlatformWrapperDto
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
 import java.time.Instant
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class GameDtoMapperTest {
-
     private val mapper: GameDtoMapper = GameDtoMapperImpl()
 
     @Test
@@ -21,7 +20,7 @@ internal class GameDtoMapperTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
             rating = 4.5,
-            platforms = listOf(PlatformWrapperDto(PlatformDto(GamePlatform.PC.id)))
+            platforms = listOf(PlatformWrapperDto(PlatformDto(GamePlatform.PC.id))),
         )
 
         val expected = Game(
@@ -30,7 +29,7 @@ internal class GameDtoMapperTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
             rating = 4.5,
-            platforms = setOf(GamePlatform.PC)
+            platforms = setOf(GamePlatform.PC),
         )
 
         val actual = mapper.map(dto)
@@ -46,7 +45,7 @@ internal class GameDtoMapperTest {
             imageUrl = null,
             releaseDate = null,
             rating = null,
-            platforms = emptyList()
+            platforms = emptyList(),
         )
 
         val expected = Game(
@@ -55,7 +54,7 @@ internal class GameDtoMapperTest {
             imageUrl = "",
             releaseDate = null,
             rating = 0.0,
-            platforms = emptySet()
+            platforms = emptySet(),
         )
 
         val actual = mapper.map(dto)
@@ -74,8 +73,8 @@ internal class GameDtoMapperTest {
             platforms = listOf(
                 PlatformWrapperDto(platform = null),
                 PlatformWrapperDto(platform = PlatformDto(GamePlatform.XBOX_ONE.id)),
-                PlatformWrapperDto(platform = PlatformDto(999))
-            )
+                PlatformWrapperDto(platform = PlatformDto(999)),
+            ),
         )
 
         val expected = Game(
@@ -84,7 +83,7 @@ internal class GameDtoMapperTest {
             imageUrl = "image",
             releaseDate = null,
             rating = 3.0,
-            platforms = setOf(GamePlatform.XBOX_ONE)
+            platforms = setOf(GamePlatform.XBOX_ONE),
         )
 
         val actual = mapper.map(dto)

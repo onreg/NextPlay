@@ -30,7 +30,7 @@ public fun AppHeader(
                 IconButton(onClick = onNavigationClicked) {
                     Icon(
                         painter = painterResource(menuItem.iconResId),
-                        contentDescription = stringResource(menuItem.contentDescriptionResId)
+                        contentDescription = stringResource(menuItem.contentDescriptionResId),
                     )
                 }
             }
@@ -46,15 +46,15 @@ public fun AppHeader(
                 IconButton(
                     onClick = {
                         onMenuItemClicked[index].invoke()
-                    }
+                    },
                 ) {
                     Icon(
                         painter = painterResource(menuItem.iconResId),
-                        contentDescription = stringResource(menuItem.contentDescriptionResId)
+                        contentDescription = stringResource(menuItem.contentDescriptionResId),
                     )
                 }
             }
-        }
+        },
     )
 }
 
@@ -67,15 +67,15 @@ private fun AppHeaderPreview() {
                 titleResId = R.string.preview_text,
                 navigationItem = AppHeaderMenu(
                     iconResId = R.drawable.ic_back_24,
-                    contentDescriptionResId = R.string.preview_text
+                    contentDescriptionResId = R.string.preview_text,
                 ),
                 menuItems = listOf(
                     AppHeaderMenu(
                         iconResId = R.drawable.ic_share_24,
-                        contentDescriptionResId = R.string.preview_text
-                    )
-                )
-            )
+                        contentDescriptionResId = R.string.preview_text,
+                    ),
+                ),
+            ),
         )
     }
 }

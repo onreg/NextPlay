@@ -42,7 +42,7 @@ public fun GameCard(
     modifier: Modifier = Modifier,
     gameData: GameCardUI,
     onBookmarkClick: () -> Unit = {},
-    onCardClicked: () -> Unit = {}
+    onCardClicked: () -> Unit = {},
 ) {
     ElevatedCard(
         modifier = modifier,
@@ -54,14 +54,14 @@ public fun GameCard(
                     modifier = Modifier
                         .aspectRatio(2f)
                         .clip(MaterialTheme.shapes.small),
-                    imageUrl = gameData.imageUrl
+                    imageUrl = gameData.imageUrl,
                 )
 
                 Chip(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(end = Spacing.sm),
-                    chipUI = gameData.rating
+                    chipUI = gameData.rating,
                 )
             }
 
@@ -71,14 +71,14 @@ public fun GameCard(
                         .align(Alignment.TopEnd)
                         .requiredSize(ControlsSize.IconButton)
                         .testTag(GAME_CARD_ADD_BOOKMARK_BUTTON),
-                    onClick = onBookmarkClick
+                    onClick = onBookmarkClick,
                 ) {
                     Icon(
                         painter = painterResource(
                             when (gameData.isBookmarked) {
                                 true -> R.drawable.ic_bookmark_filled_24
                                 false -> R.drawable.ic_bookmark_24
-                            }
+                            },
                         ),
                         tint = MaterialTheme.colorScheme.primary,
                         contentDescription = stringResource(
@@ -86,8 +86,8 @@ public fun GameCard(
                                 R.string.remove_bookmark
                             } else {
                                 R.string.add_bookmark
-                            }
-                        )
+                            },
+                        ),
                     )
                 }
 
@@ -97,23 +97,23 @@ public fun GameCard(
                             .fillMaxWidth()
                             .padding(
                                 end = (ControlsSize.IconButton - Spacing.sm)
-                                    .coerceAtLeast(0.dp)
+                                    .coerceAtLeast(0.dp),
                             ),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         text = gameData.title,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
                     )
 
                     Text(
                         modifier = Modifier.padding(top = Spacing.sm),
                         text = gameData.releaseDate,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
 
                     Platforms(
                         modifier = Modifier.padding(top = Spacing.sm),
-                        platforms = gameData.platforms
+                        platforms = gameData.platforms,
                     )
                 }
             }
@@ -124,12 +124,12 @@ public fun GameCard(
 @Composable
 private fun Platforms(
     modifier: Modifier = Modifier,
-    platforms: Set<PlatformUI>
+    platforms: Set<PlatformUI>,
 ) {
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-        verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
         platforms.forEach { platform ->
             Icon(
@@ -163,10 +163,10 @@ private fun GameListCardPreview() {
                 ),
                 rating = ChipUI(
                     text = "#100",
-                    isSelected = true
+                    isSelected = true,
                 ),
-                isBookmarked = false
-            )
+                isBookmarked = false,
+            ),
         )
     }
 }

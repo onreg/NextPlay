@@ -16,12 +16,11 @@ import kotlin.test.assertNull
 
 @RunWith(AndroidJUnit4::class)
 internal class GameRemoteKeysDaoTest {
-
-    private val database = Room.inMemoryDatabaseBuilder(
-        ApplicationProvider.getApplicationContext(),
-        NextPlayDatabase::class.java
-    )
-        .allowMainThreadQueries()
+    private val database = Room
+        .inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            NextPlayDatabase::class.java,
+        ).allowMainThreadQueries()
         .build()
     private val gameDao = database.gameDao()
     private val remoteKeysDao = database.gameRemoteKeysDao()
@@ -39,7 +38,7 @@ internal class GameRemoteKeysDaoTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-05-01T00:00:00Z"),
             rating = 3.9,
-            insertionOrder = 1
+            insertionOrder = 1,
         )
         gameDao.insertGames(listOf(game))
         val remoteKey = GameRemoteKeysEntity(gameId = game.id, prevKey = null, nextKey = 5)
@@ -50,7 +49,6 @@ internal class GameRemoteKeysDaoTest {
         assertEquals(remoteKey, loaded)
     }
 
-
     @Test
     fun `should cascade delete remote key when game is deleted`() = runTest {
         val game = GameEntity(
@@ -59,7 +57,7 @@ internal class GameRemoteKeysDaoTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-07-01T00:00:00Z"),
             rating = 4.1,
-            insertionOrder = 1
+            insertionOrder = 1,
         )
         gameDao.insertGames(listOf(game))
         val remoteKey = GameRemoteKeysEntity(gameId = game.id, prevKey = 1, nextKey = 3)

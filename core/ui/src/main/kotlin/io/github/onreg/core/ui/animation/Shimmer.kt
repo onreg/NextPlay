@@ -23,9 +23,8 @@ private const val TRANSITION_LABEL = "ShimmerTransition"
 private const val OFFSET_ANIMATION_LABEL = "ShimmerOffsetAnimation"
 
 @Composable
-public fun Modifier.shimmer(cardWidthPx: Float): Modifier {
-    return background(rememberShimmerBrush(cardWidthPx))
-}
+public fun Modifier.shimmer(cardWidthPx: Float): Modifier =
+    background(rememberShimmerBrush(cardWidthPx))
 
 @Composable
 public fun rememberShimmerBrush(cardWidthPx: Float): Brush {
@@ -36,19 +35,19 @@ public fun rememberShimmerBrush(cardWidthPx: Float): Brush {
         targetValue = cardWidthPx + shimmerWidth,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 900, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            repeatMode = RepeatMode.Restart,
         ),
-        label = OFFSET_ANIMATION_LABEL
+        label = OFFSET_ANIMATION_LABEL,
     )
     val baseColor = MaterialTheme.colorScheme.surfaceContainerHigh
     return Brush.linearGradient(
         colors = listOf(
             baseColor.copy(alpha = 0.5f),
             baseColor.copy(alpha = 0.2f),
-            baseColor.copy(alpha = 0.5f)
+            baseColor.copy(alpha = 0.5f),
         ),
         start = Offset(offsetX.value - shimmerWidth, 0f),
-        end = Offset(offsetX.value + shimmerWidth, shimmerWidth)
+        end = Offset(offsetX.value + shimmerWidth, shimmerWidth),
     )
 }
 
@@ -60,7 +59,7 @@ private fun ShimmerPreview() {
         Box(
             modifier = Modifier
                 .size(width = 200.dp, height = 100.dp)
-                .shimmer(widthPx)
+                .shimmer(widthPx),
         )
     }
 }

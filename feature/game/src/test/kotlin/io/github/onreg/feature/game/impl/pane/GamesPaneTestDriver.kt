@@ -18,19 +18,18 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
-import io.github.onreg.ui.game.presentation.components.card.test.GameCardTestTags
-import io.github.onreg.ui.game.presentation.components.list.test.GameListTestTags
 import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
+import io.github.onreg.ui.game.presentation.components.card.test.GameCardTestTags
+import io.github.onreg.ui.game.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.assertEquals
 import io.github.onreg.ui.game.presentation.R as GamePresentationR
 
 internal class GamesPaneTestDriver private constructor(
-    private val composeRule: ComposeContentTestRule
+    private val composeRule: ComposeContentTestRule,
 ) {
-
     private val emptyStateNode = composeRule.onNodeWithTag(GamesPaneTestTags.TAG_COMPONENT_EMPTY)
 
     private val listNode = composeRule.onNodeWithTag(GameListTestTags.GAME_LIST)
@@ -38,7 +37,7 @@ internal class GamesPaneTestDriver private constructor(
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private val retryButtonNode = composeRule.onNodeWithText(
-        context.getString(GamePresentationR.string.retry)
+        context.getString(GamePresentationR.string.retry),
     )
     private val bookmarkButtonNode =
         composeRule.onNodeWithTag(GameCardTestTags.GAME_CARD_ADD_BOOKMARK_BUTTON)
@@ -46,13 +45,13 @@ internal class GamesPaneTestDriver private constructor(
     private val errorNode = composeRule.onNodeWithTag(GamesPaneTestTags.TAG_COMPONENT_ERROR)
 
     private val errorTitleNode = composeRule.onNodeWithText(
-        context.getString(GamePresentationR.string.games_error_title)
+        context.getString(GamePresentationR.string.games_error_title),
     )
     private val errorDescriptionNode = composeRule.onNodeWithText(
-        context.getString(io.github.onreg.core.ui.R.string.error_message)
+        context.getString(io.github.onreg.core.ui.R.string.error_message),
     )
     private val networkErrorDescriptionNode = composeRule.onNodeWithText(
-        context.getString(io.github.onreg.core.ui.R.string.error_network_message)
+        context.getString(io.github.onreg.core.ui.R.string.error_network_message),
     )
 
     private val cardNode: (String) -> SemanticsNodeInteraction =
@@ -73,15 +72,15 @@ internal class GamesPaneTestDriver private constructor(
             data: List<GameCardUI>,
             refresh: LoadState = LoadState.NotLoading(false),
             append: LoadState = LoadState.NotLoading(false),
-            prepend: LoadState = LoadState.NotLoading(false)
+            prepend: LoadState = LoadState.NotLoading(false),
         ): Builder = apply {
             pagingState.value = PagingData.from(
                 data,
                 sourceLoadStates = LoadStates(
                     refresh = refresh,
                     append = append,
-                    prepend = prepend
-                )
+                    prepend = prepend,
+                ),
             )
         }
 
@@ -97,7 +96,7 @@ internal class GamesPaneTestDriver private constructor(
                     onRefreshClicked = { driver.refreshCount += 1 },
                     onRetryClicked = { driver.pageRetryCount += 1 },
                     onBookMarkClicked = { driver.lastBookmarkedId = it },
-                    onCardClicked = { driver.lastCardClickedId = it }
+                    onCardClicked = { driver.lastCardClickedId = it },
                 )
             }
             return driver

@@ -28,9 +28,8 @@ internal class GameRemoteMediatorTestDriver private constructor(
     val dtoMapper: GameDtoMapper,
     val entityMapper: GameEntityMapper,
     val pagingConfig: PagingConfig,
-    private val transactionProvider: TransactionProvider
+    private val transactionProvider: TransactionProvider,
 ) : RemoteMediator<Int, GameWithPlatforms>() {
-
     private val mediator by lazy {
         GameRemoteMediator(
             gameApi = gameApi,
@@ -38,20 +37,21 @@ internal class GameRemoteMediatorTestDriver private constructor(
             remoteKeysDao = remoteKeysDao,
             dtoMapper = dtoMapper,
             entityMapper = entityMapper,
-            transactionProvider = transactionProvider
+            transactionProvider = transactionProvider,
         )
     }
 
-    override suspend fun load(loadType: LoadType, state: PagingState<Int, GameWithPlatforms>) =
-        mediator.load(loadType, state)
+    override suspend fun load(
+        loadType: LoadType,
+        state: PagingState<Int, GameWithPlatforms>,
+    ) = mediator.load(loadType, state)
 
-    fun emptyPagingState(): PagingState<Int, GameWithPlatforms> =
-        PagingState(
-            pages = emptyList(),
-            anchorPosition = null,
-            config = pagingConfig,
-            leadingPlaceholderCount = 0
-        )
+    fun emptyPagingState(): PagingState<Int, GameWithPlatforms> = PagingState(
+        pages = emptyList(),
+        anchorPosition = null,
+        config = pagingConfig,
+        leadingPlaceholderCount = 0,
+    )
 
     class Builder {
         private val gameApi: GameApi = mock()
@@ -68,28 +68,32 @@ internal class GameRemoteMediatorTestDriver private constructor(
             pageSize = 2,
             prefetchDistance = 1,
             initialLoadSize = 2,
-            maxSize = 10
+            maxSize = 10,
         )
 
-        fun gameApiGetGames(response: NetworkResponse<PaginatedResponseDto<GameDto>>): Builder = apply {
-            gameApi.stub {
-                onBlocking {
-                    getGames(
-                        page = 0,
-                        pageSize = pagingConfig.pageSize
-                    )
-                } doReturn response
+        fun gameApiGetGames(response: NetworkResponse<PaginatedResponseDto<GameDto>>): Builder =
+            apply {
+                gameApi.stub {
+                    onBlocking {
+                        getGames(
+                            page = 0,
+                            pageSize = pagingConfig.pageSize,
+                        )
+                    } doReturn response
+                }
             }
-        }
 
-        fun gameDtoMapperMap(dto: GameDto, mapped: Game): Builder = apply {
+        fun gameDtoMapperMap(
+            dto: GameDto,
+            mapped: Game,
+        ): Builder = apply {
             dtoMapper.stub { on { map(dto) } doReturn mapped }
         }
 
         fun gameEntityMapperMap(
             games: List<Game>,
             startOrder: Long,
-            bundle: GameInsertionBundle
+            bundle: GameInsertionBundle,
         ): Builder = apply {
             entityMapper.stub { on { map(games, startOrder) } doReturn bundle }
         }
@@ -101,7 +105,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
             dtoMapper = dtoMapper,
             entityMapper = entityMapper,
             pagingConfig = pagingConfig,
-            transactionProvider = transactionProvider
+            transactionProvider = transactionProvider,
         )
     }
 }

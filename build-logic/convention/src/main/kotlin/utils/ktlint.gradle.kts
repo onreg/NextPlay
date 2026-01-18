@@ -1,5 +1,5 @@
-import org.gradle.api.attributes.Bundling
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.attributes.Bundling
 
 /**
  * Ktlint Gradle convention (CLI-based).
@@ -54,19 +54,21 @@ tasks.register<JavaExec>("ktlintCheck") {
     mainClass.set("com.pinterest.ktlint.Main")
     workingDir = rootDir
 
-    inputs.files(fileTree(rootDir) {
-        include("**/*.kt", "**/*.kts")
-        exclude(
-            "**/build/**",
-            "**/.gradle/**",
-            "**/.idea/**",
-            "**/generated/**",
-            "**/out/**",
-            "**/node_modules/**",
-            "**/vendor/**",
-            "**/.git/**",
-        )
-    })
+    inputs.files(
+        fileTree(rootDir) {
+            include("**/*.kt", "**/*.kts")
+            exclude(
+                "**/build/**",
+                "**/.gradle/**",
+                "**/.idea/**",
+                "**/generated/**",
+                "**/out/**",
+                "**/node_modules/**",
+                "**/vendor/**",
+                "**/.git/**",
+            )
+        },
+    )
     outputs.dir(ktlintReportDir)
 
     doFirst {
@@ -88,19 +90,21 @@ tasks.register<JavaExec>("ktlintFormat") {
     mainClass.set("com.pinterest.ktlint.Main")
     workingDir = rootDir
 
-    inputs.files(fileTree(rootDir) {
-        include("**/*.kt", "**/*.kts")
-        exclude(
-            "**/build/**",
-            "**/.gradle/**",
-            "**/.idea/**",
-            "**/generated/**",
-            "**/out/**",
-            "**/node_modules/**",
-            "**/vendor/**",
-            "**/.git/**",
-        )
-    })
+    inputs.files(
+        fileTree(rootDir) {
+            include("**/*.kt", "**/*.kts")
+            exclude(
+                "**/build/**",
+                "**/.gradle/**",
+                "**/.idea/**",
+                "**/generated/**",
+                "**/out/**",
+                "**/node_modules/**",
+                "**/vendor/**",
+                "**/.git/**",
+            )
+        },
+    )
     outputs.dir(ktlintReportDir)
 
     doFirst {

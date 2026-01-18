@@ -14,10 +14,10 @@ import androidx.room.PrimaryKey
             entity = GameEntity::class,
             parentColumns = [GameEntity.ID],
             childColumns = [GameRemoteKeysEntity.GAME_ID],
-            onDelete = CASCADE
-        )
+            onDelete = CASCADE,
+        ),
     ],
-    indices = [Index(GameRemoteKeysEntity.GAME_ID)]
+    indices = [Index(GameRemoteKeysEntity.GAME_ID)],
 )
 public data class GameRemoteKeysEntity(
     @PrimaryKey
@@ -26,7 +26,7 @@ public data class GameRemoteKeysEntity(
     @ColumnInfo(name = PREV_KEY)
     val prevKey: Int?,
     @ColumnInfo(name = NEXT_KEY)
-    val nextKey: Int?
+    val nextKey: Int?,
 ) {
     internal companion object {
         const val TABLE_NAME: String = "game_remote_keys"

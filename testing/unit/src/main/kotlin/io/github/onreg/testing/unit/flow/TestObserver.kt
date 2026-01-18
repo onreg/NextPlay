@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 @VisibleForTesting
 public class TestObserver<T>(
     private val testScope: TestScope,
-    flow: Flow<T>
+    flow: Flow<T>,
 ) {
     private val values = mutableListOf<T>()
     private val job = testScope.launch {

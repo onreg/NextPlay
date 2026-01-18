@@ -83,8 +83,8 @@ tasks.withType<Detekt>().configureEach {
         checkstyle.required.set(false)
         sarif.required.set(false)
 
-        html.outputLocation.set(detektReportDir.map { it.file("detekt-${name}.html") })
-        markdown.outputLocation.set(detektReportDir.map { it.file("detekt-${name}.txt") })
+        html.outputLocation.set(detektReportDir.map { it.file("detekt-$name.html") })
+        markdown.outputLocation.set(detektReportDir.map { it.file("detekt-$name.txt") })
     }
 }
 

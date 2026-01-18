@@ -7,39 +7,42 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
 
-internal class NetworkResponseCall<Success : Any>(
-    private val delegate: Call<Success>
-) : Call<NetworkResponse<Success>> {
+internal class NetworkResponseCall<Success : Any>(private val delegate: Call<Success>) :
+    Call<NetworkResponse<Success>> {
     override fun enqueue(callback: Callback<NetworkResponse<Success>>) {
         delegate.enqueue(
             object : Callback<Success> {
-                override fun onResponse(call: Call<Success>, response: Response<Success>) {
+                override fun onResponse(
+                    call: Call<Success>,
+                    response: Response<Success>,
+                ) {
                     callback.onResponse(
                         this@NetworkResponseCall,
-                        Response.success(response.toNetworkResponse())
+                        Response.success(response.toNetworkResponse()),
                     )
                 }
 
-                override fun onFailure(call: Call<Success>, throwable: Throwable) {
+                override fun onFailure(
+                    call: Call<Success>,
+                    throwable: Throwable,
+                ) {
                     val networkResponse = when (throwable) {
                         is IOException -> NetworkResponse.Failure.NetworkError(throwable)
                         else -> NetworkResponse.Failure.OtherError(throwable)
                     }
                     callback.onResponse(this@NetworkResponseCall, Response.success(networkResponse))
                 }
-            }
+            },
         )
     }
 
-    override fun execute(): Response<NetworkResponse<Success>> {
-        return try {
-            val response = delegate.execute()
-            Response.success(response.toNetworkResponse())
-        } catch (exception: IOException) {
-            Response.success(NetworkResponse.Failure.NetworkError(exception))
-        } catch (exception: Throwable) {
-            Response.success(NetworkResponse.Failure.OtherError(exception))
-        }
+    override fun execute(): Response<NetworkResponse<Success>> = try {
+        val response = delegate.execute()
+        Response.success(response.toNetworkResponse())
+    } catch (exception: IOException) {
+        Response.success(NetworkResponse.Failure.NetworkError(exception))
+    } catch (exception: Throwable) {
+        Response.success(NetworkResponse.Failure.OtherError(exception))
     }
 
     override fun clone(): Call<NetworkResponse<Success>> = NetworkResponseCall(delegate.clone())

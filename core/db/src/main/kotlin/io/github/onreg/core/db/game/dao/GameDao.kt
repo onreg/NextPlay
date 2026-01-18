@@ -14,9 +14,7 @@ import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.dao.PlatformDao
 
 @Dao
-public abstract class GameDao internal constructor(
-    private val platformDao: PlatformDao
-) {
+public abstract class GameDao internal constructor(private val platformDao: PlatformDao) {
     public constructor(database: NextPlayDatabase) : this(database.platformDao())
 
     @Transaction

@@ -12,7 +12,7 @@ import org.junit.runner.Description
 
 @VisibleForTesting
 public class MainDispatcherRule(
-    public val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
+    public val dispatcher: TestDispatcher = UnconfinedTestDispatcher(),
 ) : TestWatcher() {
     public override fun starting(description: Description) {
         Dispatchers.setMain(dispatcher)
