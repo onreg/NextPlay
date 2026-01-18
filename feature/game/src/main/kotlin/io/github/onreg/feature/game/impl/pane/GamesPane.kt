@@ -159,8 +159,8 @@ private fun EmptyComponent(modifier: Modifier = Modifier) {
 }
 
 public object GamesRoute {
-    public const val games: String = "GamesPane"
-    public const val details: String = "GameDetails/{gameId}"
+    public const val GAMES: String = "GamesPane"
+    public const val DETAILS: String = "GameDetails/{gameId}"
 
     public fun detailsRoute(gameId: String): String = "GameDetails/$gameId"
 }

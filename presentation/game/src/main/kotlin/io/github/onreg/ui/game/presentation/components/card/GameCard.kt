@@ -141,6 +141,7 @@ private fun Platforms(
     }
 }
 
+@Suppress("ktlint:standard:max-line-length")
 @Composable
 @ThemePreview
 private fun GameListCardPreview() {

@@ -32,19 +32,19 @@ public interface ViewModelDelegate<State, Event> {
 
 public class ViewModelDelegateImpl<State, Event>(initial: State) :
     ViewModelDelegate<State, Event> {
-    private val _state: MutableStateFlow<State> = MutableStateFlow(initial)
+    private val stateFlow: MutableStateFlow<State> = MutableStateFlow(initial)
     private val _events = Channel<Event>()
 
     public override val events: Flow<Event> = _events.receiveAsFlow()
 
-    override fun state(): StateFlow<State> = _state.asStateFlow()
+    override fun state(): StateFlow<State> = stateFlow.asStateFlow()
 
     override fun <Remote, UI> CoroutineScope.mergedState(
         remote: Flow<Remote>,
         merge: (State, Remote) -> UI,
         initial: UI,
         started: SharingStarted,
-    ): StateFlow<UI> = combine(_state, remote, merge)
+    ): StateFlow<UI> = combine(stateFlow, remote, merge)
         .stateIn(this, started, initial)
 
     override fun CoroutineScope.sendEvent(event: Event) {
@@ -52,6 +52,6 @@ public class ViewModelDelegateImpl<State, Event>(initial: State) :
     }
 
     override fun reduce(block: (State) -> State) {
-        _state.update(block)
+        stateFlow.update(block)
     }
 }

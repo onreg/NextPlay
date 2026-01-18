@@ -3,7 +3,7 @@ import dev.detekt.gradle.extensions.DetektExtension
 import dev.detekt.gradle.extensions.FailOnSeverity
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
-/**
+/*
  * Detekt Gradle convention.
  *
  * Plugin tasks:

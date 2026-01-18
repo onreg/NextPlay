@@ -27,13 +27,13 @@ internal class MainActivity : ComponentActivity() {
                     val nav = rememberNavController()
                     NavHost(
                         navController = nav,
-                        startDestination = GamesRoute.games,
+                        startDestination = GamesRoute.GAMES,
                         modifier = Modifier.padding(paddingValues),
                     ) {
-                        composable(GamesRoute.games) {
+                        composable(GamesRoute.GAMES) {
                             GamesPane(navController = nav)
                         }
-                        composable(GamesRoute.details) { backStackEntry ->
+                        composable(GamesRoute.DETAILS) { backStackEntry ->
                             GameDetailsPane(
                                 gameId = backStackEntry.arguments?.getString("gameId").orEmpty(),
                                 goBack = {
