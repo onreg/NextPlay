@@ -3,7 +3,8 @@ config:
   warningsAsErrors: false
   checkExhaustiveness: false
   # when writing own rules with new properties, exclude the property path e.g.: ['my_rule_set', '.*>.*>[my_property]']
-  excludes: []
+  excludes:
+    - 'style>UnusedPrivateMember'
 
 processors:
   active: true
@@ -802,7 +803,23 @@ style:
     active: true
     aliases: ['unused']
     allowedNames: ''
-    ignoreAnnotated: ['Preview']
+    ignoreAnnotated:
+      - 'Preview'
+      - 'androidx.compose.ui.tooling.preview.Preview'
+      - 'ThemePreview'
+      - 'io.github.onreg.core.ui.preview.ThemePreview'
+      - 'TabletThemePreview'
+      - 'io.github.onreg.core.ui.preview.TabletThemePreview'
+  UnusedPrivateMember:
+    active: true
+    allowedNames: ''
+    ignoreAnnotated:
+      - 'Preview'
+      - 'androidx.compose.ui.tooling.preview.Preview'
+      - 'ThemePreview'
+      - 'io.github.onreg.core.ui.preview.ThemePreview'
+      - 'TabletThemePreview'
+      - 'io.github.onreg.core.ui.preview.TabletThemePreview'
   UnusedPrivateProperty:
     active: true
     aliases: ['unused']

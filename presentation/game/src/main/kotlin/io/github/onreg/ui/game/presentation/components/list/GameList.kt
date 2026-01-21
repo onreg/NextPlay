@@ -1,7 +1,7 @@
 package io.github.onreg.ui.game.presentation.components.list
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -116,53 +117,85 @@ private fun GamesGrid(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         indicator = {
-            PullToRefreshDefaults.Indicator(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .testTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR),
+            GameListPullToRefreshIndicator(
                 isRefreshing = isRefreshing,
                 state = pullToRefreshState,
             )
         },
     ) {
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize(),
-            columns = GridCells.Fixed(columns),
-            contentPadding = PaddingValues(Spacing.lg),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.lg),
-        ) {
-            items(
-                count = lazyPagingItems.itemCount,
-                key = lazyPagingItems.itemKey { item -> item.id },
-            ) { index ->
-                val item = lazyPagingItems[index]
-                if (item != null) {
-                    GameCard(
-                        modifier = Modifier.testTag(
-                            GameListTestTags.GAME_LIST_CARD_PREFIX.plus(item.id),
-                        ),
-                        gameData = item,
-                        onBookmarkClick = { onBookmarkClicked(item.id) },
-                        onCardClicked = { onCardClicked(item.id) },
-                    )
-                }
+        GamesGridContent(
+            lazyPagingItems = lazyPagingItems,
+            columns = columns,
+            isNextPageLoading = isNextPageLoading,
+            nextPageError = nextPageError,
+            onRetry = onRetry,
+            onBookmarkClicked = onBookmarkClicked,
+            onCardClicked = onCardClicked,
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.GameListPullToRefreshIndicator(
+    isRefreshing: Boolean,
+    state: PullToRefreshState,
+) {
+    PullToRefreshDefaults.Indicator(
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .testTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR),
+        isRefreshing = isRefreshing,
+        state = state,
+    )
+}
+
+@Composable
+private fun GamesGridContent(
+    lazyPagingItems: LazyPagingItems<GameCardUI>,
+    columns: Int,
+    isNextPageLoading: Boolean,
+    nextPageError: GameListErrorType?,
+    onRetry: () -> Unit,
+    onBookmarkClicked: (String) -> Unit,
+    onCardClicked: (String) -> Unit,
+) {
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
+        columns = GridCells.Fixed(columns),
+        contentPadding = PaddingValues(Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.lg),
+    ) {
+        items(
+            count = lazyPagingItems.itemCount,
+            key = lazyPagingItems.itemKey { item -> item.id },
+        ) { index ->
+            val item = lazyPagingItems[index]
+            if (item != null) {
+                GameCard(
+                    modifier = Modifier.testTag(
+                        GameListTestTags.GAME_LIST_CARD_PREFIX.plus(item.id),
+                    ),
+                    gameData = item,
+                    onBookmarkClick = { onBookmarkClicked(item.id) },
+                    onCardClicked = { onCardClicked(item.id) },
+                )
             }
-            if (isNextPageLoading) {
-                items(LOADING_ITEMS_COUNT) {
-                    GameCardLoading(
-                        modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_LOADING),
-                    )
-                }
+        }
+        if (isNextPageLoading) {
+            items(LOADING_ITEMS_COUNT) {
+                GameCardLoading(
+                    modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_LOADING),
+                )
             }
-            if (nextPageError != null) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    GameCardError(
-                        modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_ERROR),
-                        errorType = nextPageError,
-                        onRetry = onRetry,
-                    )
-                }
+        }
+        if (nextPageError != null) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                GameCardError(
+                    modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_ERROR),
+                    errorType = nextPageError,
+                    onRetry = onRetry,
+                )
             }
         }
     }

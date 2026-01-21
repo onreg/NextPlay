@@ -9,8 +9,8 @@ import org.gradle.api.attributes.Bundling
  *
  * Options:
  * - `ktlint-cli` dependency version: taken from `libs.versions.toml` (`versions.ktlint`).
- * - `ktlintPatterns`: includes `*.kt` and `*.kts` while excluding build output and common generated/IDE
- *   directories.
+ * - `ktlintPatterns`: includes `*.kt` and `*.kts` while excluding build output and common
+ *   generated/IDE directories.
  * - `workingDir = rootDir`: makes `--relative` paths stable in reports.
  * - `ktlintCheck`:
  *   - uses `--relative` for stable paths.
@@ -75,10 +75,13 @@ tasks.register<JavaExec>("ktlintCheck") {
         val reportDir = ktlintReportDir.get().asFile
         reportDir.mkdirs()
 
+        val plainReport = reportDir.resolve("ktlint.txt")
+        val htmlReport = reportDir.resolve("ktlint.html")
+
         args = listOf(
             "--relative",
-            "--reporter=plain?group_by_file,output=${reportDir.resolve("ktlint.txt")}",
-            "--reporter=html,output=${reportDir.resolve("ktlint.html")}",
+            "--reporter=plain?group_by_file,output=$plainReport",
+            "--reporter=html,output=$htmlReport",
         ) + ktlintPatterns
     }
 }
@@ -111,11 +114,14 @@ tasks.register<JavaExec>("ktlintFormat") {
         val reportDir = ktlintReportDir.get().asFile
         reportDir.mkdirs()
 
+        val plainReport = reportDir.resolve("ktlint-format.txt")
+        val htmlReport = reportDir.resolve("ktlint-format.html")
+
         args = listOf(
             "-F",
             "--relative",
-            "--reporter=plain?group_by_file,output=${reportDir.resolve("ktlint-format.txt")}",
-            "--reporter=html,output=${reportDir.resolve("ktlint-format.html")}",
+            "--reporter=plain?group_by_file,output=$plainReport",
+            "--reporter=html,output=$htmlReport",
         ) + ktlintPatterns
     }
 }

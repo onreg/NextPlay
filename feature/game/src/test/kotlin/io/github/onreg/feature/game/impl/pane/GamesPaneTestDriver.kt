@@ -18,7 +18,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
-import io.github.onreg.feature.game.impl.model.GamePaneState
 import io.github.onreg.feature.game.impl.test.GamesPaneTestTags
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.game.presentation.components.card.test.GameCardTestTags
@@ -66,7 +65,6 @@ internal class GamesPaneTestDriver private constructor(
 
     class Builder(private val composeRule: ComposeContentTestRule) {
         private val pagingState = MutableStateFlow<PagingData<GameCardUI>>(PagingData.empty())
-        private val gamePaneState = MutableStateFlow(GamePaneState)
 
         fun pagingState(
             data: List<GameCardUI>,
@@ -87,11 +85,9 @@ internal class GamesPaneTestDriver private constructor(
         fun build(isLargeScreen: Boolean = false): GamesPaneTestDriver {
             val driver = GamesPaneTestDriver(composeRule)
             composeRule.setContent {
-                val gamePaneState by gamePaneState.collectAsState()
                 val lazyPagingItems = pagingState.collectAsLazyPagingItems()
                 GamesPaneScreen(
                     isLargeScreen = isLargeScreen,
-                    gamePaneState = gamePaneState,
                     pagingState = lazyPagingItems,
                     onRefreshClicked = { driver.refreshCount += 1 },
                     onRetryClicked = { driver.pageRetryCount += 1 },

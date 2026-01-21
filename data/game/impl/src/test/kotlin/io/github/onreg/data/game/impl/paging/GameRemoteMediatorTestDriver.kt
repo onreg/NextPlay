@@ -1,6 +1,5 @@
 package io.github.onreg.data.game.impl.paging
 
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingConfig
 import androidx.paging.PagingState
@@ -60,9 +59,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
         private val dtoMapper: GameDtoMapper = mock()
         private val entityMapper: GameEntityMapper = mock()
         private val transactionProvider = object : TransactionProvider {
-            override fun <T> run(block: suspend () -> T): T = kotlinx.coroutines.runBlocking {
-                block()
-            }
+            override suspend fun <T> run(block: suspend () -> T): T = block()
         }
         private val pagingConfig = PagingConfig(
             pageSize = 2,

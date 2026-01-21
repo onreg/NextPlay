@@ -36,13 +36,17 @@ internal class NetworkResponseCall<Success : Any>(private val delegate: Call<Suc
         )
     }
 
-    override fun execute(): Response<NetworkResponse<Success>> = try {
-        val response = delegate.execute()
-        Response.success(response.toNetworkResponse())
-    } catch (exception: IOException) {
-        Response.success(NetworkResponse.Failure.NetworkError(exception))
-    } catch (exception: Throwable) {
-        Response.success(NetworkResponse.Failure.OtherError(exception))
+    override fun execute(): Response<NetworkResponse<Success>> {
+        val result = runCatching { delegate.execute() }
+        val response = result.getOrNull()
+        val exception = result.exceptionOrNull()
+
+        val networkResponse = when {
+            response != null -> response.toNetworkResponse()
+            exception is IOException -> NetworkResponse.Failure.NetworkError(exception)
+            else -> NetworkResponse.Failure.OtherError(exception)
+        }
+        return Response.success(networkResponse)
     }
 
     override fun clone(): Call<NetworkResponse<Success>> = NetworkResponseCall(delegate.clone())

@@ -21,6 +21,7 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 
 private const val TRANSITION_LABEL = "ShimmerTransition"
 private const val OFFSET_ANIMATION_LABEL = "ShimmerOffsetAnimation"
+private const val SHIMMER_WIDTH_RATIO = 0.2f
 
 @Composable
 public fun Modifier.shimmer(cardWidthPx: Float): Modifier =
@@ -28,7 +29,7 @@ public fun Modifier.shimmer(cardWidthPx: Float): Modifier =
 
 @Composable
 public fun rememberShimmerBrush(cardWidthPx: Float): Brush {
-    val shimmerWidth = (cardWidthPx * 0.2f).coerceAtLeast(1f)
+    val shimmerWidth = (cardWidthPx * SHIMMER_WIDTH_RATIO).coerceAtLeast(1f)
     val transition = rememberInfiniteTransition(TRANSITION_LABEL)
     val offsetX = transition.animateFloat(
         initialValue = -shimmerWidth,

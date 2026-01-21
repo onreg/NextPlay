@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val DEFAULT_SUBSCRIPTION_TIMEOUT_MS = 5_000L
+
 public interface ViewModelDelegate<State, Event> {
     public val events: Flow<Event>
 
@@ -22,7 +24,7 @@ public interface ViewModelDelegate<State, Event> {
         remote: Flow<Remote>,
         merge: (State, Remote) -> UI,
         initial: UI,
-        started: SharingStarted = SharingStarted.WhileSubscribed(5_000L),
+        started: SharingStarted = SharingStarted.WhileSubscribed(DEFAULT_SUBSCRIPTION_TIMEOUT_MS),
     ): StateFlow<UI>
 
     public fun CoroutineScope.sendEvent(event: Event)

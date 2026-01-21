@@ -49,77 +49,99 @@ public fun GameCard(
         onClick = onCardClicked,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Box {
-                DynamicAsyncImage(
-                    modifier = Modifier
-                        .aspectRatio(2f)
-                        .clip(MaterialTheme.shapes.small),
-                    imageUrl = gameData.imageUrl,
-                )
-
-                Chip(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(end = Spacing.sm),
-                    chipUI = gameData.rating,
-                )
-            }
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                IconButton(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .requiredSize(ControlsSize.IconButton)
-                        .testTag(GAME_CARD_ADD_BOOKMARK_BUTTON),
-                    onClick = onBookmarkClick,
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            when (gameData.isBookmarked) {
-                                true -> R.drawable.ic_bookmark_filled_24
-                                false -> R.drawable.ic_bookmark_24
-                            },
-                        ),
-                        tint = MaterialTheme.colorScheme.primary,
-                        contentDescription = stringResource(
-                            if (gameData.isBookmarked) {
-                                R.string.remove_bookmark
-                            } else {
-                                R.string.add_bookmark
-                            },
-                        ),
-                    )
-                }
-
-                Column(modifier = Modifier.padding(Spacing.lg)) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                end = (ControlsSize.IconButton - Spacing.sm)
-                                    .coerceAtLeast(0.dp),
-                            ),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        text = gameData.title,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-
-                    Text(
-                        modifier = Modifier.padding(top = Spacing.sm),
-                        text = gameData.releaseDate,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-
-                    Platforms(
-                        modifier = Modifier.padding(top = Spacing.sm),
-                        platforms = gameData.platforms,
-                    )
-                }
-            }
+            GameCardImage(
+                imageUrl = gameData.imageUrl,
+                rating = gameData.rating,
+            )
+            GameCardDetails(
+                title = gameData.title,
+                releaseDate = gameData.releaseDate,
+                platforms = gameData.platforms,
+                isBookmarked = gameData.isBookmarked,
+                onBookmarkClick = onBookmarkClick,
+            )
         }
     }
 }
+
+@Composable
+private fun GameCardImage(
+    imageUrl: String,
+    rating: ChipUI,
+) {
+    Box {
+        DynamicAsyncImage(
+            modifier = Modifier
+                .aspectRatio(2f)
+                .clip(MaterialTheme.shapes.small),
+            imageUrl = imageUrl,
+        )
+
+        Chip(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = Spacing.sm),
+            chipUI = rating,
+        )
+    }
+}
+
+@Composable
+private fun GameCardDetails(
+    title: String,
+    releaseDate: String,
+    platforms: Set<PlatformUI>,
+    isBookmarked: Boolean,
+    onBookmarkClick: () -> Unit,
+) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        IconButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .requiredSize(ControlsSize.IconButton)
+                .testTag(GAME_CARD_ADD_BOOKMARK_BUTTON),
+            onClick = onBookmarkClick,
+        ) {
+            Icon(
+                painter = painterResource(bookmarkIconRes(isBookmarked)),
+                tint = MaterialTheme.colorScheme.primary,
+                contentDescription = stringResource(bookmarkContentDescriptionRes(isBookmarked)),
+            )
+        }
+
+        Column(modifier = Modifier.padding(Spacing.lg)) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = safeTitleEndPadding()),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+            )
+
+            Text(
+                modifier = Modifier.padding(top = Spacing.sm),
+                text = releaseDate,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Platforms(
+                modifier = Modifier.padding(top = Spacing.sm),
+                platforms = platforms,
+            )
+        }
+    }
+}
+
+private fun bookmarkIconRes(isBookmarked: Boolean): Int =
+    if (isBookmarked) R.drawable.ic_bookmark_filled_24 else R.drawable.ic_bookmark_24
+
+private fun bookmarkContentDescriptionRes(isBookmarked: Boolean): Int =
+    if (isBookmarked) R.string.remove_bookmark else R.string.add_bookmark
+
+@Composable
+private fun safeTitleEndPadding() = (ControlsSize.IconButton - Spacing.sm).coerceAtLeast(0.dp)
 
 @Composable
 private fun Platforms(
@@ -141,7 +163,7 @@ private fun Platforms(
     }
 }
 
-@Suppress("ktlint:standard:max-line-length")
+@Suppress("ktlint:standard:max-line-length", "detekt:MaxLineLength")
 @Composable
 @ThemePreview
 private fun GameListCardPreview() {

@@ -12,15 +12,22 @@ public class NetworkResponseCallAdapterFactory : CallAdapter.Factory() {
         annotations: Array<Annotation>,
         retrofit: Retrofit,
     ): CallAdapter<*, *>? {
-        if (getRawType(returnType) != Call::class.java) return null
-        if (returnType !is ParameterizedType) return null
+        val callType = if (getRawType(returnType) == Call::class.java) {
+            returnType as? ParameterizedType
+        } else {
+            null
+        }
+        val responseType = callType?.let { getParameterUpperBound(0, it) }
+        val networkResponseType = if (
+            responseType != null && getRawType(responseType) == NetworkResponse::class.java
+        ) {
+            responseType as? ParameterizedType
+        } else {
+            null
+        }
+        val successType = networkResponseType?.let { getParameterUpperBound(0, it) }
 
-        val responseType = getParameterUpperBound(0, returnType)
-        if (getRawType(responseType) != NetworkResponse::class.java) return null
-        if (responseType !is ParameterizedType) return null
-
-        val successType = getParameterUpperBound(0, responseType)
-        return NetworkResponseCallAdapter<Any>(successType)
+        return successType?.let { NetworkResponseCallAdapter<Any>(it) }
     }
 }
 

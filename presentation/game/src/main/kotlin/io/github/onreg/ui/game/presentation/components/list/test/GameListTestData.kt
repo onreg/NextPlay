@@ -70,7 +70,7 @@ public object GameListTestData {
         ),
     )
 
-    @Suppress("ktlint:standard:max-line-length")
+    @Suppress("ktlint:standard:max-line-length", "detekt:MaxLineLength")
     public fun generateGameCards(count: Int): List<GameCardUI> = List(count) { index ->
         val id = (index + 1).toString()
         GameCardUI(

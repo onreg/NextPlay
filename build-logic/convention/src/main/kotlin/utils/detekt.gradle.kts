@@ -7,18 +7,19 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
  * Detekt Gradle convention.
  *
  * Plugin tasks:
- * - Applying the Detekt Gradle plugin registers tasks like `detekt` (hooked into Gradle `check`) and
- *   additional source set / variant tasks such as `detektMain`, `detektTest`, and `detekt<Variant>`.
- * - This build-logic also provides `detektCheck` to scan the whole repository (including `.kts` sources
- *   outside conventional Gradle source sets).
+ * - Applying the Detekt Gradle plugin registers tasks like `detekt` (hooked into Gradle `check`)
+ *   and additional source set / variant tasks such as `detektMain`, `detektTest`, and
+ *   `detekt<Variant>`.
+ * - This build-logic also provides `detektCheck` to scan the whole repository (including `.kts`
+ *   sources outside conventional Gradle source sets).
  *
  * Configuration files:
  * - `detekt.yml` (root project): Repository-wide Detekt rules and settings.
  *
  * Options:
  * - `toolVersion`: taken from `libs.versions.toml` (`versions.detekt`).
- * - `source`: points to the repository-wide `detektSource` file tree (`*.kt` + `*.kts`, excluding build
- *   and generated output).
+ * - `source`: points to the repository-wide `detektSource` file tree (`*.kt` + `*.kts`, excluding
+ *   build and generated output).
  * - `parallel = true`: enables parallel rule execution.
  * - `buildUponDefaultConfig = true`: starts from Detekt defaults and applies `detekt.yml` on top.
  * - `allRules = false`: keeps optional/unstable rules disabled unless enabled explicitly.
@@ -31,8 +32,8 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
  * Reports:
  * - Detekt reports are configured per-task via `reports { ... }`.
  * - Supported built-in report types are `checkstyle`, `html`, `sarif`, and `markdown`.
- * - This project keeps only `html` and a `.txt` report (implemented by enabling `markdown` and writing it
- *   to a `.txt` file) under `build/reports/detekt/`.
+ * - This project keeps only `html` and a `.txt` report (implemented by enabling `markdown` and
+ *   writing it to a `.txt` file) under `build/reports/detekt/`.
  */
 plugins {
     id("dev.detekt")
@@ -83,8 +84,12 @@ tasks.withType<Detekt>().configureEach {
         checkstyle.required.set(false)
         sarif.required.set(false)
 
-        html.outputLocation.set(detektReportDir.map { it.file("detekt-$name.html") })
-        markdown.outputLocation.set(detektReportDir.map { it.file("detekt-$name.txt") })
+        html.outputLocation.set(
+            detektReportDir.map { it.file("detekt-$name.html") },
+        )
+        markdown.outputLocation.set(
+            detektReportDir.map { it.file("detekt-$name.txt") },
+        )
     }
 }
 

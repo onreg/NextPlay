@@ -14,7 +14,8 @@ import kotlinx.coroutines.flow.collectLatest
 /**
  * Collects values from a [Flow] inside a [Composable], automatically starting and stopping
  * with the provided [lifecycleOwner] and [minActiveState]. The collector suspends when the
- * lifecycle is below the given state and resumes when active again, always invoking the latest [action].
+ * lifecycle is below the given state and resumes when active again, always invoking the latest
+ * [action].
  */
 @Composable
 public fun <T> Flow<T>.collectWithLifecycle(

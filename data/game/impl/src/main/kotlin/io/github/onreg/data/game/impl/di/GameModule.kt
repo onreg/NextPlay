@@ -50,7 +50,6 @@ public abstract class GameModule {
             gameApi: GameApi,
             gameDao: GameDao,
             gameRemoteKeysDao: GameRemoteKeysDao,
-            pagingConfig: PagingConfig,
             gameDtoMapper: GameDtoMapper,
             gameEntityMapper: GameEntityMapper,
             transactionProvider: TransactionProvider,
