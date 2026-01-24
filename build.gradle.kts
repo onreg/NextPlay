@@ -9,13 +9,19 @@ plugins {
     alias(libs.plugins.version.catalog.update)
     id("ktlint")
     id("detekt")
+    id("lint")
 }
 
-tasks.register("codeQuality") {
+val codeQuality by tasks.registering {
     group = "verification"
-    description = "Runs detekt and ktlint across the whole repo."
-    dependsOn(
-        tasks.named("ktlintCheck"),
-        tasks.named("detektCheck"),
-    )
+    description = "Runs detekt, ktlint, and lint across the whole repo."
+    dependsOn(tasks.named("detektCheck"))
+}
+
+tasks.named("detektCheck").configure {
+    finalizedBy(tasks.named("ktlintCheck"))
+}
+
+tasks.named("ktlintCheck").configure {
+    finalizedBy(tasks.named("lintCheck"))
 }

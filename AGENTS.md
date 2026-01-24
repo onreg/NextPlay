@@ -47,7 +47,7 @@
 ## Build, Test, and Development Commands
 
 - `./gradlew assembleDebug` compiles the dev flavour for local installs.
-- `./gradlew codeQuality` runs detekt and ktlint across the whole repo.
+- `./gradlew codeQuality` runs static code analysis: detekt, ktlint, and lint across the whole repo.
 - `./gradlew ktlintFormat` runs ktlint formatting across the whole repo.
 - `./gradlew testDebugUnitTest` runs unit tests.
 - `./gradlew :app:testDebugUnitTest --tests "com.reedcouk.jobs.feature.profile.languages.data.LanguageRepositoryTest"` runs a specific test class.
@@ -55,7 +55,7 @@
 ## Verification reports locations
 
 - Unit Tests: `app/build/reports/tests/testDevDebugUnitTest/index.html`
-- Lint: `app/build/reports/lint-results-devDebug.html`
+- Lint (txt): `build/reports/lint/lint.txt`
 - Detekt (txt): `build/reports/detekt/detekt.txt`
 - Ktlint (txt): `build/reports/ktlint/ktlint.txt`
 - Ktlint (format txt): `build/reports/ktlint/ktlint-format.txt`
