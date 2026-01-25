@@ -15,21 +15,20 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
 
-public class GameRepositoryImpl @Inject constructor(
-    private val gameDao: GameDao,
-    private val pagingConfig: PagingConfig,
-    private val gameEntityMapper: GameEntityMapper,
-    private val gameRemoteMediatorProvider: Provider<RemoteMediator<Int, GameWithPlatforms>>
-) : GameRepository {
-
-    override fun getGames(): Flow<PagingData<Game>> {
-        return Pager(
+public class GameRepositoryImpl
+    @Inject
+    constructor(
+        private val gameDao: GameDao,
+        private val pagingConfig: PagingConfig,
+        private val gameEntityMapper: GameEntityMapper,
+        private val gameRemoteMediatorProvider: Provider<RemoteMediator<Int, GameWithPlatforms>>,
+    ) : GameRepository {
+        override fun getGames(): Flow<PagingData<Game>> = Pager(
             config = pagingConfig,
-            remoteMediator = gameRemoteMediatorProvider.get()
+            remoteMediator = gameRemoteMediatorProvider.get(),
         ) {
             gameDao.pagingSource()
         }.flow.map { pagingData ->
             pagingData.map(gameEntityMapper::map)
         }
     }
-}

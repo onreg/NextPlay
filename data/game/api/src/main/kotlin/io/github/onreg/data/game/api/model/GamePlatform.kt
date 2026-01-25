@@ -1,5 +1,6 @@
 package io.github.onreg.data.game.api.model
 
+@Suppress("MagicNumber")
 public enum class GamePlatform(public val id: Int) {
     PC(4),
     PLAYSTATION_5(187),
@@ -50,7 +51,8 @@ public enum class GamePlatform(public val id: Int) {
     P_3DO(111),
     JAGUAR(112),
     GAME_GEAR(77),
-    NEO_GEO(12);
+    NEO_GEO(12),
+    ;
 
     public companion object {
         private val idMap: Map<Int, GamePlatform> = entries.associateBy(GamePlatform::id)

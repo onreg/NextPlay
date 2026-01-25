@@ -18,7 +18,6 @@ import io.github.onreg.feature.game.impl.pane.GamesRoute
 
 @AndroidEntryPoint
 internal class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -28,18 +27,18 @@ internal class MainActivity : ComponentActivity() {
                     val nav = rememberNavController()
                     NavHost(
                         navController = nav,
-                        startDestination = GamesRoute.games,
-                        modifier = Modifier.padding(paddingValues)
+                        startDestination = GamesRoute.GAMES,
+                        modifier = Modifier.padding(paddingValues),
                     ) {
-                        composable(GamesRoute.games) {
+                        composable(GamesRoute.GAMES) {
                             GamesPane(navController = nav)
                         }
-                        composable(GamesRoute.details) { backStackEntry ->
+                        composable(GamesRoute.DETAILS) { backStackEntry ->
                             GameDetailsPane(
                                 gameId = backStackEntry.arguments?.getString("gameId").orEmpty(),
                                 goBack = {
                                     nav.popBackStack()
-                                }
+                                },
                             )
                         }
                     }

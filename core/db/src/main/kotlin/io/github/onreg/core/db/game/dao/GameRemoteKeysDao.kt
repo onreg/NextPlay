@@ -15,7 +15,7 @@ public interface GameRemoteKeysDao {
         """
             SELECT * FROM ${GameRemoteKeysEntity.TABLE_NAME}
             WHERE ${GameRemoteKeysEntity.GAME_ID} = :id
-        """
+        """,
     )
     public suspend fun getRemoteKey(id: Int): GameRemoteKeysEntity?
 }

@@ -17,16 +17,23 @@ import io.github.onreg.core.ui.R as CoreUiR
 public fun GameCardError(
     modifier: Modifier = Modifier,
     errorType: GameListErrorType,
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit = {},
 ) {
     val (iconResId, descriptionResId) = when (errorType) {
-        GameListErrorType.NETWORK -> CoreUiR.drawable.ic_wifi_off_24 to CoreUiR.string.error_network_message
-        GameListErrorType.OTHER -> CoreUiR.drawable.ic_controller_off_24 to CoreUiR.string.error_message
+        GameListErrorType.NETWORK -> {
+            CoreUiR.drawable.ic_wifi_off_24 to
+                CoreUiR.string.error_network_message
+        }
+
+        GameListErrorType.OTHER -> {
+            CoreUiR.drawable.ic_controller_off_24 to
+                CoreUiR.string.error_message
+        }
     }
 
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         ContentError(
             contentErrorUI = ContentErrorUI(
@@ -35,7 +42,7 @@ public fun GameCardError(
                 descriptionResId = descriptionResId,
                 actionLabelResId = R.string.retry,
             ),
-            onActionClick = onRetry
+            onActionClick = onRetry,
         )
     }
 }
@@ -49,7 +56,6 @@ private fun GameCardNetworkErrorPreview() {
         }
     }
 }
-
 
 @ThemePreview
 @Composable

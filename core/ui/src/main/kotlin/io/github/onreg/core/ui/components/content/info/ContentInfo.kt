@@ -22,27 +22,27 @@ import io.github.onreg.core.ui.theme.Spacing
 @Composable
 public fun ContentInfo(
     modifier: Modifier = Modifier,
-    contentInfoUI: ContentInfoUI
+    contentInfoUI: ContentInfoUI,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.lg)
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg),
     ) {
         Icon(
             painter = painterResource(contentInfoUI.iconRes),
             contentDescription = null,
-            modifier = Modifier.size(IconsSize.xxl)
+            modifier = Modifier.size(IconsSize.xxl),
         )
         Text(
             text = stringResource(contentInfoUI.titleResId),
             style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Text(
             text = stringResource(contentInfoUI.descriptionResId),
             style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -56,8 +56,8 @@ private fun ContentInfoPreview() {
                 contentInfoUI = ContentInfoUI(
                     iconRes = R.drawable.ic_controller_24,
                     titleResId = R.string.preview_text,
-                    descriptionResId = R.string.preview_text_long
-                )
+                    descriptionResId = R.string.preview_text_long,
+                ),
             )
         }
     }

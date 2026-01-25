@@ -7,5 +7,5 @@ import io.github.onreg.core.db.platform.entity.PlatformEntity
 public data class GameInsertionBundle(
     val games: List<GameEntity>,
     val platforms: List<PlatformEntity>,
-    val crossRefs: List<GamePlatformCrossRef>
+    val crossRefs: List<GamePlatformCrossRef>,
 )

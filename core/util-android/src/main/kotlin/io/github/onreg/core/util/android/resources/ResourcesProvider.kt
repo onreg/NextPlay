@@ -6,11 +6,17 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 public interface ResourcesProvider {
-    public fun getString(@StringRes resId: Int): String
+    public fun getString(
+        @StringRes resId: Int,
+    ): String
 }
 
-public class ResourcesProviderImpl @Inject constructor(
-    @param:ApplicationContext private val context: Context
-) : ResourcesProvider {
-    override fun getString(@StringRes resId: Int): String = context.getString(resId)
-}
+public class ResourcesProviderImpl
+    @Inject
+    constructor(
+        @param:ApplicationContext private val context: Context,
+    ) : ResourcesProvider {
+        override fun getString(
+            @StringRes resId: Int,
+        ): String = context.getString(resId)
+    }

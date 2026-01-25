@@ -14,9 +14,8 @@ import org.mockito.kotlin.stub
 
 internal class GamesPaneViewModelTestDriver private constructor(
     val repository: GameRepository,
-    val platformUiMapper: PlatformUiMapper
+    val platformUiMapper: PlatformUiMapper,
 ) {
-
     val viewModel by lazy { GamesPaneViewModel(repository, GameUiMapperImpl(platformUiMapper)) }
 
     class Builder {
@@ -29,14 +28,14 @@ internal class GamesPaneViewModelTestDriver private constructor(
 
         fun platformUiMapperMapPlatform(
             platforms: Set<GamePlatform>,
-            mapped: Set<PlatformUI>
+            mapped: Set<PlatformUI>,
         ): Builder = apply {
             platformUiMapper.stub { on { mapPlatform(platforms) } doReturn mapped }
         }
 
         fun build(): GamesPaneViewModelTestDriver = GamesPaneViewModelTestDriver(
             repository = repository,
-            platformUiMapper = platformUiMapper
+            platformUiMapper = platformUiMapper,
         )
     }
 }

@@ -1,7 +1,7 @@
 package io.github.onreg.ui.game.presentation.components.list
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,7 +48,7 @@ public fun GameList(
     onBookmarkClicked: (String) -> Unit = {},
     onCardClicked: (String) -> Unit = {},
     onError: @Composable (error: GameListErrorType) -> Unit = {},
-    onEmpty: @Composable () -> Unit = {}
+    onEmpty: @Composable () -> Unit = {},
 ) {
     val hasData = lazyPagingItems.itemCount > 0
 
@@ -65,12 +66,20 @@ public fun GameList(
     val showFullScreenLoading = !hasData && !showFullScreenError && !showEmptyState
 
     when {
-        showFullScreenLoading -> LoadingGrid(
-            modifier = modifier.testTag(GameListTestTags.GAME_LIST_FULL_SCREEN_LOADING),
-            columns = columns
-        )
-        showFullScreenError -> onError(refreshError)
-        showEmptyState -> onEmpty()
+        showFullScreenLoading -> {
+            LoadingGrid(
+                modifier = modifier.testTag(GameListTestTags.GAME_LIST_FULL_SCREEN_LOADING),
+                columns = columns,
+            )
+        }
+
+        showFullScreenError -> {
+            onError(refreshError)
+        }
+
+        showEmptyState -> {
+            onEmpty()
+        }
 
         else -> {
             GamesGrid(
@@ -80,7 +89,7 @@ public fun GameList(
                 onRefresh = onRefresh,
                 onRetry = onRetry,
                 onBookmarkClicked = onBookmarkClicked,
-                onCardClicked = onCardClicked
+                onCardClicked = onCardClicked,
             )
         }
     }
@@ -94,7 +103,7 @@ private fun GamesGrid(
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
     onBookmarkClicked: (String) -> Unit,
-    onCardClicked: (String) -> Unit
+    onCardClicked: (String) -> Unit,
 ) {
     val nextPageError = (lazyPagingItems.loadState.append as? LoadState.Error)
         ?.toGameListErrorType()
@@ -108,53 +117,85 @@ private fun GamesGrid(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         indicator = {
-            PullToRefreshDefaults.Indicator(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .testTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR),
+            GameListPullToRefreshIndicator(
                 isRefreshing = isRefreshing,
-                state = pullToRefreshState
+                state = pullToRefreshState,
             )
-        }
+        },
     ) {
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize(),
-            columns = GridCells.Fixed(columns),
-            contentPadding = PaddingValues(Spacing.lg),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.lg)
-        ) {
-            items(
-                count = lazyPagingItems.itemCount,
-                key = lazyPagingItems.itemKey { item -> item.id }
-            ) { index ->
-                val item = lazyPagingItems[index]
-                if (item != null) {
-                    GameCard(
-                        modifier = Modifier.testTag(
-                            GameListTestTags.GAME_LIST_CARD_PREFIX.plus(item.id)
-                        ),
-                        gameData = item,
-                        onBookmarkClick = { onBookmarkClicked(item.id) },
-                        onCardClicked = { onCardClicked(item.id) }
-                    )
-                }
+        GamesGridContent(
+            lazyPagingItems = lazyPagingItems,
+            columns = columns,
+            isNextPageLoading = isNextPageLoading,
+            nextPageError = nextPageError,
+            onRetry = onRetry,
+            onBookmarkClicked = onBookmarkClicked,
+            onCardClicked = onCardClicked,
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.GameListPullToRefreshIndicator(
+    isRefreshing: Boolean,
+    state: PullToRefreshState,
+) {
+    PullToRefreshDefaults.Indicator(
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .testTag(GameListTestTags.GAME_LIST_PULL_TO_REFRESH_INDICATOR),
+        isRefreshing = isRefreshing,
+        state = state,
+    )
+}
+
+@Composable
+private fun GamesGridContent(
+    lazyPagingItems: LazyPagingItems<GameCardUI>,
+    columns: Int,
+    isNextPageLoading: Boolean,
+    nextPageError: GameListErrorType?,
+    onRetry: () -> Unit,
+    onBookmarkClicked: (String) -> Unit,
+    onCardClicked: (String) -> Unit,
+) {
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
+        columns = GridCells.Fixed(columns),
+        contentPadding = PaddingValues(Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.lg),
+    ) {
+        items(
+            count = lazyPagingItems.itemCount,
+            key = lazyPagingItems.itemKey { item -> item.id },
+        ) { index ->
+            val item = lazyPagingItems[index]
+            if (item != null) {
+                GameCard(
+                    modifier = Modifier.testTag(
+                        GameListTestTags.GAME_LIST_CARD_PREFIX.plus(item.id),
+                    ),
+                    gameData = item,
+                    onBookmarkClick = { onBookmarkClicked(item.id) },
+                    onCardClicked = { onCardClicked(item.id) },
+                )
             }
-            if (isNextPageLoading) {
-                items(LOADING_ITEMS_COUNT) {
-                    GameCardLoading(
-                        modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_LOADING)
-                    )
-                }
+        }
+        if (isNextPageLoading) {
+            items(LOADING_ITEMS_COUNT) {
+                GameCardLoading(
+                    modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_LOADING),
+                )
             }
-            if (nextPageError != null) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    GameCardError(
-                        modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_ERROR),
-                        errorType = nextPageError,
-                        onRetry = onRetry
-                    )
-                }
+        }
+        if (nextPageError != null) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                GameCardError(
+                    modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_ERROR),
+                    errorType = nextPageError,
+                    onRetry = onRetry,
+                )
             }
         }
     }
@@ -163,14 +204,14 @@ private fun GamesGrid(
 @Composable
 private fun LoadingGrid(
     modifier: Modifier = Modifier,
-    columns: Int = 1
+    columns: Int = 1,
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
         columns = GridCells.Fixed(columns),
         contentPadding = PaddingValues(Spacing.lg),
         verticalArrangement = Arrangement.spacedBy(Spacing.lg),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.lg)
+        horizontalArrangement = Arrangement.spacedBy(Spacing.lg),
     ) {
         items(LOADING_ITEMS_COUNT) {
             GameCardLoading()
@@ -178,16 +219,15 @@ private fun LoadingGrid(
     }
 }
 
-private fun LoadState.Error.toGameListErrorType(): GameListErrorType {
-    return if (error is IOException) GameListErrorType.NETWORK else GameListErrorType.OTHER
-}
+private fun LoadState.Error.toGameListErrorType(): GameListErrorType =
+    if (error is IOException) GameListErrorType.NETWORK else GameListErrorType.OTHER
 
 @Composable
 @ThemePreview
 private fun OneColumnLoadingPreview() {
     GameListPreview(
         columns = 1,
-        pagingState = GameListTestData.loadingState
+        pagingState = GameListTestData.loadingState,
     )
 }
 
@@ -196,7 +236,7 @@ private fun OneColumnLoadingPreview() {
 private fun OneColumnLoadedPreview() {
     GameListPreview(
         columns = 1,
-        pagingState = GameListTestData.loadedState
+        pagingState = GameListTestData.loadedState,
     )
 }
 
@@ -205,7 +245,7 @@ private fun OneColumnLoadedPreview() {
 private fun OneColumnNextPageLoadingPreview() {
     GameListPreview(
         columns = 1,
-        pagingState = GameListTestData.nextPageLoadingState
+        pagingState = GameListTestData.nextPageLoadingState,
     )
 }
 
@@ -214,7 +254,7 @@ private fun OneColumnNextPageLoadingPreview() {
 private fun OneColumnNextPageErrorPreview() {
     GameListPreview(
         columns = 1,
-        pagingState = GameListTestData.nextPageErrorState
+        pagingState = GameListTestData.nextPageErrorState,
     )
 }
 
@@ -223,7 +263,7 @@ private fun OneColumnNextPageErrorPreview() {
 private fun OneColumnNextPageNetworkErrorPreview() {
     GameListPreview(
         columns = 1,
-        pagingState = GameListTestData.nextPageNetworkErrorState
+        pagingState = GameListTestData.nextPageNetworkErrorState,
     )
 }
 
@@ -232,7 +272,7 @@ private fun OneColumnNextPageNetworkErrorPreview() {
 private fun OneColumnRefreshingPreview() {
     GameListPreview(
         columns = 1,
-        pagingState = GameListTestData.refreshingState
+        pagingState = GameListTestData.refreshingState,
     )
 }
 
@@ -241,7 +281,7 @@ private fun OneColumnRefreshingPreview() {
 private fun FourColumnLoadingPreview() {
     GameListPreview(
         columns = 4,
-        pagingState = GameListTestData.loadingState
+        pagingState = GameListTestData.loadingState,
     )
 }
 
@@ -250,7 +290,7 @@ private fun FourColumnLoadingPreview() {
 private fun FourColumnLoadedPreview() {
     GameListPreview(
         columns = 4,
-        pagingState = GameListTestData.loadedState
+        pagingState = GameListTestData.loadedState,
     )
 }
 
@@ -259,7 +299,7 @@ private fun FourColumnLoadedPreview() {
 private fun FourColumnNextPageLoadingPreview() {
     GameListPreview(
         columns = 4,
-        pagingState = GameListTestData.nextPageLoadingLargeState
+        pagingState = GameListTestData.nextPageLoadingLargeState,
     )
 }
 
@@ -268,7 +308,7 @@ private fun FourColumnNextPageLoadingPreview() {
 private fun FourColumnNextPageErrorPreview() {
     GameListPreview(
         columns = 4,
-        pagingState = GameListTestData.nextPageErrorLargeState
+        pagingState = GameListTestData.nextPageErrorLargeState,
     )
 }
 
@@ -277,24 +317,23 @@ private fun FourColumnNextPageErrorPreview() {
 private fun FourColumnNextPageNetworkErrorPreview() {
     GameListPreview(
         columns = 4,
-        pagingState = GameListTestData.nextPageNetworkErrorLargeState
+        pagingState = GameListTestData.nextPageNetworkErrorLargeState,
     )
 }
-
 
 @Composable
 @TabletThemePreview
 private fun FourColumnRefreshingPreview() {
     GameListPreview(
         columns = 4,
-        pagingState = GameListTestData.refreshingState
+        pagingState = GameListTestData.refreshingState,
     )
 }
 
 @Composable
 private fun GameListPreview(
     columns: Int,
-    pagingState: Flow<PagingData<GameCardUI>>
+    pagingState: Flow<PagingData<GameCardUI>>,
 ) {
     NextPlayTheme {
         val lazyPagingItems = pagingState.collectAsLazyPagingItems()
@@ -304,7 +343,7 @@ private fun GameListPreview(
                     .padding(it)
                     .fillMaxSize(),
                 lazyPagingItems = lazyPagingItems,
-                columns = columns
+                columns = columns,
             )
         }
     }

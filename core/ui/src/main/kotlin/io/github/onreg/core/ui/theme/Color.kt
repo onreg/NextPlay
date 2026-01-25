@@ -2,7 +2,6 @@ package io.github.onreg.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-
 public val Orange60: Color = Color(0xFFFF6B35)
 
 public val Gray08: Color = Color(0xFF151515)

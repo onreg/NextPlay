@@ -15,7 +15,6 @@ import io.github.onreg.core.network.rawg.dto.PaginatedResponseDto
 import io.github.onreg.core.network.retrofit.NetworkResponse
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
-import kotlinx.coroutines.delay
 import java.net.URI
 
 private const val INITIAL_PAGE = 1
@@ -26,45 +25,54 @@ public class GameRemoteMediator(
     private val remoteKeysDao: GameRemoteKeysDao,
     private val dtoMapper: GameDtoMapper,
     private val entityMapper: GameEntityMapper,
-    private val transactionProvider: TransactionProvider
+    private val transactionProvider: TransactionProvider,
 ) : RemoteMediator<Int, GameWithPlatforms>() {
-
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, GameWithPlatforms>
+        state: PagingState<Int, GameWithPlatforms>,
     ): MediatorResult {
-        val page = when (val getNextPageResult = resolvePageToLoad(loadType, state)) {
-            is NextPage.Error -> return MediatorResult.Error(getNextPageResult.exception)
-            NextPage.WaitForRefresh -> return MediatorResult.Success(endOfPaginationReached = false)
-            is NextPage.Value -> getNextPageResult.nextPage ?: return MediatorResult.Success(
-                endOfPaginationReached = true
-            )
-        }
+        val nextPageResult = resolvePageToLoad(loadType, state)
+        val page = (nextPageResult as? NextPage.Value)?.nextPage
 
-        val config = state.config
-        val response = gameApi.getGames(
-            page = page,
-            pageSize = config.pageSize
-        )
-
-        return when (response) {
-            is NetworkResponse.Success -> {
-                val nextPage = persistResponse(
-                    page = page,
-                    response = response.body,
-                    isRefresh = loadType == LoadType.REFRESH,
-                    config = config
-                )
-                MediatorResult.Success(endOfPaginationReached = nextPage == null)
+        val result = when {
+            nextPageResult is NextPage.Error -> {
+                MediatorResult.Error(nextPageResult.exception)
             }
 
-            is NetworkResponse.Failure -> {
-                MediatorResult.Error(response.exception ?: IllegalStateException("Unknown error"))
+            nextPageResult is NextPage.WaitForRefresh -> {
+                MediatorResult.Success(endOfPaginationReached = false)
+            }
+
+            page == null -> {
+                MediatorResult.Success(endOfPaginationReached = true)
+            }
+
+            else -> {
+                val config = state.config
+                when (val response = gameApi.getGames(page = page, pageSize = config.pageSize)) {
+                    is NetworkResponse.Success -> {
+                        val persistedNextPage = persistResponse(
+                            page = page,
+                            response = response.body,
+                            isRefresh = loadType == LoadType.REFRESH,
+                            config = config,
+                        )
+                        MediatorResult.Success(endOfPaginationReached = persistedNextPage == null)
+                    }
+
+                    is NetworkResponse.Failure -> {
+                        MediatorResult.Error(
+                            response.exception ?: IllegalStateException("Unknown error"),
+                        )
+                    }
+                }
             }
         }
+
+        return result
     }
 
-    private fun persistResponse(
+    private suspend fun persistResponse(
         page: Int,
         response: PaginatedResponseDto<GameDto>,
         isRefresh: Boolean,
@@ -80,7 +88,7 @@ public class GameRemoteMediator(
             GameRemoteKeysEntity(
                 entity.id,
                 if (page == INITIAL_PAGE) null else page - 1,
-                nextPage
+                nextPage,
             )
         }
         transactionProvider.run {
@@ -95,11 +103,13 @@ public class GameRemoteMediator(
 
     private fun getNextPageFromResponse(next: String): Int? {
         val query = runCatching { URI(next).query }.getOrNull() ?: return null
-        return query.split('&')
+        val pageParams = query
+            .split('&')
             .mapNotNull {
                 val parts = it.split('=', limit = 2)
                 if (parts.size == 2) parts[0] to parts[1] else null
             }
+        return pageParams
             .firstOrNull { it.first == "page" }
             ?.second
             ?.toIntOrNull()
@@ -107,28 +117,45 @@ public class GameRemoteMediator(
 
     private suspend fun resolvePageToLoad(
         loadType: LoadType,
-        state: PagingState<Int, GameWithPlatforms>
+        state: PagingState<Int, GameWithPlatforms>,
     ): NextPage {
-        return when (loadType) {
-            LoadType.REFRESH -> NextPage.Value(nextPage = INITIAL_PAGE)
-            LoadType.PREPEND -> NextPage.Value(nextPage = null)
-            LoadType.APPEND -> {
-                val lastItem =
-                    state.pages.lastOrNull()?.data?.lastOrNull()
-                        ?: return NextPage.WaitForRefresh
-                val remoteKey = remoteKeysDao.getRemoteKey(lastItem.game.id)
-                    ?: return NextPage.Error(
-                        IllegalStateException("Missing remote key for id=${lastItem.game.id}")
-                    )
+        val result = when (loadType) {
+            LoadType.REFRESH -> {
+                NextPage.Value(nextPage = INITIAL_PAGE)
+            }
 
-                return NextPage.Value(nextPage = remoteKey.nextKey)
+            LoadType.PREPEND -> {
+                NextPage.Value(nextPage = null)
+            }
+
+            LoadType.APPEND -> {
+                val lastItem = state.pages
+                    .lastOrNull()
+                    ?.data
+                    ?.lastOrNull()
+                if (lastItem == null) {
+                    NextPage.WaitForRefresh
+                } else {
+                    val remoteKey = remoteKeysDao.getRemoteKey(lastItem.game.id)
+                    if (remoteKey == null) {
+                        NextPage.Error(
+                            IllegalStateException("Missing remote key for id=${lastItem.game.id}"),
+                        )
+                    } else {
+                        NextPage.Value(nextPage = remoteKey.nextKey)
+                    }
+                }
             }
         }
+
+        return result
     }
 }
 
 private sealed interface NextPage {
     object WaitForRefresh : NextPage
+
     data class Value(val nextPage: Int?) : NextPage
+
     data class Error(val exception: Throwable) : NextPage
 }

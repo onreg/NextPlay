@@ -12,14 +12,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RawgApiKeyInterceptorTest {
-
     private val expectedKey = "testKey"
     private val apiKeyInterceptor = RawgApiKeyInterceptor(expectedKey)
 
     @Test
     fun `should add api key query parameter to request`() {
-        val chain = mock<Interceptor.Chain>() {
-            on { request() } doReturn Request.Builder()
+        val chain = mock<Interceptor.Chain> {
+            on { request() } doReturn Request
+                .Builder()
                 .url("https://example.com/some-endpoint")
                 .build()
             on { proceed(any()) } doReturn mock<Response>()

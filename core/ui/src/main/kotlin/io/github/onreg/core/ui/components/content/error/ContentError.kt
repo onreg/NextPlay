@@ -20,19 +20,19 @@ import io.github.onreg.core.ui.theme.Spacing
 public fun ContentError(
     modifier: Modifier = Modifier,
     contentErrorUI: ContentErrorUI,
-    onActionClick: () -> Unit
+    onActionClick: () -> Unit,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.lg)
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg),
     ) {
         ContentInfo(
             contentInfoUI = ContentInfoUI(
                 iconRes = contentErrorUI.iconRes,
                 titleResId = contentErrorUI.titleResId,
-                descriptionResId = contentErrorUI.descriptionResId
-            )
+                descriptionResId = contentErrorUI.descriptionResId,
+            ),
         )
         Button(onClick = onActionClick) {
             Text(text = stringResource(contentErrorUI.actionLabelResId))
@@ -52,7 +52,7 @@ private fun ContentErrorPreview() {
                     descriptionResId = R.string.preview_text_long,
                     actionLabelResId = R.string.preview_text,
                 ),
-                onActionClick = {}
+                onActionClick = {},
             )
         }
     }

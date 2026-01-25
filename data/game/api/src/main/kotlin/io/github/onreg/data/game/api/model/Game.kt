@@ -8,5 +8,5 @@ public data class Game(
     val imageUrl: String,
     val releaseDate: Instant?,
     val rating: Double,
-    val platforms: Set<GamePlatform>
+    val platforms: Set<GamePlatform>,
 )

@@ -19,15 +19,14 @@ internal class GameRepositoryTestDriver private constructor(
     val gameDao: GameDao,
     val entityMapper: GameEntityMapper,
     val pagingConfig: PagingConfig,
-    val remoteMediator: RemoteMediator<Int, GameWithPlatforms>
+    val remoteMediator: RemoteMediator<Int, GameWithPlatforms>,
 ) : GameRepository {
-
     private val repository: GameRepository by lazy {
         GameRepositoryImpl(
             gameDao = gameDao,
             pagingConfig = pagingConfig,
             gameEntityMapper = entityMapper,
-            gameRemoteMediatorProvider = { remoteMediator }
+            gameRemoteMediatorProvider = { remoteMediator },
         )
     }
 
@@ -40,25 +39,27 @@ internal class GameRepositoryTestDriver private constructor(
             pageSize = 2,
             prefetchDistance = 1,
             initialLoadSize = 2,
-            maxSize = 10
+            maxSize = 10,
         )
-        private val remoteMediator: RemoteMediator<Int, GameWithPlatforms> = mock() {
+        private val remoteMediator: RemoteMediator<Int, GameWithPlatforms> = mock {
             onBlocking { load(any(), any()) } doReturn RemoteMediator.MediatorResult.Success(
-                endOfPaginationReached = true
+                endOfPaginationReached = true,
             )
         }
 
-        fun gameEntityMapperMap(gameWithPlatforms: GameWithPlatforms, mapped: Game): Builder =
-            apply {
-                entityMapper.stub { on { map(gameWithPlatforms) } doReturn mapped }
-            }
+        fun gameEntityMapperMap(
+            gameWithPlatforms: GameWithPlatforms,
+            mapped: Game,
+        ): Builder = apply {
+            entityMapper.stub { on { map(gameWithPlatforms) } doReturn mapped }
+        }
 
         fun gameDaoPagingSource(pagingSource: List<GameWithPlatforms>): Builder = apply {
-            val source: PagingSource<Int, GameWithPlatforms> = mock() {
+            val source: PagingSource<Int, GameWithPlatforms> = mock {
                 onBlocking { load(any()) } doReturn LoadResult.Page(
                     data = pagingSource,
                     prevKey = null,
-                    nextKey = null
+                    nextKey = null,
                 )
             }
             gameDao.stub { on { pagingSource() } doReturn source }
@@ -68,7 +69,7 @@ internal class GameRepositoryTestDriver private constructor(
             gameDao = gameDao,
             entityMapper = entityMapper,
             pagingConfig = pagingConfig,
-            remoteMediator = remoteMediator
+            remoteMediator = remoteMediator,
         )
     }
 }

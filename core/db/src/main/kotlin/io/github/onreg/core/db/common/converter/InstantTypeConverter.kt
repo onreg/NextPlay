@@ -4,7 +4,6 @@ import androidx.room.TypeConverter
 import java.time.Instant
 
 public class InstantTypeConverter {
-
     @TypeConverter
     public fun fromInstant(value: Instant?): Long? = value?.toEpochMilli()
 

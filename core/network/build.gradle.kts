@@ -9,7 +9,8 @@ android {
     }
 
     defaultConfig {
-        val rawgApiKey = providers.environmentVariable("RAWG_API_KEY")
+        val rawgApiKey = providers
+            .environmentVariable("RAWG_API_KEY")
             .orElse(providers.gradleProperty("RAWG_API_KEY"))
             .orElse("")
             .get()

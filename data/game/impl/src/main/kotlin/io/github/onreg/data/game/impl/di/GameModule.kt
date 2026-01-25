@@ -24,7 +24,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 public abstract class GameModule {
-
     @Binds
     @Singleton
     public abstract fun bindGameRepository(impl: GameRepositoryImpl): GameRepository
@@ -43,7 +42,7 @@ public abstract class GameModule {
             prefetchDistance = 3,
             initialLoadSize = 20,
             maxSize = 200,
-            enablePlaceholders = false
+            enablePlaceholders = false,
         )
 
         @Provides
@@ -51,17 +50,16 @@ public abstract class GameModule {
             gameApi: GameApi,
             gameDao: GameDao,
             gameRemoteKeysDao: GameRemoteKeysDao,
-            pagingConfig: PagingConfig,
             gameDtoMapper: GameDtoMapper,
             gameEntityMapper: GameEntityMapper,
-            transactionProvider: TransactionProvider
+            transactionProvider: TransactionProvider,
         ): RemoteMediator<Int, GameWithPlatforms> = GameRemoteMediator(
             gameApi = gameApi,
             gameDao = gameDao,
             remoteKeysDao = gameRemoteKeysDao,
             dtoMapper = gameDtoMapper,
             entityMapper = gameEntityMapper,
-            transactionProvider = transactionProvider
+            transactionProvider = transactionProvider,
         )
     }
 }

@@ -30,11 +30,12 @@ public fun DynamicAsyncImage(
 ) {
     val sizeResolver = rememberConstraintsSizeResolver()
     val asyncImagePainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
+        model = ImageRequest
+            .Builder(LocalContext.current)
             .data(imageUrl)
             .size(sizeResolver)
             .crossfade(true)
-            .build()
+            .build(),
     )
     val state by asyncImagePainter.state.collectAsStateWithLifecycle()
 
@@ -42,26 +43,26 @@ public fun DynamicAsyncImage(
         modifier = modifier
             .then(sizeResolver)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Image(
             modifier = Modifier.matchParentSize(),
             painter = asyncImagePainter,
             contentDescription = contentDescription,
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
 
         when (state) {
             is AsyncImagePainter.State.Error -> Icon(
                 modifier = Modifier.size(IconsSize.xl),
                 painter = painterResource(R.drawable.ic_controller_off_24),
-                contentDescription = null
+                contentDescription = null,
             )
 
             AsyncImagePainter.State.Empty, is AsyncImagePainter.State.Loading -> Icon(
                 modifier = Modifier.size(IconsSize.xl),
                 painter = painterResource(R.drawable.ic_controller_24),
-                contentDescription = null
+                contentDescription = null,
             )
 
             is AsyncImagePainter.State.Success -> Unit

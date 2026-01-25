@@ -6,6 +6,4 @@ import androidx.paging.testing.asSnapshot
 import kotlinx.coroutines.flow.flowOf
 
 @VisibleForTesting
-public suspend fun <T : Any> PagingData<T>.asSnapshot(): List<T> {
-    return flowOf(this).asSnapshot()
-}
+public suspend fun <T : Any> PagingData<T>.asSnapshot(): List<T> = flowOf(this).asSnapshot()

@@ -10,25 +10,31 @@ public class NetworkResponseCallAdapterFactory : CallAdapter.Factory() {
     override fun get(
         returnType: Type,
         annotations: Array<Annotation>,
-        retrofit: Retrofit
+        retrofit: Retrofit,
     ): CallAdapter<*, *>? {
-        if (getRawType(returnType) != Call::class.java) return null
-        if (returnType !is ParameterizedType) return null
+        val callType = if (getRawType(returnType) == Call::class.java) {
+            returnType as? ParameterizedType
+        } else {
+            null
+        }
+        val responseType = callType?.let { getParameterUpperBound(0, it) }
+        val networkResponseType = if (
+            responseType != null && getRawType(responseType) == NetworkResponse::class.java
+        ) {
+            responseType as? ParameterizedType
+        } else {
+            null
+        }
+        val successType = networkResponseType?.let { getParameterUpperBound(0, it) }
 
-        val responseType = getParameterUpperBound(0, returnType)
-        if (getRawType(responseType) != NetworkResponse::class.java) return null
-        if (responseType !is ParameterizedType) return null
-
-        val successType = getParameterUpperBound(0, responseType)
-        return NetworkResponseCallAdapter<Any>(successType)
+        return successType?.let { NetworkResponseCallAdapter<Any>(it) }
     }
 }
 
-private class NetworkResponseCallAdapter<Success : Any>(
-    private val successType: Type
-) : CallAdapter<Success, Call<NetworkResponse<Success>>> {
+private class NetworkResponseCallAdapter<Success : Any>(private val successType: Type) :
+    CallAdapter<Success, Call<NetworkResponse<Success>>> {
     override fun responseType(): Type = successType
 
-    override fun adapt(call: Call<Success>): Call<NetworkResponse<Success>> = NetworkResponseCall(call)
+    override fun adapt(call: Call<Success>): Call<NetworkResponse<Success>> =
+        NetworkResponseCall(call)
 }
-

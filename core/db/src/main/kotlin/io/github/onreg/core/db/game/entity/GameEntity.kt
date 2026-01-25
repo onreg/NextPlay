@@ -19,7 +19,7 @@ public data class GameEntity(
     @ColumnInfo(name = RATING)
     val rating: Double,
     @ColumnInfo(name = INSERTION_ORDER)
-    val insertionOrder: Long
+    val insertionOrder: Long,
 ) {
     internal companion object {
         const val TABLE_NAME: String = "games"

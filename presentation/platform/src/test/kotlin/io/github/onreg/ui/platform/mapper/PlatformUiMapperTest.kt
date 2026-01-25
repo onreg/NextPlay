@@ -1,9 +1,9 @@
 package io.github.onreg.ui.platform.mapper
 
-import io.github.onreg.ui.platform.model.PlatformUI
 import io.github.onreg.core.util.android.resources.ResourcesProvider
 import io.github.onreg.data.game.api.model.GamePlatform
 import io.github.onreg.ui.platform.R
+import io.github.onreg.ui.platform.model.PlatformUI
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.kotlin.doReturn
@@ -29,15 +29,15 @@ class PlatformUiMapperTest {
                 GamePlatform.PLAYSTATION_4,
                 GamePlatform.XBOX_ONE,
                 GamePlatform.LINUX,
-                GamePlatform.COMMODORE_AMIGA
-            )
+                GamePlatform.COMMODORE_AMIGA,
+            ),
         )
 
         val expected = setOf(
             PlatformUI("PC", R.drawable.ic_windows_24),
             PlatformUI("PlayStation", R.drawable.ic_playstation_24),
             PlatformUI("Xbox", R.drawable.ic_xbox_24),
-            PlatformUI("Linux", R.drawable.ic_linux_24)
+            PlatformUI("Linux", R.drawable.ic_linux_24),
         )
 
         assertEquals(expected, result)
@@ -50,15 +50,15 @@ class PlatformUiMapperTest {
                 GamePlatform.PC,
                 GamePlatform.PLAYSTATION_5,
                 GamePlatform.XBOX_ONE,
-                GamePlatform.LINUX
-            )
+                GamePlatform.LINUX,
+            ),
         )
 
         val expected = setOf(
             "PC",
             "PlayStation 5",
             "Xbox One",
-            "Linux"
+            "Linux",
         )
 
         assertEquals(expected, result)
