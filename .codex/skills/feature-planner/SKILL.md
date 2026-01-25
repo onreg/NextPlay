@@ -32,34 +32,33 @@ The output must be a single markdown document only.
 
 ## ADR Compliance (references/)
 
-You must treat ADRs as architectural constraints. Before finalizing the plan:
-- Identify which ADRs are relevant for the task and read them.
-- Always consider (and usually read):
-    - references/ADR-001-application-architecture.md
-    - references/ADR-008-testing-strategy.md
-- Additionally read as needed:
-    - references/ADR-002-dependency-injection-strategy.md (if task touches DI, module wiring, component graphs)
-    - references/ADR-003-networking-and-api-integration.md (if task touches APIs, DTOs, auth, errors, retry, interceptors)
-    - references/ADR-004-persistence-and-storage.md (if task touches DB, cache, prefs, files, migrations)
-    - references/ADR-005-state-management-and-ui-architecture.md (if task touches Compose/UI state, navigation, state holders)
+You must treat ADRs as architectural constraints and use them as an index during planning (read only what is relevant, but never bypass conflicts silently).
+
+- Always consider (and usually read first):
+    - `references/ADR-001-application-architecture.md`
+    - `references/ADR-008-testing-strategy.md`
+- Additionally read as needed (use these triggers):
+    - `references/ADR-002-dependency-injection-strategy.md`
+      Trigger: DI bindings/modules, component graph changes, new injection points, module wiring.
+    - `references/ADR-003-networking-and-api-integration.md`
+      Trigger: new/changed endpoints, DTO mapping, auth, interceptors, retries, error handling, pagination.
+    - `references/ADR-004-persistence-and-storage.md`
+      Trigger: Room/DB, migrations, caching, DataStore/shared prefs, file storage.
+    - `references/ADR-005-state-management-and-ui-architecture.md`
+      Trigger: Compose screens, navigation, state holders/view models, reducers, UI state modeling, one-off events.
+
 
 ## Workflow
 
 ### Phase 1: Context Gathering
 
-- Read the Task Prompt.
-- Explore similar features in the existing codebase to understand established patterns.
-- Use "mcp_deepwiki_*" tools to research framework-specific patterns and best practices.
-- Use web search tools to research third-party dependencies and APIs (prefer official documentation).
+- Read the Task Prompt (and ACs). List unclear points and assumptions.
+- Identify impacted areas: architecture/layering, testing, DI, networking, persistence, UI state/navigation.
+- Explore similar features in the codebase to capture established patterns (modules, naming, flows, tests).
+- Use "mcp_deepwiki_*" tools to confirm framework-specific best practices.
+- Research third-party dependencies and APIs using official documentation first (record the source and version if relevant).
 - If no similar features are found, explicitly mention this later in the plan and rely on externally researched best practices.
 
-### Phase 2: Analysis
-
-- Identify which existing files require modification.
-- Determine correct placement of new code according to project conventions.
-- Find examples of similar features or patterns in the codebase. If none exist, note this explicitly.
-- Identify required external dependencies or APIs and preferred integration patterns in this project.
-- Identify which interfaces and public classes will change and which methods will be added or removed (including their signatures).
 - Extract ADR constraints that impact:
     - layer boundaries and dependency direction
     - module boundaries
@@ -68,7 +67,7 @@ You must treat ADRs as architectural constraints. Before finalizing the plan:
     - UI state management patterns
     - testing expectations
 
-### Phase 3: Plan Creation
+### Phase 2: Plan Creation
 
 Create a single markdown document with the following structure and constraints:
 
