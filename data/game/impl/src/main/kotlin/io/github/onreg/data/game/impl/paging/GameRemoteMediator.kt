@@ -17,7 +17,7 @@ import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 import java.net.URI
 
-private const val INITIAL_PAGE = 0
+private const val INITIAL_PAGE = 1
 
 public class GameRemoteMediator(
     private val gameApi: GameApi,
