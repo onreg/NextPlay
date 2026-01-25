@@ -19,12 +19,14 @@ The output must be a single markdown document.
 - When recommending third-party dependencies, base usage on official documentation.
 - The plan must explicitly state that the resulting code must not contain any comments or commented-out code.
 - Each implementation step (except the final analysis/test steps) must form a complete logical unit (for example, add a method, create a data class, define an interface).
+- The final two steps in the plan must be:
+    1. Run static analysis and apply fixes based on reports.
+    2. Run unit tests `and apply fixes based on reports.
 - The plan must be executable by a separate "executor" agent:
     - For any action that requires running tools (UI snapshots, static analysis, tests), include a dedicated step with an explicit shell command.
     - Always put the command in a fenced ```bash code block under a **"Command to run"** bullet.
     - Use **one command per code block**.
 - The planning agent must only write the commands into the plan. A separate executor agent will run those commands later.
-- Sort `Files to Modify` and `New Files to Create` by packages.
 
 ## Phase 1: Context Gathering
 
