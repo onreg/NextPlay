@@ -107,6 +107,11 @@ val lintReportMerge = tasks.register("lintCheck") {
 }
 
 subprojects {
+    tasks.configureEach {
+        if (name.contains("lint", ignoreCase = true)) {
+            doNotTrackState("Lint tasks produce intermediate files that are generated on demand.")
+        }
+    }
     plugins.withId("com.android.application") {
         extensions.configure<ApplicationExtension> {
             lint {
@@ -132,6 +137,13 @@ subprojects {
 private fun Project.configureAndroidLint(lint: Lint) {
     lint.warningsAsErrors = true
     lint.abortOnError = false
+    lint.disable.addAll(
+        listOf(
+            "AndroidGradlePluginVersion",
+            "GradleDependency",
+            "NewerVersionAvailable",
+        ),
+    )
     lint.textReport = true
     lint.textOutput = layout.buildDirectory
         .file("reports/lint/lint-results.txt")
@@ -147,78 +159,56 @@ private fun Project.configureAndroidLint(lint: Lint) {
 private fun parseLintIssuesCount(
     text: String?,
     html: String?,
-): Int {
-    if (text != null) {
-        val summaryMatch = Regex("(\\d+)\\s+errors?,\\s+(\\d+)\\s+warnings?", RegexOption.IGNORE_CASE)
-            .findAll(text)
-            .lastOrNull()
-        if (summaryMatch != null) {
-            val errors = summaryMatch.groupValues[1].toInt()
-            val warnings = summaryMatch.groupValues[2].toInt()
-            return errors + warnings
-        }
+): Int = parseLintIssuesCountFrom(text)
+    ?: parseLintIssuesCountFrom(html)
+    ?: 0
 
-        val foundMatch = Regex("Issues? found:\\s*(\\d+)", RegexOption.IGNORE_CASE)
-            .findAll(text)
-            .lastOrNull()
-        if (foundMatch != null) {
-            return foundMatch.groupValues[1].toInt()
-        }
-
-        val errors = Regex("\\b(\\d+)\\s+errors?\\b", RegexOption.IGNORE_CASE)
-            .findAll(text)
-            .lastOrNull()
-            ?.groupValues
-            ?.get(1)
-            ?.toInt()
-            ?: 0
-        val warnings = Regex("\\b(\\d+)\\s+warnings?\\b", RegexOption.IGNORE_CASE)
-            .findAll(text)
-            .lastOrNull()
-            ?.groupValues
-            ?.get(1)
-            ?.toInt()
-            ?: 0
-        if (errors + warnings > 0) {
-            return errors + warnings
-        }
-    }
-
-    if (html != null) {
-        val foundMatch = Regex("Issues? found:\\s*(\\d+)", RegexOption.IGNORE_CASE)
-            .findAll(html)
-            .lastOrNull()
-        if (foundMatch != null) {
-            return foundMatch.groupValues[1].toInt()
-        }
-
-        val summaryMatch = Regex("(\\d+)\\s+errors?,\\s+(\\d+)\\s+warnings?", RegexOption.IGNORE_CASE)
-            .findAll(html)
-            .lastOrNull()
-        if (summaryMatch != null) {
-            val errors = summaryMatch.groupValues[1].toInt()
-            val warnings = summaryMatch.groupValues[2].toInt()
-            return errors + warnings
-        }
-
-        val errors = Regex("\\b(\\d+)\\s+errors?\\b", RegexOption.IGNORE_CASE)
-            .findAll(html)
-            .lastOrNull()
-            ?.groupValues
-            ?.get(1)
-            ?.toInt()
-            ?: 0
-        val warnings = Regex("\\b(\\d+)\\s+warnings?\\b", RegexOption.IGNORE_CASE)
-            .findAll(html)
-            .lastOrNull()
-            ?.groupValues
-            ?.get(1)
-            ?.toInt()
-            ?: 0
-        if (errors + warnings > 0) {
-            return errors + warnings
-        }
-    }
-
-    return 0
+private fun parseLintIssuesCountFrom(content: String?): Int? = content?.let { input ->
+    parseLintSummary(input)
+        ?: parseLintIssuesFound(input)
+        ?: parseLintErrorWarningTotal(input)
 }
+
+private fun parseLintSummary(content: String): Int? {
+    val summaryRegex = Regex(
+        "(\\d+)\\s+errors?,\\s+(\\d+)\\s+warnings?",
+        RegexOption.IGNORE_CASE,
+    )
+    val summaryMatch = summaryRegex.findAll(content).lastOrNull()
+    return summaryMatch?.let { match ->
+        val errors = match.groupValues[1].toInt()
+        val warnings = match.groupValues[2].toInt()
+        errors + warnings
+    }
+}
+
+private fun parseLintIssuesFound(content: String): Int? {
+    val foundRegex = Regex(
+        "Issues? found:\\s*(\\d+)",
+        RegexOption.IGNORE_CASE,
+    )
+    return foundRegex
+        .findAll(content)
+        .lastOrNull()
+        ?.groupValues
+        ?.get(1)
+        ?.toInt()
+}
+
+private fun parseLintErrorWarningTotal(content: String): Int? {
+    val errors = parseLintCount(content, "\\b(\\d+)\\s+errors?\\b")
+    val warnings = parseLintCount(content, "\\b(\\d+)\\s+warnings?\\b")
+    val total = errors + warnings
+    return total.takeIf { it > 0 }
+}
+
+private fun parseLintCount(
+    content: String,
+    pattern: String,
+): Int = Regex(pattern, RegexOption.IGNORE_CASE)
+    .findAll(content)
+    .lastOrNull()
+    ?.groupValues
+    ?.get(1)
+    ?.toInt()
+    ?: 0

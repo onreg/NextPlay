@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
@@ -24,16 +25,16 @@ private const val OFFSET_ANIMATION_LABEL = "ShimmerOffsetAnimation"
 private const val SHIMMER_WIDTH_RATIO = 0.2f
 
 @Composable
-public fun Modifier.shimmer(cardWidthPx: Float): Modifier =
-    background(rememberShimmerBrush(cardWidthPx))
+public fun Modifier.shimmer(width: Dp): Modifier = background(rememberShimmerBrush(width))
 
 @Composable
-public fun rememberShimmerBrush(cardWidthPx: Float): Brush {
-    val shimmerWidth = (cardWidthPx * SHIMMER_WIDTH_RATIO).coerceAtLeast(1f)
+public fun rememberShimmerBrush(width: Dp): Brush {
+    val widthPx = with(LocalDensity.current) { width.toPx() }
+    val shimmerWidth = (widthPx * SHIMMER_WIDTH_RATIO).coerceAtLeast(1f)
     val transition = rememberInfiniteTransition(TRANSITION_LABEL)
     val offsetX = transition.animateFloat(
         initialValue = -shimmerWidth,
-        targetValue = cardWidthPx + shimmerWidth,
+        targetValue = widthPx + shimmerWidth,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 900, easing = LinearEasing),
             repeatMode = RepeatMode.Restart,
@@ -56,11 +57,10 @@ public fun rememberShimmerBrush(cardWidthPx: Float): Brush {
 @Composable
 private fun ShimmerPreview() {
     NextPlayTheme {
-        val widthPx = with(LocalDensity.current) { 200.dp.toPx() }
         Box(
             modifier = Modifier
                 .size(width = 200.dp, height = 100.dp)
-                .shimmer(widthPx),
+                .shimmer(200.dp),
         )
     }
 }

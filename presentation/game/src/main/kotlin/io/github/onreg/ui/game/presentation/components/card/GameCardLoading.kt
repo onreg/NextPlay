@@ -31,7 +31,6 @@ private const val PLATFORM_ICON_PLACEHOLDER_COUNT = 4
 public fun GameCardLoading(modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier = modifier) {
         val density = LocalDensity.current
-        val cardWidthPx = with(density) { maxWidth.toPx() }
         val titleHeight = with(density) {
             MaterialTheme.typography.titleMedium.fontSize
                 .toDp()
@@ -40,22 +39,23 @@ public fun GameCardLoading(modifier: Modifier = Modifier) {
             MaterialTheme.typography.bodyMedium.fontSize
                 .toDp()
         }
-        val shimmerModifier = Modifier.shimmer(cardWidthPx)
+
         GameCardLoadingContent(
+            width = maxWidth,
             titleHeight = titleHeight,
             bodyHeight = bodyHeight,
-            shimmerModifier = shimmerModifier,
         )
     }
 }
 
 @Composable
 private fun GameCardLoadingContent(
+    width: Dp,
     titleHeight: Dp,
     bodyHeight: Dp,
-    shimmerModifier: Modifier,
 ) {
     ElevatedCard {
+        val shimmerModifier = Modifier.shimmer(width)
         Column(modifier = Modifier.fillMaxWidth()) {
             ShimmerSurface(
                 modifier = Modifier
