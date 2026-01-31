@@ -1,8 +1,9 @@
 ## Working agreements
 
-- Run terminal commands via Android Studio (`mcp__android_studio`), not direct shell.
 - Use verification reports to fix code checks issues (Lint, Detekt, Ktlint, Unit tests) instead of
   terminal output.
+- Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
+  and docs.
 - After any code change, run code checks and unit tests appropriate to the scope of the change.
     - For large/multi-file changes (e.g. implementing a whole feature), run detekt + ktlint and all
       Unit tests.
@@ -17,21 +18,24 @@
 - `core/ui/` offers reusable, stateless Compose components plus theme primitives.
 - `core/db/` contains persistence helpers such as DAOs, entities, and adapters for local storage.
 - `core/network/` owns HTTP clients, interceptors, and serialization utilities for remote calls.
-- `data/*/api` modules define business logic contracts (interfaces, models, repositories) shared
-  with consumers.
-- `data/*/impl` modules implement the business logic behind the corresponding API contracts.
-- `feature/*/` modules host production-ready screens, presenters/view models, and navigation flows.
+- `core/util-android/` contains Android-only utilities (e.g., resource access, lifecycle helpers,
+  and other platform integrations).
+- `data/<domain>/api` modules define business logic contracts (interfaces, models, repositories)
+  shared with consumers.
+- `data/<domain>/impl` modules implement the business logic behind the corresponding API contracts.
+- `presentation/<domain>/` modules provide reusable presentation-layer building blocks such as UI
+  models, mappers, and shared DI wiring consumed by feature modules.
+- `feature/<domain>/` modules host production-ready feature implementations (screen/pane Composables,
+  ViewModels, navigation wiring) built on `presentation/*` and `data/*`.
+- `testing/unit/` provides shared unit-testing dependencies and helpers consumed via convention
+  plugins (e.g., coroutines test, JUnit, Mockito, Paging test).
 - All modules adhere to the standard `src/main`, `src/test`, and `src/androidTest` layout; keep
   previews, assets, and fixtures near their owners to preserve clear boundaries.
 
 ## Preferred Tools
 
-- Use the IntelliJ MCP integration (`mcp__android_studio` server) for all file inspection, edits,
-  searches, and run shell commands.
-- For investigating problems with specific files, use `mcp__android_studio__get_file_problems` to
-  inspect file errors and warnings.
-- Use the shell bridge (`functions.shell`) only when you must run a CLI command; always set
-  `workdir` to the project root.
+- Use the Mobile MCP integration (`mcp__mobile-mcp` server) to interact with Android emulators/iOS simulators and real devices for UI verification and
+  device-level testing (taps, typing, screenshots, app lifecycle).
 - Use the GitHub automations (`mcp__github`/`mcp__github_personal` servers) for any repository
   interaction such as issues, branches, commits, or pull requests—never manipulate Git directly via
   shell.
@@ -41,8 +45,8 @@
   guidance; do not rely on ad-hoc internet searches for that information.
 - Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and
   measurements rather than guessing UI details.
-- Use the Maven Deps MCP integration (`mcp__maven_deps` server) to confirm dependency versions and
-  availability instead of checking Maven Central manually.
+- Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and measurements
+  rather than guessing UI details.
 
 ## Build, Test, and Development Commands
 
@@ -55,59 +59,18 @@
 ## Verification reports locations
 
 - Unit Tests: `app/build/reports/tests/testDevDebugUnitTest/index.html`
-- Lint (txt): `build/reports/lint/lint.txt`
-- Detekt (txt): `build/reports/detekt/detekt.txt`
-- Ktlint (txt): `build/reports/ktlint/ktlint.txt`
-- Ktlint (format txt): `build/reports/ktlint/ktlint-format.txt`
+- Lint: `build/reports/lint/lint.txt`
+- Detekt: `build/reports/detekt/detekt.txt`
+- Ktlint: `build/reports/ktlint/ktlint.txt`
+- Ktlint: `build/reports/ktlint/ktlint-format.txt`
 
 ## Coding Style & Naming Conventions
 
-- Follow Kotlin official style with 4-space indentation; prefer expression-bodied functions when
-  they improve clarity.
-- Compose previews describe state only (e.g., `FilledPreview`).
-- Icons follow `ic_name_size.xml`.
-- User action events in ViewModels: Use `on` prefix.
-    - Example: `fun onSaveClicked()`
-- Boolean Variables: Use `is`, `has`, or `should` prefixes.
-    - Example: `isUserLoggedIn`, `hasProfilePicture`, `shouldShowTooltip`
-- Mapper Function: Must be implemented as classes (not extension functions) that implement an
-  interface. Use `map` as the function name and `model` as the parameter name.
-    - Example: `interface FooMapper { fun map(model: FooEntity): Foo }` and
-      `class FooMapperImpl : FooMapper { override fun map(model: FooEntity): Foo = ... }`
-- Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
-  and docs.
-
-## Unit tests Guidelines
-
-- All public methods should be tested
-- Do not create manual stubs or fakes, use `mockito-kotlin` for mocking dependencies and
-  verification.
-- Do not use initialization methods (`@Before`). Initialize everything in class properties.
-    - For additional setup, use `mockito-kotlin` DSL in property initialization, e.g.:
-        ```kotlin
-            private val getNewJobsCountUseCase: GetNewJobsCountUseCase = mock {
-                onBlocking { getNewJobsCount() } doReturn GetNewJobsCountResult.NoRecentSearches
-            }
-        ```
-- If the test class has a JUnit `@Rule` and the class under test must be initialized after the rule,
-  declare the class under test with `by lazy { ... }` (since we don’t use `@Before`).
-- When you need to use any Mockito matcher in a `verify(...)` call, use matchers for all arguments (
-  use `eq(...)` to check specific arguments).
-- Prefer verifying exact arguments (e.g. `verify(api).sendEvent(expectedRequest)`) instead of
-  capturing with `argumentCaptor` when the expected request can be constructed upfront. Use captors
-  only when the argument can’t be reasonably constructed or needs partial/dynamic assertions.
-    - Example:
-        ```kotlin
-            whenever(api.sendEvent(JobEventRequest(listOf(dto1, dto2)))).thenReturn(NetworkResponse.Success(Unit))
-            repository.sendEvent(listOf(event1, event2))
-            verify(api).sendEvent(JobEventRequest(listOf(dto1, dto2)))
-        ```
-- Prefer comparing objects with `assertEquals` when possible instead of asserting individual fields
-  repeatedly.
-- All unit tests must use a test driver/DSL abstraction to reduce boilerplate;
-    - For tests without UI:
-      `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/GamesViewModelTest.kt`
-      `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/GamesViewModelTestDriver.kt`
-    - For compose tests:
-      `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/components/list/GameListTest.kt`
-      `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/components/list/GameListTestDriver.kt`
+- Source of truth (if this doc conflicts, these win):
+    - Formatting: `.editorconfig` + ktlint
+    - Static analysis: detekt + Android lint
+    - Architecture/testing conventions: ADRs in `.codex/skills/feature-planner/references/`
+- Naming conventions not covered by tooling/ADRs:
+    - Compose previews: describe UI state only (e.g., `FilledPreview`, `EmptyStatePreview`)
+    - Icons: `ic_<name>_<size>.xml` (e.g., `ic_close_24.xml`)
+    - Booleans: `is`/`has`/`should` prefixes (e.g., `isUserLoggedIn`)
