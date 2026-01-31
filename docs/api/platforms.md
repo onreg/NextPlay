@@ -1,7 +1,7 @@
 ```json
 {
   "count": 51,
-  "next": "https://api.rawg.io/api/platforms?key=56cf4fa9801c41cea31f86233489586d&page=2",
+  "next": "https://api.rawg.io/api/platforms?key=dummy_key&page=2",
   "previous": null,
   "results": [
     {
