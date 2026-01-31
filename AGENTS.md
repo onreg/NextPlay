@@ -1,6 +1,5 @@
 ## Working agreements
 
-- Run terminal commands via Android Studio (`mcp__android_studio`)), not direct shell.
 - Use verification reports to fix Lint and Unit tests issues instead of terminal output.
 - After any code change, run Unit tests appropriate to the scope of the change.
     - For large/multi-file changes (e.g. implementing a whole feature), run all Unit tests.
@@ -25,24 +24,17 @@
 
 ## Preferred Tools
 
-- Use the IntelliJ MCP integration (`mcp__android_studio` server) for all file inspection, edits,
-  searches, and run shell commands.
-- For investigating problems with specific files, use `mcp__android_studio__get_file_problems` to inspect file errors and warnings.
-- Use the shell bridge (`functions.shell`) only when you must run a CLI command; always set
-  `workdir` to the project root.
+- Use the Mobile MCP integration (`mcp__mobile-mcp` server) to interact with Android emulators/iOS simulators and real devices for UI verification and
+  device-level testing (taps, typing, screenshots, app lifecycle).
 - Use the GitHub automations (`mcp__github`/`mcp__github_personal` servers) for any repository
   interaction such as issues, branches, commits, or pull requests—never manipulate Git directly via
   shell.
 - Use the Atlassian MCP integration (`mcp__atlassian` server) for every Jira or Confluence lookup or
   update instead of hitting the APIs manually.
-- Use the Playwright MCP integration (`mcp__playwright` server) for every web lookup—never open browsers
-  or external search manually.
 - Use the DeepWiki MCP integration (`mcp__deepwiki` server) whenever you need framework or library
   guidance; do not rely on ad-hoc internet searches for that information.
 - Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and measurements
   rather than guessing UI details.
-- Use the Maven Deps MCP integration (`mcp__maven_deps` server) to confirm dependency versions and
-  availability instead of checking Maven Central manually.
 
 ## Build, Test, and Development Commands
 
