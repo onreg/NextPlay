@@ -1,6 +1,5 @@
 package io.github.onreg.testing.unit.flow
 
-import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
@@ -9,10 +8,9 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.test.assertEquals
 
-@VisibleForTesting
 public class TestObserver<T>(
     private val testScope: TestScope,
-    flow: Flow<T>
+    flow: Flow<T>,
 ) {
     private val values = mutableListOf<T>()
     private val job = testScope.launch {

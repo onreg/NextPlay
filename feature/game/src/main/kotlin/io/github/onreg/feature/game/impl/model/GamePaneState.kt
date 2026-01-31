@@ -8,5 +8,6 @@ internal sealed interface GamesPaneEvent {
 
 internal sealed interface GamesPaneListEvent {
     data object Retry : GamesPaneListEvent
+
     data object Refresh : GamesPaneListEvent
 }

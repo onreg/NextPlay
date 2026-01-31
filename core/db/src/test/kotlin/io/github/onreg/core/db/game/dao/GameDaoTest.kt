@@ -21,12 +21,11 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 internal class GameDaoTest {
-
-    private val database = Room.inMemoryDatabaseBuilder(
-        ApplicationProvider.getApplicationContext(),
-        NextPlayDatabase::class.java
-    )
-        .allowMainThreadQueries()
+    private val database = Room
+        .inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            NextPlayDatabase::class.java,
+        ).allowMainThreadQueries()
         .build()
 
     private val gameDao = database.gameDao()
@@ -47,7 +46,7 @@ internal class GameDaoTest {
                 imageUrl = "image1",
                 releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
                 rating = 4.5,
-                insertionOrder = 1
+                insertionOrder = 1,
             ),
             GameEntity(
                 id = 11,
@@ -55,13 +54,13 @@ internal class GameDaoTest {
                 imageUrl = "image2",
                 releaseDate = Instant.parse("2024-02-01T00:00:00Z"),
                 rating = 4.0,
-                insertionOrder = 2
-            )
+                insertionOrder = 2,
+            ),
         )
         val crossRefs = listOf(
             GamePlatformCrossRef(gameId = 10, platformId = 1),
             GamePlatformCrossRef(gameId = 10, platformId = 2),
-            GamePlatformCrossRef(gameId = 11, platformId = 2)
+            GamePlatformCrossRef(gameId = 11, platformId = 2),
         )
 
         gameDao.insertGamesWithPlatforms(GameInsertionBundle(games, platforms, crossRefs))
@@ -71,8 +70,8 @@ internal class GameDaoTest {
             PagingSource.LoadParams.Refresh(
                 key = null,
                 loadSize = 10,
-                placeholdersEnabled = false
-            )
+                placeholdersEnabled = false,
+            ),
         )
 
         assertTrue(result is PagingSource.LoadResult.Page)
@@ -80,14 +79,14 @@ internal class GameDaoTest {
             listOf(
                 GameWithPlatforms(
                     game = games[0],
-                    platforms = listOf(platforms[0], platforms[1])
+                    platforms = listOf(platforms[0], platforms[1]),
                 ),
                 GameWithPlatforms(
                     game = games[1],
-                    platforms = listOf(platforms[1])
-                )
+                    platforms = listOf(platforms[1]),
+                ),
             ),
-            result.data
+            result.data,
         )
     }
 
@@ -100,7 +99,7 @@ internal class GameDaoTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-03-01T00:00:00Z"),
             rating = 4.8,
-            insertionOrder = 1
+            insertionOrder = 1,
         )
         val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
         val remoteKey = GameRemoteKeysEntity(gameId = game.id, prevKey = null, nextKey = 2)
@@ -109,8 +108,8 @@ internal class GameDaoTest {
             GameInsertionBundle(
                 listOf(game),
                 listOf(platform),
-                listOf(crossRef)
-            )
+                listOf(crossRef),
+            ),
         )
         remoteKeysDao.insertRemoteKeys(listOf(remoteKey))
 
@@ -130,7 +129,7 @@ internal class GameDaoTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-04-01T00:00:00Z"),
             rating = 4.2,
-            insertionOrder = 1
+            insertionOrder = 1,
         )
         val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
 
@@ -138,23 +137,22 @@ internal class GameDaoTest {
             GameInsertionBundle(
                 listOf(game),
                 listOf(platform),
-                listOf(crossRef)
-            )
+                listOf(crossRef),
+            ),
         )
 
         database.openHelper.writableDatabase.execSQL(
             "DELETE FROM ${PlatformEntity.TABLE_NAME} WHERE ${PlatformEntity.ID} = ?",
-            arrayOf(platform.id)
+            arrayOf(platform.id),
         )
 
         assertEquals(1, countRows(GameEntity.TABLE_NAME))
         assertEquals(0, countRows(GamePlatformCrossRef.TABLE_NAME))
     }
 
-    private fun countRows(table: String): Int {
-        return database.query("SELECT COUNT(*) FROM $table", null).use { cursor ->
+    private fun countRows(table: String): Int =
+        database.query("SELECT COUNT(*) FROM $table", null).use { cursor ->
             cursor.moveToFirst()
             cursor.getInt(0)
         }
-    }
 }

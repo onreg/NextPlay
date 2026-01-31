@@ -18,14 +18,16 @@ public fun ChipGroup(
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-        verticalArrangement = Arrangement.spacedBy(-(Spacing.sm))
+        verticalArrangement = Arrangement.spacedBy(-(Spacing.sm)),
     ) {
         chips.forEachIndexed { index, chip ->
             Chip(
                 chipUI = chip,
                 onClick = if (onChipClicked != null) {
                     { onChipClicked.invoke(index) }
-                } else null
+                } else {
+                    null
+                },
             )
         }
     }
@@ -44,7 +46,7 @@ private fun StaticChipsPreview() {
                 ChipUI("Strategy"),
                 ChipUI("Simulation"),
                 ChipUI("Sports"),
-            )
+            ),
         )
     }
 }
@@ -63,7 +65,7 @@ private fun SelectableChipsPreview() {
                 ChipUI("Simulation", isSelected = false),
                 ChipUI("Sports", isSelected = true),
             ),
-            onChipClicked = { /* Handle chip click */ }
+            onChipClicked = { /* Handle chip click */ },
         )
     }
 }

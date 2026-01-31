@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-public interface ViewModelDelegate<State, Event> {
+private const val DEFAULT_SUBSCRIPTION_TIMEOUT_MS = 5_000L
 
+public interface ViewModelDelegate<State, Event> {
     public val events: Flow<Event>
 
     public fun state(): StateFlow<State>
@@ -23,37 +24,36 @@ public interface ViewModelDelegate<State, Event> {
         remote: Flow<Remote>,
         merge: (State, Remote) -> UI,
         initial: UI,
-        started: SharingStarted = SharingStarted.WhileSubscribed(5_000L)
+        started: SharingStarted = SharingStarted.WhileSubscribed(DEFAULT_SUBSCRIPTION_TIMEOUT_MS),
     ): StateFlow<UI>
 
     public fun CoroutineScope.sendEvent(event: Event)
+
     public fun reduce(block: (State) -> State)
 }
 
-public class ViewModelDelegateImpl<State, Event>(initial: State) : ViewModelDelegate<State, Event> {
-
-    private val _state: MutableStateFlow<State> = MutableStateFlow(initial)
+public class ViewModelDelegateImpl<State, Event>(initial: State) :
+    ViewModelDelegate<State, Event> {
+    private val stateFlow: MutableStateFlow<State> = MutableStateFlow(initial)
     private val _events = Channel<Event>()
 
     public override val events: Flow<Event> = _events.receiveAsFlow()
 
-    override fun state(): StateFlow<State> = _state.asStateFlow()
+    override fun state(): StateFlow<State> = stateFlow.asStateFlow()
 
     override fun <Remote, UI> CoroutineScope.mergedState(
         remote: Flow<Remote>,
         merge: (State, Remote) -> UI,
         initial: UI,
-        started: SharingStarted
-    ): StateFlow<UI> {
-        return combine(_state, remote, merge)
-            .stateIn(this, started, initial)
-    }
+        started: SharingStarted,
+    ): StateFlow<UI> = combine(stateFlow, remote, merge)
+        .stateIn(this, started, initial)
 
     override fun CoroutineScope.sendEvent(event: Event) {
         launch { _events.send(event) }
     }
 
     override fun reduce(block: (State) -> State) {
-        _state.update(block)
+        stateFlow.update(block)
     }
 }

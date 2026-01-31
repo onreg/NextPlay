@@ -15,7 +15,8 @@ internal class InstantJsonAdapter {
     fun fromJson(value: String?): Instant? {
         if (value.isNullOrBlank()) return null
         return runCatching {
-            LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE)
+            LocalDate
+                .parse(value, DateTimeFormatter.ISO_LOCAL_DATE)
                 .atStartOfDay()
                 .toInstant(ZoneOffset.UTC)
         }.getOrNull()

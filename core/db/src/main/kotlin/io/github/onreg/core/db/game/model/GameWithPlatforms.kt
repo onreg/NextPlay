@@ -16,8 +16,8 @@ public data class GameWithPlatforms(
         associateBy = Junction(
             value = GamePlatformCrossRef::class,
             parentColumn = GamePlatformCrossRef.GAME_ID,
-            entityColumn = GamePlatformCrossRef.PLATFORM_ID
-        )
+            entityColumn = GamePlatformCrossRef.PLATFORM_ID,
+        ),
     )
-    val platforms: List<PlatformEntity>
+    val platforms: List<PlatformEntity>,
 )

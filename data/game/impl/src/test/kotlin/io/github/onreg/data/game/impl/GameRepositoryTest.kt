@@ -13,14 +13,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class GameRepositoryTest {
-
     private val mappedGame = Game(
         id = 1,
         title = "Title",
         imageUrl = "image",
         releaseDate = null,
         rating = 4.5,
-        platforms = setOf(GamePlatform.PC)
+        platforms = setOf(GamePlatform.PC),
     )
 
     private val gameEntity = GameEntity(
@@ -29,14 +28,15 @@ internal class GameRepositoryTest {
         imageUrl = "image",
         releaseDate = null,
         rating = 4.5,
-        insertionOrder = 0
+        insertionOrder = 0,
     )
     private val entityWithPlatforms = GameWithPlatforms(
         game = gameEntity,
-        platforms = listOf(PlatformEntity(GamePlatform.PC.id))
+        platforms = listOf(PlatformEntity(GamePlatform.PC.id)),
     )
 
-    private val driver = GameRepositoryTestDriver.Builder()
+    private val driver = GameRepositoryTestDriver
+        .Builder()
         .gameDaoPagingSource(listOf(entityWithPlatforms))
         .gameEntityMapperMap(entityWithPlatforms, mappedGame)
         .build()

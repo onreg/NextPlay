@@ -8,10 +8,8 @@ import okhttp3.Response
 @VisibleForTesting
 public const val QUERY_PARAMETER_KEY: String = "key"
 
-public class RawgApiKeyInterceptor(
-    private val apiKey: String = BuildConfig.RAWG_API_KEY
-) : Interceptor {
-
+public class RawgApiKeyInterceptor(private val apiKey: String = BuildConfig.RAWG_API_KEY) :
+    Interceptor {
     init {
         require(apiKey.isNotBlank()) { "API key must not be blank!" }
     }

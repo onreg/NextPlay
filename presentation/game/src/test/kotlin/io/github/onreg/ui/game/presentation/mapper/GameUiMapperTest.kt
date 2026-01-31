@@ -17,7 +17,8 @@ class GameUiMapperTest {
     fun `should map paging data and apply bookmarks`() = runTest {
         val gamePlatform = setOf(GamePlatform.PC)
         val platformUi = setOf(PlatformUI(name = "PC", iconRes = 1))
-        val driver = GameUiMapperTestDriver.Builder()
+        val driver = GameUiMapperTestDriver
+            .Builder()
             .platformUiMapperMap(gamePlatform, platformUi)
             .build()
 
@@ -28,7 +29,7 @@ class GameUiMapperTest {
                 imageUrl = "image-1",
                 releaseDate = Instant.parse("2023-07-19T00:00:00Z"),
                 rating = 3.5,
-                platforms = gamePlatform
+                platforms = gamePlatform,
             ),
             Game(
                 id = 2,
@@ -36,8 +37,8 @@ class GameUiMapperTest {
                 imageUrl = "image-2",
                 releaseDate = null,
                 rating = 4.5,
-                platforms = gamePlatform
-            )
+                platforms = gamePlatform,
+            ),
         )
 
         val pagingData = driver.mapper.map(PagingData.from(games), setOf("2"))
@@ -51,7 +52,7 @@ class GameUiMapperTest {
                 releaseDate = "Jul 19, 2023",
                 platforms = platformUi,
                 rating = ChipUI(text = "3.5", isSelected = true),
-                isBookmarked = false
+                isBookmarked = false,
             ),
             GameCardUI(
                 id = "2",
@@ -60,8 +61,8 @@ class GameUiMapperTest {
                 releaseDate = "",
                 platforms = platformUi,
                 rating = ChipUI(text = "4.5", isSelected = true),
-                isBookmarked = true
-            )
+                isBookmarked = true,
+            ),
         )
 
         assertEquals(expected, items)

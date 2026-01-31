@@ -13,17 +13,17 @@ import androidx.compose.ui.Modifier
 public fun GameDetailsPane(
     gameId: String,
     modifier: Modifier = Modifier,
-    goBack: () -> Unit = {}
+    goBack: () -> Unit = {},
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             modifier = Modifier.clickable {
                 goBack()
             },
-            text = gameId
+            text = gameId,
         )
     }
 }

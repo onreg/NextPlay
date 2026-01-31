@@ -10,5 +10,5 @@ public data class GameCardUI(
     val releaseDate: String,
     val platforms: Set<PlatformUI>,
     val rating: ChipUI,
-    val isBookmarked: Boolean
+    val isBookmarked: Boolean,
 )

@@ -11,15 +11,15 @@ public data class GameDto(
     @Json(name = "background_image") val imageUrl: String?,
     @Json(name = "released") val releaseDate: Instant?,
     @Json(name = "rating") val rating: Double?,
-    @Json(name = "parent_platforms") val platforms: List<PlatformWrapperDto> = emptyList()
+    @Json(name = "parent_platforms") val platforms: List<PlatformWrapperDto> = emptyList(),
 )
 
 @JsonClass(generateAdapter = true)
 public data class PlatformWrapperDto(
-    @Json(name = "platform") val platform: PlatformDto?
+    @Json(name = "platform") val platform: PlatformDto?,
 )
 
 @JsonClass(generateAdapter = true)
 public data class PlatformDto(
-    @Json(name = "id") val id: Int
+    @Json(name = "id") val id: Int,
 )

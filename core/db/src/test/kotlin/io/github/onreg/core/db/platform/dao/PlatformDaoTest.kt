@@ -13,12 +13,11 @@ import kotlin.test.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 internal class PlatformDaoTest {
-
-    private val database = Room.inMemoryDatabaseBuilder(
-        ApplicationProvider.getApplicationContext(),
-        NextPlayDatabase::class.java
-    )
-        .allowMainThreadQueries()
+    private val database = Room
+        .inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            NextPlayDatabase::class.java,
+        ).allowMainThreadQueries()
         .build()
     private val platformDao = database.platformDao()
 
@@ -32,7 +31,8 @@ internal class PlatformDaoTest {
         platformDao.insertPlatforms(listOf(PlatformEntity(1), PlatformEntity(2)))
         platformDao.insertPlatforms(listOf(PlatformEntity(2), PlatformEntity(3)))
 
-        val count = database.query("SELECT COUNT(*) FROM ${PlatformEntity.TABLE_NAME}", null)
+        val count = database
+            .query("SELECT COUNT(*) FROM ${PlatformEntity.TABLE_NAME}", null)
             .use { cursor ->
                 cursor.moveToFirst()
                 cursor.getInt(0)

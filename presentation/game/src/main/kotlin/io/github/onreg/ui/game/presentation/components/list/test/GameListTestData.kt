@@ -3,13 +3,13 @@ package io.github.onreg.ui.game.presentation.components.list.test
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import io.github.onreg.core.ui.R as CoreUiR
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.ui.game.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.model.PlatformUI
-import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.io.IOException
+import io.github.onreg.core.ui.R as CoreUiR
 
 public object GameListTestData {
     public val emptyItems: List<GameCardUI> = emptyList()
@@ -46,32 +46,31 @@ public object GameListTestData {
     public val nextPageErrorLargeState: Flow<PagingData<GameCardUI>> =
         buildPagingFlow(
             eightItems,
-            append = LoadState.Error(IllegalStateException("Preview error"))
+            append = LoadState.Error(IllegalStateException("Preview error")),
         )
 
     public val nextPageNetworkErrorLargeState: Flow<PagingData<GameCardUI>> =
         buildPagingFlow(
             eightItems,
-            append = LoadState.Error(IOException("Preview error"))
+            append = LoadState.Error(IOException("Preview error")),
         )
 
     private fun buildPagingFlow(
         items: List<GameCardUI>,
         refresh: LoadState = LoadState.NotLoading(false),
-        append: LoadState = LoadState.NotLoading(false)
-    ): Flow<PagingData<GameCardUI>> {
-        return flowOf(
-            PagingData.from(
-                items,
-                sourceLoadStates = LoadStates(
-                    refresh = refresh,
-                    append = append,
-                    prepend = LoadState.NotLoading(false)
-                )
-            )
-        )
-    }
+        append: LoadState = LoadState.NotLoading(false),
+    ): Flow<PagingData<GameCardUI>> = flowOf(
+        PagingData.from(
+            items,
+            sourceLoadStates = LoadStates(
+                refresh = refresh,
+                append = append,
+                prepend = LoadState.NotLoading(false),
+            ),
+        ),
+    )
 
+    @Suppress("ktlint:standard:max-line-length", "detekt:MaxLineLength")
     public fun generateGameCards(count: Int): List<GameCardUI> = List(count) { index ->
         val id = (index + 1).toString()
         GameCardUI(
@@ -81,7 +80,7 @@ public object GameListTestData {
             releaseDate = "2024",
             platforms = setOf(PlatformUI(name = "PC", iconRes = CoreUiR.drawable.ic_controller_24)),
             rating = ChipUI(text = "4.$id", isSelected = true),
-            isBookmarked = index % 2 == 0
+            isBookmarked = index % 2 == 0,
         )
     }
 }

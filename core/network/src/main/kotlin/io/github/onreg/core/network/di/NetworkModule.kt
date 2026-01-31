@@ -22,10 +22,10 @@ private const val RAWG_BASE_URL = "https://api.rawg.io/api/"
 @Module
 @InstallIn(SingletonComponent::class)
 public object NetworkModule {
-
     @Provides
     @Singleton
-    public fun provideMoshi(): Moshi = Moshi.Builder()
+    public fun provideMoshi(): Moshi = Moshi
+        .Builder()
         .add(InstantJsonAdapter())
         .add(KotlinJsonAdapterFactory())
         .build()
@@ -41,7 +41,6 @@ public object NetworkModule {
             }
         }
 
-
     @Provides
     @Singleton
     public fun provideApiKeyInterceptor(): Interceptor = RawgApiKeyInterceptor()
@@ -50,8 +49,9 @@ public object NetworkModule {
     @Singleton
     public fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
-        apiKeyInterceptor: Interceptor
-    ): OkHttpClient = OkHttpClient.Builder()
+        apiKeyInterceptor: Interceptor,
+    ): OkHttpClient = OkHttpClient
+        .Builder()
         .addInterceptor(apiKeyInterceptor)
         .addInterceptor(loggingInterceptor)
         .build()
@@ -60,8 +60,9 @@ public object NetworkModule {
     @Singleton
     public fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        moshi: Moshi
-    ): Retrofit = Retrofit.Builder()
+        moshi: Moshi,
+    ): Retrofit = Retrofit
+        .Builder()
         .baseUrl(RAWG_BASE_URL)
         .client(okHttpClient)
         .addCallAdapterFactory(NetworkResponseCallAdapterFactory())

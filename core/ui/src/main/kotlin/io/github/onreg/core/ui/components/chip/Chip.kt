@@ -35,7 +35,7 @@ public fun Chip(
                 Icon(
                     modifier = Modifier.size(IconsSize.sm),
                     painter = painterResource(iconRes),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
         },
@@ -52,9 +52,9 @@ public fun Chip(
         border = filterChipBorder(
             enabled = onClick != null,
             disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
-            selected = chipUI.isSelected
+            selected = chipUI.isSelected,
         ),
-        enabled = onClick != null
+        enabled = onClick != null,
     )
 }
 
@@ -72,9 +72,9 @@ public fun StaticSelectedPreview() {
             chipUI = ChipUI(
                 text = "Selected",
                 isSelected = true,
-                leadingIconRes = R.drawable.ic_controller_24
+                leadingIconRes = R.drawable.ic_controller_24,
             ),
-            onClick = null
+            onClick = null,
         )
     }
 }
@@ -87,9 +87,9 @@ public fun StaticNotSelectedPreview() {
             chipUI = ChipUI(
                 text = "Not selected",
                 isSelected = false,
-                leadingIconRes = R.drawable.ic_controller_24
+                leadingIconRes = R.drawable.ic_controller_24,
             ),
-            onClick = null
+            onClick = null,
         )
     }
 }
@@ -102,9 +102,9 @@ public fun ClickableSelectedPreview() {
             chipUI = ChipUI(
                 text = "Selected",
                 isSelected = true,
-                leadingIconRes = R.drawable.ic_controller_24
+                leadingIconRes = R.drawable.ic_controller_24,
             ),
-            onClick = {}
+            onClick = {},
         )
     }
 }
@@ -117,9 +117,9 @@ public fun ClickableNotSelectedPreview() {
             chipUI = ChipUI(
                 text = "Not selected",
                 isSelected = false,
-                leadingIconRes = R.drawable.ic_controller_off_24
+                leadingIconRes = R.drawable.ic_controller_off_24,
             ),
-            onClick = {}
+            onClick = {},
         )
     }
 }
