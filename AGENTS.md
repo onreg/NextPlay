@@ -18,10 +18,17 @@
 - `core/ui/` offers reusable, stateless Compose components plus theme primitives.
 - `core/db/` contains persistence helpers such as DAOs, entities, and adapters for local storage.
 - `core/network/` owns HTTP clients, interceptors, and serialization utilities for remote calls.
-- `data/*/api` modules define business logic contracts (interfaces, models, repositories) shared
-  with consumers.
-- `data/*/impl` modules implement the business logic behind the corresponding API contracts.
-- `feature/*/` modules host production-ready screens, presenters/view models, and navigation flows.
+- `core/util-android/` contains Android-only utilities (e.g., resource access, lifecycle helpers,
+  and other platform integrations).
+- `data/<domain>/api` modules define business logic contracts (interfaces, models, repositories)
+  shared with consumers.
+- `data/<domain>/impl` modules implement the business logic behind the corresponding API contracts.
+- `presentation/<domain>/` modules provide reusable presentation-layer building blocks such as UI
+  models, mappers, and shared DI wiring consumed by feature modules.
+- `feature/<domain>/` modules host production-ready feature implementations (screen/pane Composables,
+  ViewModels, navigation wiring) built on `presentation/*` and `data/*`.
+- `testing/unit/` provides shared unit-testing dependencies and helpers consumed via convention
+  plugins (e.g., coroutines test, JUnit, Mockito, Paging test).
 - All modules adhere to the standard `src/main`, `src/test`, and `src/androidTest` layout; keep
   previews, assets, and fixtures near their owners to preserve clear boundaries.
 
