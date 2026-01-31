@@ -2,6 +2,8 @@
 
 - Use verification reports to fix code checks issues (Lint, Detekt, Ktlint, Unit tests) instead of
   terminal output.
+- Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
+  and docs.
 - After any code change, run code checks and unit tests appropriate to the scope of the change.
     - For large/multi-file changes (e.g. implementing a whole feature), run detekt + ktlint and all
       Unit tests.
@@ -69,5 +71,3 @@
   interface. Use `map` as the function name and `model` as the parameter name.
     - Example: `interface FooMapper { fun map(model: FooEntity): Foo }` and
       `class FooMapperImpl : FooMapper { override fun map(model: FooEntity): Foo = ... }`
-- Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
-  and docs.
