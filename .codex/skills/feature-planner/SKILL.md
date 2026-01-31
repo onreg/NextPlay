@@ -29,7 +29,10 @@ Output must be exactly one markdown document and nothing else.
     - Show signatures inside interfaces or abstract classes, or as commented signatures if needed.
     - Data classes are allowed.
 - Always specify precise file paths and class names when known. If unknown, explicitly mark as assumptions.
-- Do not describe manual testing scenarios or interactive walkthroughs.
+- Do not invent manual testing scenarios.
+- If the Task Prompt explicitly provides manual testing instructions (for example a "Manual testing", "QA", or "Verification" section), include them in the plan under a dedicated "Manual Testing" section or step, keeping them concise and preserving intent.
+- If the Task Prompt does not provide manual testing, omit manual testing from the plan.
+- Any included manual testing must be described as actions to perform via the `mcp__mobile-mcp` integration (device selection, app launch, taps, typing, screenshots), not as generic interactive walkthroughs.
 - When recommending third-party dependencies or API usage, use official documentation first and record source and version if relevant.
 - Each implementation step (except the final analysis/test steps) must be a complete logical unit (for example, add a method, create a data class, define an interface, add a binding, add a mapper).
 - For any action that requires running tools (static analysis, tests, UI snapshot tests, generators, etc.), include a dedicated step with an explicit shell command.
@@ -39,6 +42,8 @@ Output must be exactly one markdown document and nothing else.
     1) Run static analysis and apply fixes based on reports.
     2) Run unit tests and apply fixes based on reports.
        These steps must include commands that match this repository (discover real Gradle tasks first).
+- When the change impacts UI or behaviour, include dedicated steps to add/adjust automated tests (unit tests and/or snapshot tests) as required by "references/ADR-008-testing-strategy.md".
+- When appropriate for the changeset, include additional verification command steps (e.g. Paparazzi verify/record, connectedAndroidTest, or repo CI aggregate tasks), but keep the final two steps as specified above.
 
 ## ADR Compliance (references/)
 
@@ -59,52 +64,58 @@ Additionally read as needed using these triggers:
   Trigger: Room/DB, migrations, caching, DataStore/shared prefs, file storage.
 - "references/ADR-005-state-management-and-ui-architecture.md"
   Trigger: Compose screens, navigation, state holders/view models, reducers, UI state modeling, one-off events.
+- "references/ADR-008-testing-strategy.md"
+  Trigger: test additions/updates; behaviour changes in ViewModels/use cases/repositories; Compose UI changes (screens/components); DI graph changes (module wiring/checkModules); database schema/migration changes (androidTest).
 
 ## Workflow
 
 ### Phase 1: Context Gathering
 
 1) Read the Task Prompt (including acceptance criteria).
-   - Extract requirements, edge cases, and constraints.
-   - List unclear points and assumptions.
+    - Extract requirements, edge cases, and constraints.
+    - Extract any explicit manual testing instructions (if present).
+    - List unclear points and assumptions.
 
 2) Identify impacted areas (explicitly state which apply):
-   - architecture/layering and dependency direction
-   - module boundaries
-   - DI
-   - networking
-   - persistence/storage
-   - UI state/navigation
-   - testing
+    - architecture/layering and dependency direction
+    - module boundaries
+    - DI
+    - networking
+    - persistence/storage
+    - UI state/navigation
+    - testing
 
 3) Explore the codebase for established patterns.
-   - Find similar features and note:
-       - module placement
-       - naming conventions
-       - layering patterns (UI/Domain/Data)
-       - error handling patterns
-       - test patterns and utilities
+    - Find similar features and note:
+        - module placement
+        - naming conventions
+        - layering patterns (UI/Domain/Data)
+        - error handling patterns
+        - test patterns and utilities
 
 4) ADR scan and extraction.
-   - Read relevant ADRs (based on triggers).
-   - Extract constraints that affect:
-       - layer boundaries and dependency direction
-       - module boundaries
-       - DI approach
-       - networking/persistence patterns
-       - UI state management patterns
-       - testing expectations
+    - Read relevant ADRs (based on triggers).
+    - Extract constraints that affect:
+        - layer boundaries and dependency direction
+        - module boundaries
+        - DI approach
+        - networking/persistence patterns
+        - UI state management patterns
+        - testing expectations
 
 5) Tooling discovery (required).
-   - Identify actual repo tasks/commands for:
-       - static analysis (detekt, ktlint, lint, etc.)
-       - unit tests (module and variant)
-   - Capture real task names to use later in final steps.
+    - Identify actual repo tasks/commands for:
+        - static analysis (detekt, ktlint, lint, etc.)
+        - unit tests (module and variant)
+        - snapshot tests (Paparazzi verify/record, if used in this repo)
+        - instrumentation tests (connectedAndroidTest, if relevant to changes)
+        - CI aggregate tasks (if present)
+    - Capture real task names to use later in final steps.
 
 6) External research (as needed).
-   - Use official docs first.
-   - Optionally use "mcp_deepwiki_*" tools if available and relevant to confirm framework-specific best practices.
-   - Record any important sources and versions.
+    - Use official docs first.
+    - Optionally use "mcp_deepwiki_*" tools if available and relevant to confirm framework-specific best practices.
+    - Record any important sources and versions.
 
 If no similar features are found, explicitly state this in the final plan and rely on externally researched best practices.
 
@@ -161,3 +172,10 @@ Include these bullets inside Overview:
 - Command to run:
   ```bash
   <single command here>
+  ```
+
+## Manual Testing
+Include this section only if manual testing instructions are explicitly provided in the Task Prompt.
+- Bullet list of manual checks, prerequisites (accounts/flags), devices/build variant, and expected outcomes.
+- Describe the procedure as `mcp__mobile-mcp` actions (e.g., list/select device, `mobile_launch_app`, `mobile_list_elements_on_screen`, `mobile_click_on_screen_at_coordinates`, `mobile_type_keys`, `mobile_take_screenshot`).
+```
