@@ -59,15 +59,11 @@
 
 ## Coding Style & Naming Conventions
 
-- Follow Kotlin official style with 4-space indentation; prefer expression-bodied functions when
-  they improve clarity.
-- Compose previews describe state only (e.g., `FilledPreview`).
-- Icons follow `ic_name_size.xml`.
-- User action events in ViewModels: Use `on` prefix.
-    - Example: `fun onSaveClicked()`
-- Boolean Variables: Use `is`, `has`, or `should` prefixes.
-    - Example: `isUserLoggedIn`, `hasProfilePicture`, `shouldShowTooltip`
-- Mapper Function: Must be implemented as classes (not extension functions) that implement an
-  interface. Use `map` as the function name and `model` as the parameter name.
-    - Example: `interface FooMapper { fun map(model: FooEntity): Foo }` and
-      `class FooMapperImpl : FooMapper { override fun map(model: FooEntity): Foo = ... }`
+- Source of truth (if this doc conflicts, these win):
+    - Formatting: `.editorconfig` + ktlint
+    - Static analysis: detekt + Android lint
+    - Architecture/testing conventions: ADRs in `.codex/skills/feature-planner/references/`
+- Naming conventions not covered by tooling/ADRs:
+    - Compose previews: describe UI state only (e.g., `FilledPreview`, `EmptyStatePreview`)
+    - Icons: `ic_<name>_<size>.xml` (e.g., `ic_close_24.xml`)
+    - Booleans: `is`/`has`/`should` prefixes (e.g., `isUserLoggedIn`)
