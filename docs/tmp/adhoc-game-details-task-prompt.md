@@ -211,20 +211,7 @@
   - Tapping a series game opens a new game details screen pushed onto the back stack.
 - When offline and a paged section has no cached content, that section is hidden entirely.
 - No Share action and no "Similar Games" section is implemented.
-
-### Test plan (high-level)
-- Unit tests:
-  - Movie quality URL selection logic ("max" preferred, else highest numeric).
-  - Description collapse/expand state and label switching behavior.
-  - Repository behavior for offline-first refresh (cache-first, then network update) at least for the game details path.
-- Integration tests:
-  - RemoteMediator + Room pagination for screenshots, movies, and series uses the same paging configuration as game list and correctly persists pages.
-- UI tests:
-  - Navigation from list to details and back.
-  - Skeleton shown when no cache; error + Retry shown on initial failure.
-  - Website link launches a browser intent when valid; hidden when invalid.
-  - Screenshot and movie taps launch appropriate system intents.
-  - Series game tap opens a new details instance on the back stack.
+- Manual testing is required
 
 ### Open questions
 - None.
