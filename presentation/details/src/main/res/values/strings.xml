@@ -1,0 +1,5 @@
+<resources>
+    <string name="details_back">Back</string>
+    <string name="details_read_more">Read more</string>
+    <string name="details_read_less">Read less</string>
+</resources>

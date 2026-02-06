@@ -18,8 +18,6 @@ public data class GameEntity(
     val releaseDate: Instant?,
     @ColumnInfo(name = RATING)
     val rating: Double,
-    @ColumnInfo(name = INSERTION_ORDER)
-    val insertionOrder: Long,
 ) {
     internal companion object {
         const val TABLE_NAME: String = "games"
@@ -28,6 +26,5 @@ public data class GameEntity(
         const val IMAGE_URL: String = "imageUrl"
         const val RELEASE_DATE: String = "releaseDate"
         const val RATING: String = "rating"
-        const val INSERTION_ORDER: String = "insertionOrder"
     }
 }

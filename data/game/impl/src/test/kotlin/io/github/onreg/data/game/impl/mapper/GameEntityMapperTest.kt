@@ -1,6 +1,7 @@
 package io.github.onreg.data.game.impl.mapper
 
 import io.github.onreg.core.db.game.entity.GameEntity
+import io.github.onreg.core.db.game.entity.GameListEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
@@ -14,7 +15,8 @@ internal class GameEntityMapperTest {
     private val mapper: GameEntityMapper = GameEntityMapperImpl()
 
     @Test
-    fun `should map games to game entity with incremented order`() {
+    fun `should map games to game entity and list entries`() {
+        val listKey = "default"
         val games = listOf(
             Game(
                 id = 1,
@@ -34,14 +36,13 @@ internal class GameEntityMapperTest {
             ),
         )
 
-        val expected = listOf(
+        val expectedGames = listOf(
             GameEntity(
                 id = 1,
                 title = "First",
                 imageUrl = "image1",
                 releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
                 rating = 4.5,
-                insertionOrder = 5,
             ),
             GameEntity(
                 id = 2,
@@ -49,17 +50,23 @@ internal class GameEntityMapperTest {
                 imageUrl = "image2",
                 releaseDate = Instant.parse("2024-02-01T00:00:00Z"),
                 rating = 4.0,
-                insertionOrder = 6,
             ),
         )
 
-        val result = mapper.map(games, startOrder = 5)
+        val expectedList = listOf(
+            GameListEntity(listKey = listKey, gameId = 1, insertionOrder = 5),
+            GameListEntity(listKey = listKey, gameId = 2, insertionOrder = 6),
+        )
 
-        assertEquals(expected, result.games)
+        val result = mapper.map(games, startOrder = 5, listKey = listKey)
+
+        assertEquals(expectedGames, result.games)
+        assertEquals(expectedList, result.listEntities)
     }
 
     @Test
     fun `should map platforms to platform entity and deduplicate`() {
+        val listKey = "default"
         val games = listOf(
             Game(
                 id = 1,
@@ -84,13 +91,14 @@ internal class GameEntityMapperTest {
             PlatformEntity(GamePlatform.XBOX_ONE.id),
         )
 
-        val result = mapper.map(games, startOrder = 0)
+        val result = mapper.map(games, startOrder = 0, listKey = listKey)
 
         assertEquals(expected, result.platforms.toSet())
     }
 
     @Test
     fun `should map games and platforms to game platform cross ref and deduplicate`() {
+        val listKey = "default"
         val games = listOf(
             Game(
                 id = 1,
@@ -117,7 +125,7 @@ internal class GameEntityMapperTest {
             GamePlatformCrossRef(gameId = 2, platformId = GamePlatform.XBOX_ONE.id),
         )
 
-        val result = mapper.map(games, startOrder = 0)
+        val result = mapper.map(games, startOrder = 0, listKey = listKey)
 
         assertEquals(expected, result.crossRefs.toSet())
     }
@@ -131,7 +139,6 @@ internal class GameEntityMapperTest {
                 imageUrl = "image",
                 releaseDate = Instant.parse("2024-03-03T00:00:00Z"),
                 rating = 3.5,
-                insertionOrder = 10,
             ),
             platforms = listOf(
                 PlatformEntity(GamePlatform.PC.id),

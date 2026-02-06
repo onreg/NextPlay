@@ -1,0 +1,11 @@
+<resources>
+    <string name="details_retry">Retry</string>
+    <string name="details_description">Description</string>
+    <string name="details_developers">Developers</string>
+    <string name="details_screenshots">Screenshots</string>
+    <string name="details_movies">Movies</string>
+    <string name="details_series">Series</string>
+    <string name="details_website">Website</string>
+    <string name="details_rating">Rating: %1$s</string>
+    <string name="details_bookmark">Bookmark</string>
+</resources>

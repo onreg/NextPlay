@@ -1,6 +1,7 @@
 package io.github.onreg.data.game.impl.mapper
 
 import io.github.onreg.core.db.game.entity.GameEntity
+import io.github.onreg.core.db.game.entity.GameListEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
 import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
@@ -13,6 +14,7 @@ public interface GameEntityMapper {
     public fun map(
         models: List<Game>,
         startOrder: Long,
+        listKey: String,
     ): GameInsertionBundle
 
     public fun map(model: GameWithPlatforms): Game
@@ -24,6 +26,7 @@ public class GameEntityMapperImpl
         override fun map(
             models: List<Game>,
             startOrder: Long,
+            listKey: String,
         ): GameInsertionBundle {
             val games = models.mapIndexed { index, model ->
                 GameEntity(
@@ -32,6 +35,12 @@ public class GameEntityMapperImpl
                     imageUrl = model.imageUrl,
                     releaseDate = model.releaseDate,
                     rating = model.rating,
+                )
+            }
+            val listEntities = models.mapIndexed { index, model ->
+                GameListEntity(
+                    listKey = listKey,
+                    gameId = model.id,
                     insertionOrder = startOrder + index,
                 )
             }
@@ -52,6 +61,7 @@ public class GameEntityMapperImpl
 
             return GameInsertionBundle(
                 games = games,
+                listEntities = listEntities,
                 platforms = platforms,
                 crossRefs = crossRefs,
             )

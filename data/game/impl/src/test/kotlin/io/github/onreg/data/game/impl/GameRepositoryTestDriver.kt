@@ -1,11 +1,10 @@
 package io.github.onreg.data.game.impl
 
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.RemoteMediator
-import io.github.onreg.core.db.game.dao.GameDao
+import io.github.onreg.core.db.game.dao.GameListDao
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.api.model.Game
@@ -16,14 +15,14 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 
 internal class GameRepositoryTestDriver private constructor(
-    val gameDao: GameDao,
+    val gameListDao: GameListDao,
     val entityMapper: GameEntityMapper,
     val pagingConfig: PagingConfig,
     val remoteMediator: RemoteMediator<Int, GameWithPlatforms>,
 ) : GameRepository {
     private val repository: GameRepository by lazy {
         GameRepositoryImpl(
-            gameDao = gameDao,
+            gameListDao = gameListDao,
             pagingConfig = pagingConfig,
             gameEntityMapper = entityMapper,
             gameRemoteMediatorProvider = { remoteMediator },
@@ -33,7 +32,7 @@ internal class GameRepositoryTestDriver private constructor(
     override fun getGames() = repository.getGames()
 
     class Builder {
-        private val gameDao: GameDao = mock()
+        private val gameListDao: GameListDao = mock()
         private val entityMapper: GameEntityMapper = mock()
         private val pagingConfig = PagingConfig(
             pageSize = 2,
@@ -54,7 +53,7 @@ internal class GameRepositoryTestDriver private constructor(
             entityMapper.stub { on { map(gameWithPlatforms) } doReturn mapped }
         }
 
-        fun gameDaoPagingSource(pagingSource: List<GameWithPlatforms>): Builder = apply {
+        fun gameListDaoPagingSource(pagingSource: List<GameWithPlatforms>): Builder = apply {
             val source: PagingSource<Int, GameWithPlatforms> = mock {
                 onBlocking { load(any()) } doReturn LoadResult.Page(
                     data = pagingSource,
@@ -62,11 +61,13 @@ internal class GameRepositoryTestDriver private constructor(
                     nextKey = null,
                 )
             }
-            gameDao.stub { on { pagingSource() } doReturn source }
+            gameListDao.stub {
+                on { pagingSource(GameRepositoryImpl.DEFAULT_LIST_KEY) } doReturn source
+            }
         }
 
         fun build(): GameRepositoryTestDriver = GameRepositoryTestDriver(
-            gameDao = gameDao,
+            gameListDao = gameListDao,
             entityMapper = entityMapper,
             pagingConfig = pagingConfig,
             remoteMediator = remoteMediator,

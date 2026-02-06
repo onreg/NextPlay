@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.onreg.core.ui.theme.NextPlayTheme
-import io.github.onreg.feature.game.impl.pane.GameDetailsPane
+import io.github.onreg.feature.game.details.impl.pane.GameDetailsPane
 import io.github.onreg.feature.game.impl.pane.GamesPane
 import io.github.onreg.feature.game.impl.pane.GamesRoute
 
@@ -33,12 +33,9 @@ internal class MainActivity : ComponentActivity() {
                         composable(GamesRoute.GAMES) {
                             GamesPane(navController = nav)
                         }
-                        composable(GamesRoute.DETAILS) { backStackEntry ->
+                        composable(GamesRoute.DETAILS) {
                             GameDetailsPane(
-                                gameId = backStackEntry.arguments?.getString("gameId").orEmpty(),
-                                goBack = {
-                                    nav.popBackStack()
-                                },
+                                navController = nav,
                             )
                         }
                     }

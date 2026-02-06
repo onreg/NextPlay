@@ -3,8 +3,9 @@ package io.github.onreg.data.game.impl.paging
 import androidx.paging.LoadType
 import androidx.paging.RemoteMediator
 import io.github.onreg.core.db.game.entity.GameEntity
+import io.github.onreg.core.db.game.entity.GameListEntity
+import io.github.onreg.core.db.game.entity.GameListRemoteKeysEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
-import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.platform.entity.PlatformEntity
 import io.github.onreg.core.network.rawg.dto.GameDto
@@ -45,11 +46,17 @@ internal class GameRemoteMediatorTest {
         imageUrl = "image",
         releaseDate = null,
         rating = 4.5,
+    )
+
+    private val listEntity = GameListEntity(
+        listKey = "default",
+        gameId = 1,
         insertionOrder = 0,
     )
 
     private val insertionBundle = GameInsertionBundle(
         games = listOf(gameEntity),
+        listEntities = listOf(listEntity),
         platforms = listOf(PlatformEntity(GamePlatform.PC.id)),
         crossRefs = listOf(GamePlatformCrossRef(gameId = 1, platformId = GamePlatform.PC.id)),
     )
@@ -78,16 +85,19 @@ internal class GameRemoteMediatorTest {
         )
 
         verify(driver.gameApi).getGames(
-            page = 0,
+            page = 1,
             pageSize = driver.pagingConfig.pageSize,
         )
         verify(driver.dtoMapper).map(dto)
-        verify(driver.entityMapper).map(listOf(mappedGame), 0)
-        verify(driver.gameDao).clearGames()
+        verify(driver.entityMapper).map(listOf(mappedGame), 0, "default")
+        verify(driver.gameListDao).clearList("default")
+        verify(driver.remoteKeysDao).clearList("default")
         verify(driver.gameDao).insertGamesWithPlatforms(insertionBundle)
+        verify(driver.gameListDao).insertAll(listOf(listEntity))
         verify(driver.remoteKeysDao).insertRemoteKeys(
             listOf(
-                GameRemoteKeysEntity(
+                GameListRemoteKeysEntity(
+                    listKey = "default",
                     gameId = 1,
                     prevKey = null,
                     nextKey = 2,

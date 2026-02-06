@@ -9,7 +9,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
-import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
+import io.github.onreg.core.db.game.dao.GameListDao
+import io.github.onreg.core.db.game.dao.GameListRemoteKeysDao
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
 import io.github.onreg.data.game.api.GameRepository
@@ -49,17 +50,20 @@ public abstract class GameModule {
         public fun provideGameRemoteMediator(
             gameApi: GameApi,
             gameDao: GameDao,
-            gameRemoteKeysDao: GameRemoteKeysDao,
+            gameListDao: GameListDao,
+            gameRemoteKeysDao: GameListRemoteKeysDao,
             gameDtoMapper: GameDtoMapper,
             gameEntityMapper: GameEntityMapper,
             transactionProvider: TransactionProvider,
         ): RemoteMediator<Int, GameWithPlatforms> = GameRemoteMediator(
             gameApi = gameApi,
             gameDao = gameDao,
+            gameListDao = gameListDao,
             remoteKeysDao = gameRemoteKeysDao,
             dtoMapper = gameDtoMapper,
             entityMapper = gameEntityMapper,
             transactionProvider = transactionProvider,
+            listKey = GameRepositoryImpl.DEFAULT_LIST_KEY,
         )
     }
 }

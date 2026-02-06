@@ -6,7 +6,8 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
-import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
+import io.github.onreg.core.db.game.dao.GameListDao
+import io.github.onreg.core.db.game.dao.GameListRemoteKeysDao
 import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
@@ -23,20 +24,24 @@ import org.mockito.kotlin.stub
 internal class GameRemoteMediatorTestDriver private constructor(
     val gameApi: GameApi,
     val gameDao: GameDao,
-    val remoteKeysDao: GameRemoteKeysDao,
+    val gameListDao: GameListDao,
+    val remoteKeysDao: GameListRemoteKeysDao,
     val dtoMapper: GameDtoMapper,
     val entityMapper: GameEntityMapper,
     val pagingConfig: PagingConfig,
     private val transactionProvider: TransactionProvider,
+    private val listKey: String,
 ) : RemoteMediator<Int, GameWithPlatforms>() {
     private val mediator by lazy {
         GameRemoteMediator(
             gameApi = gameApi,
             gameDao = gameDao,
+            gameListDao = gameListDao,
             remoteKeysDao = remoteKeysDao,
             dtoMapper = dtoMapper,
             entityMapper = entityMapper,
             transactionProvider = transactionProvider,
+            listKey = listKey,
         )
     }
 
@@ -53,9 +58,11 @@ internal class GameRemoteMediatorTestDriver private constructor(
     )
 
     class Builder {
+        private val listKey = "default"
         private val gameApi: GameApi = mock()
         private val gameDao: GameDao = mock()
-        private val remoteKeysDao: GameRemoteKeysDao = mock()
+        private val gameListDao: GameListDao = mock()
+        private val remoteKeysDao: GameListRemoteKeysDao = mock()
         private val dtoMapper: GameDtoMapper = mock()
         private val entityMapper: GameEntityMapper = mock()
         private val transactionProvider = object : TransactionProvider {
@@ -73,7 +80,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
                 gameApi.stub {
                     onBlocking {
                         getGames(
-                            page = 0,
+                            page = 1,
                             pageSize = pagingConfig.pageSize,
                         )
                     } doReturn response
@@ -92,17 +99,19 @@ internal class GameRemoteMediatorTestDriver private constructor(
             startOrder: Long,
             bundle: GameInsertionBundle,
         ): Builder = apply {
-            entityMapper.stub { on { map(games, startOrder) } doReturn bundle }
+            entityMapper.stub { on { map(games, startOrder, listKey) } doReturn bundle }
         }
 
         fun build() = GameRemoteMediatorTestDriver(
             gameApi = gameApi,
             gameDao = gameDao,
+            gameListDao = gameListDao,
             remoteKeysDao = remoteKeysDao,
             dtoMapper = dtoMapper,
             entityMapper = entityMapper,
             pagingConfig = pagingConfig,
             transactionProvider = transactionProvider,
+            listKey = listKey,
         )
     }
 }
