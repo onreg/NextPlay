@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Implementer"
+  short_description: "Execute a task by following a markdown implementation plan step-by-step."
+
