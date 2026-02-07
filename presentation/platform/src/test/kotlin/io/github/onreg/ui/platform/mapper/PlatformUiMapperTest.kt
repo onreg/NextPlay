@@ -1,7 +1,7 @@
 package io.github.onreg.ui.platform.mapper
 
 import io.github.onreg.core.util.android.resources.ResourcesProvider
-import io.github.onreg.data.game.api.model.GamePlatform
+import io.github.onreg.data.game.list.api.model.GamePlatform
 import io.github.onreg.ui.platform.R
 import io.github.onreg.ui.platform.model.PlatformUI
 import org.junit.Assert.assertEquals

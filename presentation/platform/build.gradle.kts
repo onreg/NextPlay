@@ -12,5 +12,5 @@ android {
 dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.utilAndroid)
-    implementation(projects.data.game.api)
+    implementation(projects.data.gameList.api)
 }

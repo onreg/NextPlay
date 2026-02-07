@@ -103,7 +103,7 @@ Type conversion:
 - Ordering is by `GameEntity.insertionOrder` (not by id).
 
 #### - RemoteMediator responsibilities
-- `GameRemoteMediator` (in `:data:game:impl`) is responsible for:
+- `GameRemoteMediator` (in `:data:game-list:impl`) is responsible for:
   - Choosing the network page to load (refresh vs append).
   - Calling the RAWG API with (page, pageSize).
   - Mapping DTOs -> app models -> database bundle (games, platforms, cross refs).
@@ -146,7 +146,7 @@ Type conversion:
   - Assertions that validate:
     - PagingSource ordering and relation materialization (`GameWithPlatforms`).
     - Cascade delete behavior for cross refs and remote keys.
-- `:data:game:impl` tests cover repository, mediator, and mappers using:
+- `:data:game-list:impl` tests cover repository, mediator, and mappers using:
   - Mockito-Kotlin mocks.
   - Test drivers/DSL classes to reduce boilerplate.
 
@@ -191,7 +191,7 @@ Operational impact:
 - Internal persistence guidance: `docs/instructions/core-db.md`
 
 ## Open questions
-- The `GameRemoteMediator` code uses an initial page value of 1, but the unit test driver stubs API calls with page 0. Are `:data:game:impl` paging tests currently passing, and which initial page is intended?
+- The `GameRemoteMediator` code uses an initial page value of 1, but the unit test driver stubs API calls with page 0. Are `:data:game-list:impl` paging tests currently passing, and which initial page is intended?
 - `PlatformDao` exists, but `:core:db` DI provides only `GameDao` and `GameRemoteKeysDao`. Is `PlatformDao` intentionally non-injectable (only used via `NextPlayDatabase.platformDao()` inside `GameDao`), or is its DI binding missing?
 - The REFRESH path clears `games` (and relies on cascades for related tables) but does not clear `platforms`. Is `platforms` intended to be an append-only dimension table, or is cleanup expected elsewhere?
 - Are there any persistence mechanisms outside Room (for example, preferences, DataStore, file cache) that are intentionally used but not captured by the scanned locations and keyword searches?

@@ -119,7 +119,7 @@ Factory and per-use bindings:
 
 No custom scopes or custom components were found.
 
-### Example feature deep dive (`:feature:game`)
+### Example feature deep dive (`:feature:game-list`)
 1) `MainActivity` hosts the Compose `NavHost` and renders `GamesPane()` for the games route.
 2) `GamesPane()` calls `hiltViewModel<GamesPaneViewModel>()` to obtain the feature ViewModel.
 3) Hilt constructs `GamesPaneViewModel` via its `@Inject` constructor, supplying a `GameRepository` and a `GameUiMapper`.
@@ -194,7 +194,7 @@ Presentation ViewModelComponent modules:
 - `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/di/GamePresentationModule.kt`
 - `presentation/platform/src/main/kotlin/io/github/onreg/ui/platform/di/PlatformPresentationModule.kt`
 
-Feature example (`:feature:game`) ViewModel and Compose retrieval:
+Feature example (`:feature:game-list`) ViewModel and Compose retrieval:
 - `feature/game/src/main/kotlin/io/github/onreg/feature/game/impl/GamesPaneViewModel.kt`
 - `feature/game/src/main/kotlin/io/github/onreg/feature/game/impl/pane/GamesPane.kt`
 

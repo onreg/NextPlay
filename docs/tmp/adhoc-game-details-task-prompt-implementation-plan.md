@@ -13,8 +13,8 @@ Implement an offline-first Game Details screen reachable from the existing game 
 - ADR Conflicts:
   - None identified. (Note: existing `GamesPane` currently takes a `NavHostController`; this plan refactors to callback-based navigation so `:app` fully owns navigation strings, aligning better with ADR-001.)
 - Assumptions:
-  - Existing modules currently named `:feature:game`, `:data:game:*`, and `:presentation:game` represent the **game list** feature, and must be renamed to **game-list** first (see Step 0).
-  - The existing placeholder `feature/game/.../pane/GameDetailsPane.kt` will be removed during the rename to avoid naming conflicts with the new `:feature:game-details`.
+  - Existing modules currently named `:feature:game-list`, `:data:game:*`, and `:presentation:game-list` represent the **game list** feature, and must be renamed to **game-list** first (see Step 0).
+  - The existing placeholder `feature/game/.../pane/GameDetailsPane.kt` will be removed during the rename to avoid naming conflicts with the new `:feature:game-list-details`.
   - `released` is parsed by Moshi into `Instant?` (consistent with `GameDto.releaseDate: Instant?`).
   - Developers can be persisted as a list of names (strings) unless the UI requires richer fields.
   - “Bookmark toggle behavior” remains ViewModel-local (same as `GamesPaneViewModel` today) and is not persisted.
@@ -22,7 +22,7 @@ Implement an offline-first Game Details screen reachable from the existing game 
   - Should the details screen show per-section skeletons while online but uncached (screenshots/movies/series), or should sections appear only after the first cached page is present? (Default in this plan: show section skeletons while loading; hide only when offline error + no cached items.)
 
 ## Files to Modify
-- `settings.gradle.kts` - rename existing modules to `:feature:game-list`, `:data:game-list:*`, `:presentation:game-list`, and include new modules (`:feature:game-details`, `:data:details:*`, `:data:screenshots:*`, `:data:movies:*`, `:data:series:*`).
+- `settings.gradle.kts` - rename existing modules to `:feature:game-list-list`, `:data:game-list:*`, `:presentation:game-list-list`, and include new modules (`:feature:game-list-details`, `:data:details:*`, `:data:screenshots:*`, `:data:movies:*`, `:data:series:*`).
 - `app/build.gradle.kts` - add dependencies on new feature module and new data impl modules for DI wiring.
 - `app/src/main/kotlin/io/github/onreg/nextplay/MainActivity.kt` - move route strings into `:app`; wire `GamesPane` + `GameDetailsPane` with callbacks; add details destination arguments.
 - `core/network/src/main/kotlin/io/github/onreg/core/network/di/ApiModule.kt` - provide new Retrofit APIs (details/screenshots/movies/series).
@@ -35,7 +35,7 @@ Implement an offline-first Game Details screen reachable from the existing game 
 ## New Files to Create
 
 ### New Gradle modules (wiring + source sets)
-- `feature/game-details/build.gradle.kts` - `feature.convention.plugin`; depends on `:core:ui`, `:core:util-android`, `:presentation:game-list` (for shared card UI), and `data/*/api` modules used by the screen.
+- `feature/game-details/build.gradle.kts` - `feature.convention.plugin`; depends on `:core:ui`, `:core:util-android`, `:presentation:game-list-list` (for shared card UI), and `data/*/api` modules used by the screen.
  - `data/details/api/build.gradle.kts` - `library.convention.plugin`; expose contracts/models for game details.
  - `data/details/impl/build.gradle.kts` - `non-ui.convention.plugin`; implement details repository (network + db).
  - `data/screenshots/api/build.gradle.kts` / `data/screenshots/impl/build.gradle.kts` - contracts + paging impl.
@@ -141,18 +141,18 @@ Implement an offline-first Game Details screen reachable from the existing game 
 - Goal: Align codebase with the Task Prompt naming where “Game” == the **game list** feature, and unlock reuse of shared `Game`/`GameEntity` for Series.
 - Scope:
   - Gradle modules:
-    - `:feature:game` -> `:feature:game-list`
-    - `:data:game:api` / `:data:game:impl` -> `:data:game-list:api` / `:data:game-list:impl`
-    - `:presentation:game` -> `:presentation:game-list`
+    - `:feature:game-list` -> `:feature:game-list-list`
+    - `:data:game-list:api` / `:data:game-list:impl` -> `:data:game-list:api` / `:data:game-list:impl`
+    - `:presentation:game-list` -> `:presentation:game-list-list`
   - Kotlin packages (hyphens are not valid in packages, so use dot-separated packages):
     - `io.github.onreg.feature.game.*` -> `io.github.onreg.feature.game.list.*`
     - `io.github.onreg.data.game.*` -> `io.github.onreg.data.game.list.*`
-    - `io.github.onreg.ui.game.presentation.*` -> `io.github.onreg.ui.game.list.presentation.*`
+    - `io.github.onreg.ui.game.list.presentation.*` -> `io.github.onreg.ui.game.list.presentation.*`
   - Core DB “game list” persistence:
     - Keep `GameEntity` as a **shared game cache** (used by game-list + series).
     - Move list-specific ordering/keys out of `core/db/game/**` into `core/db/game/list/**` (see Step 6 for schema details).
   - Cleanup:
-    - Remove the placeholder `feature/game/.../pane/GameDetailsPane.kt` during the rename; the real details screen will live in `:feature:game-details`.
+    - Remove the placeholder `feature/game/.../pane/GameDetailsPane.kt` during the rename; the real details screen will live in `:feature:game-list-details`.
   - Tests:
     - Rename/update existing unit tests across `core/db`, `data/*`, `presentation/*`, and `feature/*` packages and module paths to match the new names.
 - Outcome: The “game list” feature is consistently named across `feature`, `data`, `presentation`, and list-specific `core/db` code, and the shared `Game`/`GameEntity` types are positioned for reuse by Series.
@@ -160,7 +160,7 @@ Implement an offline-first Game Details screen reachable from the existing game 
 ### Step 1: Wire new Gradle modules into the build
 - Where: `settings.gradle.kts`
 - What: Include the new modules so they participate in compilation and DI graph composition:
-  - `:feature:game-details`
+  - `:feature:game-list-details`
   - `:data:details:api`, `:data:details:impl`
   - `:data:screenshots:api`, `:data:screenshots:impl`
   - `:data:movies:api`, `:data:movies:impl`
@@ -179,13 +179,13 @@ Implement an offline-first Game Details screen reachable from the existing game 
 - How (high-level):
   - `data/*/api`: `library.convention.plugin` and expose only contracts/models.
   - `data/*/impl`: `non-ui.convention.plugin`, depend on its `api` module + `:core:network` + `:core:db` + Paging runtime.
-  - `feature/game-details`: `feature.convention.plugin`, depend on `:core:ui`, `:core:util-android`, `:presentation:game-list`, and the required `data/*/api`.
+  - `feature/game-details`: `feature.convention.plugin`, depend on `:core:ui`, `:core:util-android`, `:presentation:game-list-list`, and the required `data/*/api`.
 - Outcome: Modules compile with correct dependencies and namespaces.
 
 ### Step 3: Update `:app` dependencies to compose the DI graph
 - Where: `app/build.gradle.kts`
 - What: Add dependencies:
-  - `implementation(projects.feature.gameDetails)`
+  - `implementation(projects.feature.gameListDetails)`
   - `implementation(projects.data.details.impl)`, `implementation(projects.data.screenshots.impl)`, `implementation(projects.data.movies.impl)`, `implementation(projects.data.series.impl)`
 - Why: ADR-001/ADR-002 require `:app` to include data impl modules so their Hilt modules are on the classpath.
 - Outcome: Hilt can bind new repositories and the app can render the new feature.
@@ -412,7 +412,7 @@ Implement an offline-first Game Details screen reachable from the existing game 
 - Why: Task Prompt requires reuse of `GameEntity` and a series membership join table keyed by parent `gameId`.
 - Outcome: Series carousel can page offline-first and reuse existing game card UI/mapping.
 
-### Step 11: Keep details UI mapping and UI models inside `:feature:game-details`
+### Step 11: Keep details UI mapping and UI models inside `:feature:game-list-details`
 - Why: Per ADR-001, `:presentation:*` must only contain reusable components. Game details UI models/mappers are screen-specific and unlikely to be reused without substantial coupling to this feature.
 - What:
   - Define feature-local UI models (e.g., `GameDetailsUi`, `DescriptionUi`) and a feature-local mapper that:
@@ -422,12 +422,12 @@ Implement an offline-first Game Details screen reachable from the existing game 
     - Reuses `PlatformUiMapper` from `:presentation:platform` where applicable.
 - Outcome: UI mapping stays close to the screen that owns it, and `:presentation:*` remains strictly reusable.
 
-### Step 12: Build the details screen composables inside `:feature:game-details` (reuse-only from presentation)
+### Step 12: Build the details screen composables inside `:feature:game-list-details` (reuse-only from presentation)
 - What:
   - Implement screen composables in the feature module and reuse only clearly reusable UI from:
-    - `:presentation:game-list` (existing `GameCard` for series items to ensure identical appearance).
+    - `:presentation:game-list-list` (existing `GameCard` for series items to ensure identical appearance).
     - `:presentation:platform` and `:core:ui` primitives.
-  - If a new component is clearly reusable across multiple features (e.g., a generic expandable text), place it in `:core:ui` rather than creating a `:presentation:game-details`.
+  - If a new component is clearly reusable across multiple features (e.g., a generic expandable text), place it in `:core:ui` rather than creating a `:presentation:game-list-details`.
 - Outcome: Details UI is implemented without introducing a feature-specific “presentation” module.
 
 ### Step 13: Implement `feature/game-details` ViewModel state + events (offline-first UX)
