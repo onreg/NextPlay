@@ -26,8 +26,8 @@
 ### Architecture/design notes
 - Gradle modules split (intended):
   - Feature modules:
-    - "feature/games-list"
-    - "feature/games-details"
+    - "feature/game-list"
+    - "feature/game-details"
   - Data modules (each split into api + impl):
     - "data/game-list/api" and "data/game-list/impl"
     - "data/details/api" and "data/details/impl"
@@ -35,8 +35,8 @@
     - "data/movies/api" and "data/movies/impl"
     - "data/series/api" and "data/series/impl"
 - Feature responsibilities:
-  - "feature/games-list" owns the list screen UI and navigation entry point, list-only UI state (including the current bookmark toggle behavior), and emits navigation events to open details for a selected gameId.
-  - "feature/games-details" owns the details screen UI and navigation entry point, composes the full details experience (details + screenshots + movies + series), owns all intent launching (website, screenshot viewer, movie player), and supports "series game tap" by pushing a new details instance for the selected gameId.
+  - "feature/game-list" owns the list screen UI and navigation entry point, list-only UI state (including the current bookmark toggle behavior), and emits navigation events to open details for a selected gameId.
+  - "feature/game-details" owns the details screen UI and navigation entry point, composes the full details experience (details + screenshots + movies + series), owns all intent launching (website, screenshot viewer, movie player), and supports "series game tap" by pushing a new details instance for the selected gameId.
 - Data layer responsibilities and boundaries:
   - Each "data/*/api" module exposes only public contracts for its capability (repository interfaces plus domain-facing models where applicable) and stays free of Android wiring concerns.
   - Each "data/*/impl" module depends on its matching api module and implements the contracts using core infrastructure (for example "core/network" for Retrofit/RAWG calls and "core/db" for Room persistence), including caching, paging orchestration, and mapping between network, database, and api-facing models.
