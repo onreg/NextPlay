@@ -1,162 +1,201 @@
 ## Task Prompt
 
 ### Title
-- Game details screen UI refresh (header, banner, sections)
+- Game details screen UI refresh (header, banner, sections, media split)
 
 ### Source links
-- Task Brief: docs/tmp/game-details-ui.md
+- Task Brief: `docs/tmp/game-details-ui.md`
 - Jira: none
-- Figma: https://www.figma.com/design/nov1xXgQhkBdxSAiZA3x2E/Rawg.io?node-id=2-3111&t=4Ohe64towZqrxpf5-4
+- Figma: https://www.figma.com/design/nov1xXgQhkBdxSAiZA3x2E/Rawg.io?node-id=2-3111&t=4Ohe64towZqrxpf5-4 (node 2:3111)
 - Other: none
 
 ### Context
-- The current Game Details screen header is visually too large and should use the shared `AppHeader` component.
-- The screen content layout should match the updated design direction: larger banner, card-based details, and clearly labeled sections.
-- Media must be split into two sections: "Screenshots" and "Movies".
+- The current Game Details UI needs to better match the intended layout and component sizing from the provided Figma.
+- The header is currently too tall and must be replaced with the shared `AppHeader` component.
+- The banner image should be taller and consistent with the 2f aspect ratio used in the game list items.
+- Media must be split into separate "Screenshots" and "Movies" sections.
 - Genres must not be displayed on this screen.
 
 ### Goals
-- Use the shared header component while showing the current game's title in the header.
-- Make the banner image more prominent and consistent with game list visuals.
-- Rework the details area into a card with the required information layout and actions.
-- Provide clear, labeled sections for description, developers/publishers, screenshots, movies, and series games.
+- Align the Game Details screen structure and hierarchy with the Figma layout and the clarified decisions below.
+- Keep existing functional behavior (bookmarking, navigation) unless explicitly specified otherwise.
+- Provide complete state handling: initial loading, per-section loading for carousels, and error/retry behaviors.
 
 ### Non-goals
-- No changes to data fetching, paging, navigation behavior, or business rules beyond what is required to render the new UI.
-- No genre display on this screen (explicitly out of scope even if available in data).
+- Do not display game genres anywhere on the Game Details screen.
+- Do not add a "Similar games" section; only "Series games" is required.
+- Do not add sharing actions in the header.
 
 ### User experience
-- Header:
-  - Display the current game's title in the header, using the shared `AppHeader` styling (smaller header).
-  - Back navigation remains available.
-- Banner:
-  - Show the game's banner image with a 2f aspect ratio (same visual ratio as the game list items).
-  - Show a rating chip anchored at the top-right corner of the banner.
-  - Tapping the banner opens the image as it does today.
-- Details card (below banner):
-  - Render as a card.
-  - Left side content includes, in order:
-    - Release date
-    - Platforms (icons only)
-    - Website button if a website URL exists (hidden if absent)
-  - Bookmark action:
-    - Bookmark toggle is anchored at the top-right corner of the details card.
-- "Description" section:
-  - Show label "Description".
-  - Show description text.
-  - Collapsed state shows up to 6 lines.
-  - Show a button "Read more" only when the text overflows in the collapsed state.
-  - Expanded state shows full text and the button becomes "Read less".
-- "Developers & Publishers" section:
-  - Show label "Developers & Publishers".
-  - Show a single combined list:
-    - Developers first, then publishers.
-    - Each row shows: logo, name, and role label ("Developer" or "Publisher").
-    - If logo is missing, show a generic placeholder icon consistent with the game list placeholder.
-- "Screenshots" section:
-  - Keep existing behavior and layout.
-- "Movies" section:
-  - Show label "Movies".
-  - Show a horizontal list of movie thumbnails.
-  - Item size matches screenshot item size.
-  - Each item displays a play icon overlay (no title overlay).
-  - Tapping a movie opens the video as it does today.
-- "Series games" section:
-  - Show label "Series games".
-  - Show a horizontal list of similar games.
-  - Use a compact card, but keep the image at `aspectRatio(2f)` (consistent with the game list).
-  - Tapping a series game opens that game's details as it does today.
-- Empty states:
-  - Hide a section entirely when its content is empty (developers/publishers, screenshots, movies, series).
+
+#### Default (loaded) flow
+1) User opens a game details screen.
+2) Header shows a back button and the game title.
+3) A banner image is displayed at the top with a 2f (width:height) aspect ratio.
+4) A rating chip is shown anchored at the top-right of the banner (same visual treatment as the rating chip in the game list item design).
+5) Below the banner, show a "Game details" card:
+   - Left side: release date, platform icons, and "Official Website" link.
+   - Right/top corner: bookmark control (keep existing bookmark behavior).
+6) "Description" section:
+   - Label "Description".
+   - Description text:
+     - Collapsed state shows up to 6 lines.
+     - If the text overflows, show a button "Read more".
+     - Expanded state shows the full text and the button changes to "Read less".
+7) "Developers & Publishers" section:
+   - Label "Developers & Publishers".
+   - List items show: logo, name, role label ("Developer" or "Publisher").
+   - Ordering: developers first, then publishers.
+   - If a logo is missing, show a placeholder avatar/icon consistent with the app's missing-image pattern.
+8) "Screenshots" section:
+   - Label "Screenshots".
+   - Horizontal list of screenshot thumbnails.
+9) "Movies" section:
+   - Label "Movies".
+   - Horizontal list of movie thumbnails, using the same item size as screenshots.
+10) "Series games" section:
+   - Label "Series games".
+   - Horizontal list of games, using the same 2f aspect ratio as the main GameCard in the games list.
+
+#### Loading states
+- Initial loading (no cache):
+  - Show a loading UI (shimmer) for all major components on the screen.
+- If carousel sections load separately (Screenshots, Movies, Series games):
+  - Show an individual loading state for that section while it is loading.
+
+#### Error states
+- If the main game details load fails:
+  - Show a full-screen error state with a retry action.
+- If an error occurs in a specific section (Screenshots, Movies, Series games, Developers & Publishers):
+  - Do not show that section.
+  - Do not block the rest of the screen from being usable.
+
+#### Existing users and previously saved values
+- Bookmark state and behavior must remain consistent with the current app behavior; only the placement changes.
+- The expanded/collapsed state of "Description" should reset to collapsed when navigating away and back (unless there is an existing persisted behavior today).
 
 ### Functional requirements
-1. Replace the current Game Details top app bar with `AppHeader` styling while showing the current game's title text in the header.
-2. Banner image uses a 2f aspect ratio and supports tap-to-open-image.
-3. Display a rating chip on the banner, anchored top-right.
-4. Details card:
-   1. Renders as a card container.
-   2. Left column shows release date, platform icons, and website action (only when URL exists).
-   3. Bookmark toggle is shown at top-right of the card and reflects current bookmark state.
-5. Description section:
-   1. Includes "Description" label.
-   2. Collapses to 6 lines by default.
-   3. Shows "Read more" only when overflow occurs.
-   4. Expanded state shows full text and uses "Read less" to collapse.
-6. Developers & Publishers section:
-   1. Includes label "Developers & Publishers".
-   2. Shows combined list (developers first, then publishers).
-   3. Rows show logo (or placeholder), name, and role label.
-7. Screenshots section remains present and unchanged in behavior.
-8. Movies section:
-   1. Includes label "Movies".
-   2. Thumbnails match screenshot item size.
-   3. Shows play icon overlay only.
-9. Series games section:
-   1. Includes label "Series games".
-   2. Horizontal list of similar games.
-   3. Cards are compact and use image aspect ratio 2f.
-10. Do not show game genres anywhere on this screen.
+1) Header uses `AppHeader` and is smaller than the current header implementation.
+2) Header includes only:
+   - Back button
+   - Screen title (game name)
+   - No share action
+3) Banner image uses a 2f aspect ratio (screen width based).
+4) Rating chip:
+   - Uses the same visual style as the rating chip used in the game list item design.
+   - Positioned at the top-right of the banner.
+5) Game details card:
+   - Rendered as a card container.
+   - Left side includes:
+     - Release date formatted as "MMM d, yyyy" (example: "Apr 10, 2020").
+     - Platform icons (no platform names text required unless already present today).
+     - A link labeled "Official Website" that opens the game's website when available.
+   - Bookmark control placed in the top-right corner of the card.
+6) Genres must not be displayed.
+7) "Description" section:
+   - Title label exactly "Description".
+   - Collapsed description shows 6 lines maximum.
+   - Show "Read more" only when the text overflows.
+   - Expanded state shows full text and the button label becomes "Read less".
+8) "Developers & Publishers" section:
+   - Title label exactly "Developers & Publishers".
+   - Each list item includes:
+     - Logo (or placeholder when missing)
+     - Name
+     - Role label: "Developer" or "Publisher"
+   - Ordering: developers first, then publishers.
+9) "Screenshots" section:
+   - Title label exactly "Screenshots".
+   - Horizontal list of thumbnails.
+10) "Movies" section:
+   - Title label exactly "Movies".
+   - Horizontal list of thumbnails.
+   - Item size matches "Screenshots" items.
+11) "Series games" section:
+   - Title label exactly "Series games".
+   - Horizontal list of games.
+   - Item aspect ratio is 2f, matching the list GameCard.
+12) Section-level failure handling:
+   - If a section fails to load, the section is hidden.
+   - The rest of the content remains visible and usable.
+13) Full-screen failure handling:
+   - If main game details fail to load, show an error state with retry.
+14) Loading UI:
+   - Shimmer for the whole screen when initially loading with no cache.
+   - Per-section loading UI for carousels when they load independently.
 
 ### Data and mapping
-- Game title:
-  - Type: String
-  - Nullability: non-null for rendering; if missing, fall back to an empty string and keep layout stable.
 - Release date:
-  - Type: String (formatted for display)
-  - Nullability: optional; if missing, hide the row or show an empty value consistently.
+  - Type: date
+  - Nullable: yes
+  - Display:
+    - If present: formatted as "MMM d, yyyy" (example: "Apr 10, 2020")
+    - If missing: omit the release date row
 - Platforms:
-  - Type: Set/list of platforms
-  - Display: icons only
-  - Empty: hide the platforms row.
-- Website:
+  - Type: list
+  - Nullable: yes
+  - Display:
+    - Render as platform icons
+    - If empty/missing: omit the platform row
+- Official website:
   - Type: URL string
-  - Visibility: show website button only if present and non-blank.
+  - Nullable: yes
+  - Display:
+    - If present: show link labeled "Official Website"
+    - If missing: omit the link
+- Bookmark:
+  - Type: boolean (existing persisted behavior)
+  - Behavior: unchanged; only repositioned in the UI
 - Rating:
-  - Type: numeric or formatted string value already used on the screen
-  - Display: chip on banner (top-right).
-- Developers/publishers:
-  - Type: two lists or a combined list
-  - Mapping: render as one list with role label derived from source list ("Developer" vs "Publisher").
-  - Logo: use placeholder when missing.
-- Screenshots/movies/series:
-  - Type: paged lists as currently used
-  - Empty: hide the whole section.
+  - Type: existing rating value used by the app for the game list rating chip
+  - Display: rating chip anchored top-right of the banner
 
 ### API/contracts (if applicable)
-- None. Use existing contracts.
+- No API contract changes required by this task unless needed to support sections that currently cannot load.
 
 ### Analytics/observability (if applicable)
-- None requested.
+- No new analytics events required.
 
 ### Rollout
-- No feature flag requested.
+- No feature flag required unless the app currently uses one for Game Details UI.
 
 ### Acceptance criteria
-- Header uses the shared `AppHeader` styling and shows the current game's title.
-- Banner image is larger and uses 2f aspect ratio; tapping still opens the image.
-- Rating is shown as a chip on the banner top-right.
-- Details information is shown inside a card with:
-  - Left side: release date, platforms (icons only), and website button (only if URL exists)
-  - Bookmark button at the card top-right
-- "Description" section has:
-  - "Description" label
-  - Collapsed text (6 lines) and "Read more" only when overflowing
-  - Expanded state with "Read less"
-- "Developers & Publishers" section shows a combined list with logo (or placeholder), name, and role label, ordered developers then publishers.
-- "Screenshots" section remains available.
-- "Movies" section exists, items match screenshot size, and show a play icon overlay (no title).
-- "Series games" section exists, horizontal, compact cards with 2f image ratio, and opens game details on tap.
-- Genres are not shown on the screen.
-- Sections with empty data are hidden.
+- AC1: The Game Details screen uses `AppHeader` and the header height matches the shared component sizing.
+- AC2: The header shows only a back button and the game title, with no share action.
+- AC3: The banner image is taller and rendered with a 2f aspect ratio (screen width based).
+- AC4: A rating chip is shown at the top-right of the banner and matches the styling used in the game list item rating chip.
+- AC5: The "Game details" content is displayed in a card with:
+  - Release date formatted as "MMM d, yyyy" when available
+  - Platform icons
+  - An "Official Website" link when available
+  - Bookmark control at the card top-right with unchanged behavior
+- AC6: Genres are not shown anywhere on the Game Details screen.
+- AC7: The "Description" section:
+  - Shows the label "Description"
+  - Collapses to 6 lines by default
+  - Shows "Read more" only when overflow occurs
+  - Toggles to expanded state with "Read less"
+- AC8: The "Developers & Publishers" section shows a combined list where:
+  - Developers appear first, then publishers
+  - Each item shows logo (or placeholder), name, and role label ("Developer" or "Publisher")
+- AC9: The "Screenshots" section remains present and displays a horizontal list of screenshot thumbnails.
+- AC10: The "Movies" section is present and displays a horizontal list of movie thumbnails sized the same as screenshots.
+- AC11: The "Series games" section is present and displays a horizontal list of games with 2f aspect ratio cards.
+- AC12: When the main game details load fails, the screen shows an error state with a retry action.
+- AC13: When a specific section fails to load, that section is hidden and the rest of the screen remains usable.
+- AC14: When initially loading with no cache, the screen shows a full loading shimmer; carousel sections can show individual loading UI if they load separately.
 
 ### Test plan (high-level)
 - Unit tests:
-  - Mapper/state logic for description expansion and "Read more"/"Read less" label behavior.
-  - Developer/publisher list ordering and role labeling.
+  - Description expand/collapse: 6-line truncation, overflow detection, "Read more" and "Read less" toggle.
+  - Developers & Publishers ordering and role labeling (developers first, then publishers).
+  - Section visibility rules: hide a section when its data load fails.
 - UI tests:
-  - Verify sections appear/hide based on data presence.
-  - Verify website button visibility based on URL presence.
-  - Verify banner tap and movie tap trigger the correct events.
+  - Loaded state renders all required sections with correct labels and placements (header, banner, rating chip, card, sections).
+  - Initial loading shows shimmer when no cache is present.
+  - Full-screen error renders on main failure and retry triggers reload.
+  - Section failure hides only the failed section.
+  - Description toggles between collapsed and expanded states with correct button labels.
 
 ### Open questions
-- (none)
+- (empty)
