@@ -36,8 +36,12 @@ public fun AppHeader(
             }
         },
         title = {
+            val titleText = when (val title = appHeaderUI.title) {
+                is AppHeaderTitle.Res -> stringResource(title.titleResId)
+                is AppHeaderTitle.Text -> title.value
+            }
             Text(
-                text = stringResource(appHeaderUI.titleResId),
+                text = titleText,
                 style = MaterialTheme.typography.titleMedium,
             )
         },
@@ -64,7 +68,7 @@ private fun AppHeaderPreview() {
     NextPlayTheme {
         AppHeader(
             appHeaderUI = AppHeaderUI(
-                titleResId = R.string.preview_text,
+                title = AppHeaderTitle.Res(R.string.preview_text),
                 navigationItem = AppHeaderMenu(
                     iconResId = R.drawable.ic_back_24,
                     contentDescriptionResId = R.string.preview_text,

@@ -12,5 +12,5 @@ public data class GameDetails(
     val website: String?,
     val rating: Double,
     val description: String,
-    val developers: List<String>,
+    val companies: List<GameCompany>,
 )

@@ -1,6 +1,10 @@
 package io.github.onreg.feature.game.details.impl.ui.mapper
 
+import io.github.onreg.core.ui.components.chip.ChipUI
+import io.github.onreg.data.details.api.model.GameCompanyRole
 import io.github.onreg.data.details.api.model.GameDetails
+import io.github.onreg.feature.game.details.impl.ui.model.GameCompanyRoleUi
+import io.github.onreg.feature.game.details.impl.ui.model.GameCompanyUi
 import io.github.onreg.feature.game.details.impl.ui.model.GameDetailsUi
 import io.github.onreg.ui.platform.mapper.PlatformUiMapper
 import java.net.URI
@@ -28,14 +32,31 @@ internal class GameDetailsUiMapperImpl
             releaseDate = model.releaseDate
                 ?.atZone(ZoneId.systemDefault())
                 ?.toLocalDate()
-                ?.format(dateFormatter)
-                .orEmpty(),
+                ?.format(dateFormatter),
+            ratingChip = ChipUI(
+                text = "%.1f".format(Locale.getDefault(), model.rating),
+                isSelected = true,
+            ),
             platforms = platformUiMapper.mapPlatform(model.platforms),
             website = model.website,
             isWebsiteVisible = model.website.isValidHttpUrl(),
-            rating = "%.1f".format(Locale.getDefault(), model.rating),
             description = model.description.toPlainText(),
-            developers = model.developers,
+            companies = model.companies
+                .sortedBy { company ->
+                    when (company.role) {
+                        GameCompanyRole.Developer -> 0
+                        GameCompanyRole.Publisher -> 1
+                    }
+                }.map { company ->
+                    GameCompanyUi(
+                        name = company.name,
+                        logoUrl = company.logoUrl,
+                        role = when (company.role) {
+                            GameCompanyRole.Developer -> GameCompanyRoleUi.Developer
+                            GameCompanyRole.Publisher -> GameCompanyRoleUi.Publisher
+                        },
+                    )
+                },
         )
 
         private fun String?.isValidHttpUrl(): Boolean {

@@ -26,6 +26,8 @@ public data class GameDetailsEntity(
     val description: String,
     @ColumnInfo(name = DEVELOPERS)
     val developers: String,
+    @ColumnInfo(name = PUBLISHERS)
+    val publishers: String,
 ) {
     internal companion object {
         const val TABLE_NAME: String = "game_details"
@@ -38,5 +40,6 @@ public data class GameDetailsEntity(
         const val RATING: String = "rating"
         const val DESCRIPTION: String = "description"
         const val DEVELOPERS: String = "developers"
+        const val PUBLISHERS: String = "publishers"
     }
 }

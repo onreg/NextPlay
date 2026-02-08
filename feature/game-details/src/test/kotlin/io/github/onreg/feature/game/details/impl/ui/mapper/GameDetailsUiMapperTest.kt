@@ -1,7 +1,10 @@
 package io.github.onreg.feature.game.details.impl.ui.mapper
 
+import io.github.onreg.data.details.api.model.GameCompany
+import io.github.onreg.data.details.api.model.GameCompanyRole
 import io.github.onreg.data.details.api.model.GameDetails
 import io.github.onreg.data.game.list.api.model.GamePlatform
+import io.github.onreg.feature.game.details.impl.ui.model.GameCompanyRoleUi
 import io.github.onreg.ui.platform.mapper.PlatformUiMapper
 import io.github.onreg.ui.platform.model.PlatformUI
 import java.time.Instant
@@ -30,12 +33,12 @@ internal class GameDetailsUiMapperTest {
             website = "https://example.com",
             rating = 4.456,
             description = "desc",
-            developers = listOf("Dev"),
+            companies = emptyList(),
         )
 
         val result = mapper.map(model)
 
-        assertEquals("4.5", result.rating)
+        assertEquals("4.5", result.ratingChip.text)
         assertTrue(result.isWebsiteVisible)
     }
 
@@ -50,7 +53,7 @@ internal class GameDetailsUiMapperTest {
             website = "ftp://example.com",
             rating = 1.0,
             description = "desc",
-            developers = emptyList(),
+            companies = emptyList(),
         )
 
         val result = mapper.map(model)
@@ -69,11 +72,44 @@ internal class GameDetailsUiMapperTest {
             website = null,
             rating = 1.0,
             description = "<p>Portal&#39;s world &amp; puzzles</p><p>Test&nbsp;text</p>",
-            developers = emptyList(),
+            companies = emptyList(),
         )
 
         val result = mapper.map(model)
 
         assertEquals("Portal's world & puzzles Test text", result.description)
+    }
+
+    @Test
+    fun `should map companies with developer first order and role labels`() {
+        val model = GameDetails(
+            gameId = 1,
+            title = "Game",
+            imageUrl = "https://img",
+            releaseDate = null,
+            platforms = emptySet(),
+            website = null,
+            rating = 1.0,
+            description = "desc",
+            companies = listOf(
+                GameCompany(
+                    name = "Publisher One",
+                    logoUrl = "https://pub",
+                    role = GameCompanyRole.Publisher,
+                ),
+                GameCompany(
+                    name = "Developer One",
+                    logoUrl = null,
+                    role = GameCompanyRole.Developer,
+                ),
+            ),
+        )
+
+        val result = mapper.map(model)
+
+        assertEquals("Developer One", result.companies.first().name)
+        assertEquals(GameCompanyRoleUi.Developer, result.companies.first().role)
+        assertEquals("Publisher One", result.companies.last().name)
+        assertEquals(GameCompanyRoleUi.Publisher, result.companies.last().role)
     }
 }

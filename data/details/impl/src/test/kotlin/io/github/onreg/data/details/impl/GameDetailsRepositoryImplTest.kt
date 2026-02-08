@@ -5,6 +5,8 @@ import io.github.onreg.core.db.details.entity.GameDetailsEntity
 import io.github.onreg.core.network.rawg.api.GameDetailsApi
 import io.github.onreg.core.network.rawg.dto.GameDetailsDto
 import io.github.onreg.core.network.retrofit.NetworkResponse
+import io.github.onreg.data.details.api.model.GameCompany
+import io.github.onreg.data.details.api.model.GameCompanyRole
 import io.github.onreg.data.details.api.model.GameDetails
 import io.github.onreg.data.details.impl.mapper.GameDetailsDtoMapper
 import io.github.onreg.data.details.impl.mapper.GameDetailsEntityMapper
@@ -44,7 +46,8 @@ internal class GameDetailsRepositoryImplTest {
             website = "https://example.com",
             rating = 4.0,
             description = "desc",
-            developers = "Dev",
+            developers = "Dev\u001Fhttps://dev-logo",
+            publishers = "Pub\u001F",
         )
         val expected = GameDetails(
             gameId = 1,
@@ -55,7 +58,18 @@ internal class GameDetailsRepositoryImplTest {
             website = "https://example.com",
             rating = 4.0,
             description = "desc",
-            developers = listOf("Dev"),
+            companies = listOf(
+                GameCompany(
+                    name = "Dev",
+                    logoUrl = "https://dev-logo",
+                    role = GameCompanyRole.Developer,
+                ),
+                GameCompany(
+                    name = "Pub",
+                    logoUrl = null,
+                    role = GameCompanyRole.Publisher,
+                ),
+            ),
         )
         gameDetailsDao.stub { on { observe(1) } doReturn MutableStateFlow(entity) }
         gameDetailsEntityMapper.stub { on { map(entity) } doReturn expected }
@@ -78,6 +92,7 @@ internal class GameDetailsRepositoryImplTest {
             rating = 4.0,
             description = "desc",
             developers = emptyList(),
+            publishers = emptyList(),
         )
         val entity = GameDetailsEntity(
             gameId = 1,
@@ -89,6 +104,7 @@ internal class GameDetailsRepositoryImplTest {
             rating = 4.0,
             description = "desc",
             developers = "",
+            publishers = "",
         )
         gameDetailsApi.stub {
             onBlocking {

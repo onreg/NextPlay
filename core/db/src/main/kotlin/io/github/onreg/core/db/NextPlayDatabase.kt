@@ -46,7 +46,7 @@ import io.github.onreg.core.db.series.entity.SeriesRemoteKeysEntity
         PlatformEntity::class,
         GamePlatformCrossRef::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(InstantTypeConverter::class)

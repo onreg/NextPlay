@@ -5,17 +5,27 @@ import android.content.Intent
 import androidx.core.net.toUri
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import java.io.IOException
+
+internal const val COLLAPSED_DESCRIPTION_MAX_LINES: Int = 6
 
 internal fun readMoreText(isExpanded: Boolean): String =
-    if (isExpanded) "Read Less" else "Read More"
+    if (isExpanded) "Read less" else "Read more"
 
-internal fun shouldShowSection(items: LazyPagingItems<*>): Boolean {
+internal enum class SectionVisibility {
+    ShowContent,
+    ShowLoading,
+    Hide,
+}
+
+internal fun sectionVisibility(items: LazyPagingItems<*>): SectionVisibility {
     if (items.itemCount > 0) {
-        return true
+        return SectionVisibility.ShowContent
     }
-    val refreshState = items.loadState.refresh
-    return refreshState !is LoadState.Error || refreshState.error !is IOException
+    return when (items.loadState.refresh) {
+        is LoadState.Loading -> SectionVisibility.ShowLoading
+        is LoadState.Error -> SectionVisibility.Hide
+        is LoadState.NotLoading -> SectionVisibility.Hide
+    }
 }
 
 internal fun openUrl(

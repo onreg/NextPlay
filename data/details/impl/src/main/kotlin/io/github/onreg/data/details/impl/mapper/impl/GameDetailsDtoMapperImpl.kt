@@ -5,6 +5,9 @@ import io.github.onreg.core.network.rawg.dto.GameDetailsDto
 import io.github.onreg.data.details.impl.mapper.GameDetailsDtoMapper
 import javax.inject.Inject
 
+private const val FIELD_SEPARATOR: String = "\u001F"
+private const val ITEM_SEPARATOR: String = "\u001E"
+
 public class GameDetailsDtoMapperImpl
     @Inject
     constructor() : GameDetailsDtoMapper {
@@ -17,9 +20,17 @@ public class GameDetailsDtoMapperImpl
                 }
             val platformIds = platforms.mapNotNull { it.platform?.id }.distinct().joinToString(",")
             val developers = dto.developers
-                .mapNotNull {
-                    it.name?.trim()
-                }.filter { it.isNotEmpty() }
+                .mapNotNull { company ->
+                    company.name?.trim()?.takeIf { it.isNotEmpty() }?.let { name ->
+                        name to company.logoUrl?.trim()?.takeIf { it.isNotEmpty() }
+                    }
+                }
+            val publishers = dto.publishers
+                .mapNotNull { company ->
+                    company.name?.trim()?.takeIf { it.isNotEmpty() }?.let { name ->
+                        name to company.logoUrl?.trim()?.takeIf { it.isNotEmpty() }
+                    }
+                }
 
             return GameDetailsEntity(
                 gameId = dto.id,
@@ -30,7 +41,13 @@ public class GameDetailsDtoMapperImpl
                 website = dto.website,
                 rating = dto.rating ?: 0.0,
                 description = dto.description.orEmpty(),
-                developers = developers.joinToString("|"),
+                developers = encodeCompanies(developers),
+                publishers = encodeCompanies(publishers),
             )
         }
+
+        private fun encodeCompanies(companies: List<Pair<String, String?>>): String = companies
+            .joinToString(ITEM_SEPARATOR) { (name, logoUrl) ->
+                "$name$FIELD_SEPARATOR${logoUrl.orEmpty()}"
+            }
     }

@@ -145,10 +145,6 @@ internal class GameDetailsViewModel
             mutableState.update { it.copy(isBookmarked = !it.isBookmarked) }
         }
 
-        fun onToggleDescription() {
-            mutableState.update { it.copy(isDescriptionExpanded = !it.isDescriptionExpanded) }
-        }
-
         fun mapPlatforms(platforms: Set<GamePlatform>): Set<PlatformUI> =
             platformUiMapper.mapPlatform(platforms)
     }
