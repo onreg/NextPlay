@@ -83,10 +83,11 @@ internal class GameDetailsScreenTest {
 
     @Test
     fun `description section should render content`() {
-        setGameDetailsScreenContent(details = details(description = "Long text ".repeat(200)))
+        setGameDetailsScreenContent(details = details(description = "Long text ".repeat(2000)))
 
         scrollToText("Description")
         composeRule.onNodeWithText("Description").assertIsDisplayed()
+        composeRule.onNodeWithText("Long text", substring = true).assertIsDisplayed()
     }
 
     @Test
@@ -128,6 +129,22 @@ internal class GameDetailsScreenTest {
     }
 
     @Test
+    fun `official website action should trigger callback`() {
+        var clickCount = 0
+        setGameDetailsScreenContent(
+            details = details(),
+            onWebsiteClicked = { clickCount += 1 },
+        )
+
+        scrollToText("Official Website")
+        composeRule.onNodeWithText("Official Website").performClick()
+
+        composeRule.runOnIdle {
+            assertEquals(1, clickCount)
+        }
+    }
+
+    @Test
     fun `error content retry should trigger callback`() {
         var retryCount = 0
         composeRule.setContent {
@@ -151,6 +168,7 @@ internal class GameDetailsScreenTest {
         screenshotsLoadState: LoadState = LoadState.NotLoading(false),
         moviesLoadState: LoadState = LoadState.NotLoading(false),
         seriesLoadState: LoadState = LoadState.NotLoading(false),
+        onWebsiteClicked: () -> Unit = {},
     ) {
         val screenshotsState = MutableStateFlow(pagingData(screenshots, screenshotsLoadState))
         val moviesState = MutableStateFlow(pagingData(movies, moviesLoadState))
@@ -169,6 +187,7 @@ internal class GameDetailsScreenTest {
                 screenshots = screenshotItems,
                 movies = movieItems,
                 series = seriesItems,
+                onWebsiteClicked = onWebsiteClicked,
                 mapPlatforms = {
                     it
                         .map { platform ->

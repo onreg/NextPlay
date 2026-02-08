@@ -3,12 +3,10 @@ package io.github.onreg.ui.game.list.presentation.mapper
 import androidx.paging.PagingData
 import androidx.paging.map
 import io.github.onreg.core.ui.components.chip.ChipUI
+import io.github.onreg.core.ui.format.ReleaseDateFormatter
 import io.github.onreg.data.game.list.api.model.Game
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.mapper.PlatformUiMapper
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 
 public interface GameUiMapper {
@@ -23,8 +21,6 @@ public class GameUiMapperImpl
     constructor(
         private val platformUiMapper: PlatformUiMapper,
     ) : GameUiMapper {
-        private val releaseDateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.US)
-
         override fun map(
             games: PagingData<Game>,
             bookmarks: Set<String>,
@@ -42,10 +38,7 @@ public class GameUiMapperImpl
             id = game.id.toString(),
             title = game.title,
             imageUrl = game.imageUrl,
-            releaseDate = game.releaseDate
-                ?.atZone(ZoneOffset.UTC)
-                ?.format(releaseDateFormatter)
-                .orEmpty(),
+            releaseDate = ReleaseDateFormatter.format(game.releaseDate),
             platforms = platformUiMapper.mapPlatform(game.platforms),
             rating = ChipUI(
                 text = game.rating.toString(),

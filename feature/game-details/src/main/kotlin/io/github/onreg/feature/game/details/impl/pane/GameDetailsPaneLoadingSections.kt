@@ -28,8 +28,8 @@ internal fun SectionThumbnailLoadingRow() {
             Card(shape = MaterialTheme.shapes.medium) {
                 Box(
                     modifier = Modifier
-                        .size(width = 192.dp, height = 108.dp)
-                        .shimmer(192.dp),
+                        .size(width = 288.dp, height = 162.dp)
+                        .shimmer(288.dp),
                 )
             }
         }

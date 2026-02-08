@@ -28,7 +28,7 @@ internal class GameDetailsUiMapperTest {
             gameId = 1,
             title = "Game",
             imageUrl = "https://img",
-            releaseDate = Instant.parse("2024-01-05T00:00:00Z"),
+            releaseDate = Instant.parse("2024-01-05T23:59:59Z"),
             platforms = setOf(GamePlatform.PC),
             website = "https://example.com",
             rating = 4.456,
@@ -39,6 +39,7 @@ internal class GameDetailsUiMapperTest {
         val result = mapper.map(model)
 
         assertEquals("4.5", result.ratingChip.text)
+        assertEquals("Jan 5, 2024", result.releaseDate)
         assertTrue(result.isWebsiteVisible)
     }
 

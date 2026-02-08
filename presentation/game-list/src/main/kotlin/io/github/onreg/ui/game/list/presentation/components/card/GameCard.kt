@@ -18,10 +18,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.onreg.core.ui.components.chip.Chip
 import io.github.onreg.core.ui.components.chip.ChipUI
@@ -43,6 +46,8 @@ public fun GameCard(
     gameData: GameCardUI,
     onBookmarkClick: () -> Unit = {},
     onCardClicked: () -> Unit = {},
+    showBookmark: Boolean = true,
+    variant: GameCardVariant = GameCardVariant.Default,
 ) {
     ElevatedCard(
         modifier = modifier,
@@ -52,6 +57,7 @@ public fun GameCard(
             GameCardImage(
                 imageUrl = gameData.imageUrl,
                 rating = gameData.rating,
+                variant = variant,
             )
             GameCardDetails(
                 title = gameData.title,
@@ -59,6 +65,8 @@ public fun GameCard(
                 platforms = gameData.platforms,
                 isBookmarked = gameData.isBookmarked,
                 onBookmarkClick = onBookmarkClick,
+                showBookmark = showBookmark,
+                variant = variant,
             )
         }
     }
@@ -68,6 +76,7 @@ public fun GameCard(
 private fun GameCardImage(
     imageUrl: String,
     rating: ChipUI,
+    variant: GameCardVariant,
 ) {
     Box {
         DynamicAsyncImage(
@@ -80,7 +89,11 @@ private fun GameCardImage(
         Chip(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(end = Spacing.sm),
+                .padding(end = Spacing.sm)
+                .graphicsLayer(
+                    scaleX = if (variant == GameCardVariant.Series) 0.85f else 1f,
+                    scaleY = if (variant == GameCardVariant.Series) 0.85f else 1f,
+                ),
             chipUI = rating,
         )
     }
@@ -93,31 +106,37 @@ private fun GameCardDetails(
     platforms: Set<PlatformUI>,
     isBookmarked: Boolean,
     onBookmarkClick: () -> Unit,
+    showBookmark: Boolean,
+    variant: GameCardVariant,
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .requiredSize(ControlsSize.IconButton)
-                .testTag(GAME_CARD_ADD_BOOKMARK_BUTTON),
-            onClick = onBookmarkClick,
-        ) {
-            Icon(
-                painter = painterResource(bookmarkIconRes(isBookmarked)),
-                tint = MaterialTheme.colorScheme.primary,
-                contentDescription = stringResource(bookmarkContentDescriptionRes(isBookmarked)),
-            )
+        if (showBookmark) {
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .requiredSize(ControlsSize.IconButton)
+                    .testTag(GAME_CARD_ADD_BOOKMARK_BUTTON),
+                onClick = onBookmarkClick,
+            ) {
+                Icon(
+                    painter = painterResource(bookmarkIconRes(isBookmarked)),
+                    tint = MaterialTheme.colorScheme.primary,
+                    contentDescription = stringResource(
+                        bookmarkContentDescriptionRes(isBookmarked),
+                    ),
+                )
+            }
         }
 
         Column(modifier = Modifier.padding(Spacing.lg)) {
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = safeTitleEndPadding()),
+                    .padding(end = safeTitleEndPadding(showBookmark)),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
+                style = titleTextStyle(variant),
             )
 
             Text(
@@ -141,7 +160,17 @@ private fun bookmarkContentDescriptionRes(isBookmarked: Boolean): Int =
     if (isBookmarked) R.string.remove_bookmark else R.string.add_bookmark
 
 @Composable
-private fun safeTitleEndPadding() = (ControlsSize.IconButton - Spacing.sm).coerceAtLeast(0.dp)
+private fun safeTitleEndPadding(showBookmark: Boolean): Dp = if (showBookmark) {
+    (ControlsSize.IconButton - Spacing.sm).coerceAtLeast(0.dp)
+} else {
+    0.dp
+}
+
+@Composable
+private fun titleTextStyle(variant: GameCardVariant): TextStyle = when (variant) {
+    GameCardVariant.Default -> MaterialTheme.typography.titleMedium
+    GameCardVariant.Series -> MaterialTheme.typography.titleSmall
+}
 
 @Composable
 private fun Platforms(

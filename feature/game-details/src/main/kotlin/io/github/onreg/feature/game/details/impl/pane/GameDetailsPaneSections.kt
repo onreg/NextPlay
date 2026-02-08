@@ -5,7 +5,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,18 +27,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
+import io.github.onreg.core.ui.components.button.TextButton
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.core.ui.components.image.DynamicAsyncImage
+import io.github.onreg.core.ui.format.ReleaseDateFormatter
 import io.github.onreg.core.ui.theme.Gray12
 import io.github.onreg.core.ui.theme.Gray26
 import io.github.onreg.core.ui.theme.Gray45
 import io.github.onreg.core.ui.theme.Gray70
 import io.github.onreg.core.ui.theme.Gray92
 import io.github.onreg.core.ui.theme.Gray98
+import io.github.onreg.core.ui.theme.IconsSize
+import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.data.game.list.api.model.Game
 import io.github.onreg.data.game.list.api.model.GamePlatform
 import io.github.onreg.data.movies.api.model.Movie
@@ -48,8 +52,10 @@ import io.github.onreg.feature.game.details.impl.model.GameDetailsState
 import io.github.onreg.feature.game.details.impl.ui.model.GameCompanyUi
 import io.github.onreg.feature.game.details.impl.ui.model.GameDetailsUi
 import io.github.onreg.ui.game.list.presentation.components.card.GameCard
+import io.github.onreg.ui.game.list.presentation.components.card.GameCardVariant
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.model.PlatformUI
+import io.github.onreg.core.ui.R as CoreUiR
 import io.github.onreg.ui.game.list.presentation.R as GameListPresentationR
 
 @Composable
@@ -60,23 +66,12 @@ internal fun DetailsSection(
     onBookmarkClicked: () -> Unit,
 ) {
     Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = detailsCardColor()),
-            shape = MaterialTheme.shapes.medium,
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                DetailsMetadata(
-                    details = details,
-                    state = state,
-                    onWebsiteClicked = onWebsiteClicked,
-                    onBookmarkClicked = onBookmarkClicked,
-                )
-            }
-        }
+        DetailsMetadata(
+            details = details,
+            state = state,
+            onWebsiteClicked = onWebsiteClicked,
+            onBookmarkClicked = onBookmarkClicked,
+        )
     }
 }
 
@@ -105,11 +100,9 @@ internal fun DescriptionSection(
             onTextLayout = { onDescriptionTextLayout(it.hasVisualOverflow) },
         )
         if (hasOverflow || isExpanded) {
-            Text(
+            TextButton(
                 text = readMoreText(isExpanded),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable(onClick = onToggleDescription),
+                onClick = onToggleDescription,
             )
         }
     }
@@ -169,34 +162,15 @@ private fun DetailsMetadata(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            details.releaseDate?.takeIf { it.isNotBlank() }?.let { releaseDate ->
-                Text(
-                    text = releaseDate,
-                    color = supportingTextColor,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-            if (details.platforms.isNotEmpty()) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    details.platforms.forEach { platform ->
-                        Icon(
-                            painter = painterResource(platform.iconRes),
-                            contentDescription = platform.name,
-                        )
-                    }
-                }
-            }
-            if (details.isWebsiteVisible) {
-                Text(
-                    text = "Official Website",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.clickable(onClick = onWebsiteClicked),
-                )
-            }
+            ReleaseDateRow(
+                releaseDate = details.releaseDate,
+                supportingTextColor = supportingTextColor,
+            )
+            PlatformsRow(platforms = details.platforms)
+            OfficialWebsiteRow(
+                isWebsiteVisible = details.isWebsiteVisible,
+                onWebsiteClicked = onWebsiteClicked,
+            )
         }
         Spacer(modifier = Modifier.size(8.dp))
         IconButton(onClick = onBookmarkClicked) {
@@ -235,7 +209,7 @@ internal fun ScreenshotsSection(
                     shape = MaterialTheme.shapes.medium,
                 ) {
                     DynamicAsyncImage(
-                        modifier = Modifier.size(192.dp, 108.dp),
+                        modifier = Modifier.size(288.dp, 162.dp),
                         imageUrl = screenshot.imageUrl,
                     )
                 }
@@ -261,7 +235,7 @@ internal fun MoviesSection(
             items(movies.itemSnapshotList.items) { movie ->
                 Card(
                     modifier = Modifier
-                        .size(width = 192.dp, height = 108.dp)
+                        .size(width = 288.dp, height = 162.dp)
                         .clickable { onMovieClicked(movie.videoUrl) },
                     colors = CardDefaults.cardColors(containerColor = detailsCardColor()),
                 ) {
@@ -269,6 +243,14 @@ internal fun MoviesSection(
                         DynamicAsyncImage(
                             modifier = Modifier.fillMaxSize(),
                             imageUrl = movie.previewUrl.orEmpty(),
+                        )
+                        Icon(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(40.dp),
+                            painter = painterResource(CoreUiR.drawable.ic_play_24),
+                            contentDescription = "Play video",
+                            tint = Color.White,
                         )
                         Text(
                             modifier = Modifier.padding(8.dp),
@@ -318,16 +300,18 @@ private fun SeriesGameCard(
     platforms: Set<PlatformUI>,
 ) {
     GameCard(
-        modifier = Modifier.width(160.dp),
+        modifier = Modifier.width(240.dp),
         gameData = GameCardUI(
             id = game.id.toString(),
             title = game.title,
             imageUrl = game.imageUrl,
-            releaseDate = game.releaseDate?.toString().orEmpty(),
+            releaseDate = ReleaseDateFormatter.format(game.releaseDate),
             platforms = platforms,
-            rating = ChipUI(text = "${"%.1f".format(game.rating)}", isSelected = false),
+            rating = ChipUI(text = "%.1f".format(game.rating), isSelected = true),
             isBookmarked = false,
         ),
+        showBookmark = false,
+        variant = GameCardVariant.Series,
         onBookmarkClick = {},
         onCardClicked = onClick,
     )

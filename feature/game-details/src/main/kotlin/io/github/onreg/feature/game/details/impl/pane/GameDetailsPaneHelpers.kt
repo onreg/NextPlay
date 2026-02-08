@@ -17,14 +17,35 @@ internal enum class SectionVisibility {
     Hide,
 }
 
-internal fun sectionVisibility(items: LazyPagingItems<*>): SectionVisibility {
-    if (items.itemCount > 0) {
+internal fun sectionVisibility(items: LazyPagingItems<*>): SectionVisibility =
+    resolveSectionVisibility(
+        itemCount = items.itemCount,
+        refreshLoadState = items.loadState.refresh,
+    )
+
+internal fun resolveSectionVisibility(
+    itemCount: Int,
+    refreshLoadState: LoadState,
+): SectionVisibility {
+    if (itemCount > 0) {
         return SectionVisibility.ShowContent
     }
-    return when (items.loadState.refresh) {
-        is LoadState.Loading -> SectionVisibility.ShowLoading
-        is LoadState.Error -> SectionVisibility.Hide
-        is LoadState.NotLoading -> SectionVisibility.Hide
+    return when (refreshLoadState) {
+        is LoadState.Loading -> {
+            SectionVisibility.ShowLoading
+        }
+
+        is LoadState.Error -> {
+            SectionVisibility.Hide
+        }
+
+        is LoadState.NotLoading -> {
+            if (refreshLoadState.endOfPaginationReached) {
+                SectionVisibility.Hide
+            } else {
+                SectionVisibility.ShowLoading
+            }
+        }
     }
 }
 

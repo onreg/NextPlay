@@ -1,6 +1,7 @@
 package io.github.onreg.feature.game.details.impl.ui.mapper
 
 import io.github.onreg.core.ui.components.chip.ChipUI
+import io.github.onreg.core.ui.format.ReleaseDateFormatter
 import io.github.onreg.data.details.api.model.GameCompanyRole
 import io.github.onreg.data.details.api.model.GameDetails
 import io.github.onreg.feature.game.details.impl.ui.model.GameCompanyRoleUi
@@ -8,8 +9,6 @@ import io.github.onreg.feature.game.details.impl.ui.model.GameCompanyUi
 import io.github.onreg.feature.game.details.impl.ui.model.GameDetailsUi
 import io.github.onreg.ui.platform.mapper.PlatformUiMapper
 import java.net.URI
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
 
@@ -22,17 +21,11 @@ internal class GameDetailsUiMapperImpl
     constructor(
         private val platformUiMapper: PlatformUiMapper,
     ) : GameDetailsUiMapper {
-        private val dateFormatter: DateTimeFormatter =
-            DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault())
-
         override fun map(model: GameDetails): GameDetailsUi = GameDetailsUi(
             gameId = model.gameId,
             title = model.title,
             imageUrl = model.imageUrl,
-            releaseDate = model.releaseDate
-                ?.atZone(ZoneId.systemDefault())
-                ?.toLocalDate()
-                ?.format(dateFormatter),
+            releaseDate = ReleaseDateFormatter.format(model.releaseDate),
             ratingChip = ChipUI(
                 text = "%.1f".format(Locale.getDefault(), model.rating),
                 isSelected = true,
