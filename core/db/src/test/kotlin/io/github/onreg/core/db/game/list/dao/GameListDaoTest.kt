@@ -1,4 +1,4 @@
-package io.github.onreg.core.db.game.dao
+package io.github.onreg.core.db.game.list.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Room
@@ -7,7 +7,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
-import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
+import io.github.onreg.core.db.game.list.entity.GameListEntity
+import io.github.onreg.core.db.game.list.entity.GameListRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
@@ -20,7 +21,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
-internal class GameDaoTest {
+internal class GameListDaoTest {
     private val database = Room
         .inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
@@ -29,7 +30,8 @@ internal class GameDaoTest {
         .build()
 
     private val gameDao = database.gameDao()
-    private val remoteKeysDao = database.gameRemoteKeysDao()
+    private val gameListDao = database.gameListDao()
+    private val remoteKeysDao = database.gameListRemoteKeysDao()
 
     @AfterTest
     fun tearDown() {
@@ -46,7 +48,6 @@ internal class GameDaoTest {
                 imageUrl = "image1",
                 releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
                 rating = 4.5,
-                insertionOrder = 1,
             ),
             GameEntity(
                 id = 11,
@@ -54,7 +55,6 @@ internal class GameDaoTest {
                 imageUrl = "image2",
                 releaseDate = Instant.parse("2024-02-01T00:00:00Z"),
                 rating = 4.0,
-                insertionOrder = 2,
             ),
         )
         val crossRefs = listOf(
@@ -64,8 +64,14 @@ internal class GameDaoTest {
         )
 
         gameDao.insertGamesWithPlatforms(GameInsertionBundle(games, platforms, crossRefs))
+        gameListDao.insertGameListEntries(
+            listOf(
+                GameListEntity(gameId = 10, position = 0),
+                GameListEntity(gameId = 11, position = 1),
+            ),
+        )
 
-        val pagingSource = gameDao.pagingSource()
+        val pagingSource = gameListDao.pagingSource()
         val result = pagingSource.load(
             PagingSource.LoadParams.Refresh(
                 key = null,
@@ -91,7 +97,7 @@ internal class GameDaoTest {
     }
 
     @Test
-    fun `should cascade delete cross refs and remote keys when clearing games`() = runTest {
+    fun `should clear only list membership when clearing list`() = runTest {
         val platform = PlatformEntity(1)
         val game = GameEntity(
             id = 20,
@@ -99,10 +105,14 @@ internal class GameDaoTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-03-01T00:00:00Z"),
             rating = 4.8,
-            insertionOrder = 1,
         )
         val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
-        val remoteKey = GameRemoteKeysEntity(gameId = game.id, prevKey = null, nextKey = 2)
+        val remoteKey =
+            GameListRemoteKeysEntity(
+                gameId = game.id,
+                prevKey = null,
+                nextKey = 2,
+            )
 
         gameDao.insertGamesWithPlatforms(
             GameInsertionBundle(
@@ -111,13 +121,18 @@ internal class GameDaoTest {
                 listOf(crossRef),
             ),
         )
+        gameListDao.insertGameListEntries(
+            listOf(GameListEntity(gameId = game.id, position = 0)),
+        )
         remoteKeysDao.insertRemoteKeys(listOf(remoteKey))
 
-        gameDao.clearGames()
+        gameListDao.deleteAll()
+        remoteKeysDao.deleteAll()
 
-        assertEquals(0, countRows(GameEntity.TABLE_NAME))
-        assertEquals(0, countRows(GamePlatformCrossRef.TABLE_NAME))
-        assertEquals(0, countRows(GameRemoteKeysEntity.TABLE_NAME))
+        assertEquals(1, countRows(GameEntity.TABLE_NAME))
+        assertEquals(1, countRows(GamePlatformCrossRef.TABLE_NAME))
+        assertEquals(0, countRows(GameListEntity.TABLE_NAME))
+        assertEquals(0, countRows(GameListRemoteKeysEntity.TABLE_NAME))
     }
 
     @Test
@@ -129,7 +144,6 @@ internal class GameDaoTest {
             imageUrl = "image",
             releaseDate = Instant.parse("2024-04-01T00:00:00Z"),
             rating = 4.2,
-            insertionOrder = 1,
         )
         val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
 

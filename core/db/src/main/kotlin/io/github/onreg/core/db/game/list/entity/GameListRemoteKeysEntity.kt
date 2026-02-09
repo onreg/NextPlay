@@ -1,26 +1,25 @@
-package io.github.onreg.core.db.game.entity
+package io.github.onreg.core.db.game.list.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
-import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = GameRemoteKeysEntity.TABLE_NAME,
+    tableName = GameListRemoteKeysEntity.TABLE_NAME,
+    primaryKeys = [GameListRemoteKeysEntity.GAME_ID],
     foreignKeys = [
         ForeignKey(
-            entity = GameEntity::class,
-            parentColumns = [GameEntity.ID],
-            childColumns = [GameRemoteKeysEntity.GAME_ID],
+            entity = GameListEntity::class,
+            parentColumns = [GameListEntity.GAME_ID],
+            childColumns = [GameListRemoteKeysEntity.GAME_ID],
             onDelete = CASCADE,
         ),
     ],
-    indices = [Index(GameRemoteKeysEntity.GAME_ID)],
+    indices = [Index(GameListRemoteKeysEntity.GAME_ID)],
 )
-public data class GameRemoteKeysEntity(
-    @PrimaryKey
+public data class GameListRemoteKeysEntity(
     @ColumnInfo(name = GAME_ID)
     val gameId: Int,
     @ColumnInfo(name = PREV_KEY)
