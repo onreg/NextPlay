@@ -54,13 +54,13 @@ Items present in dependency catalogs but not evidenced in scanned tests should b
 - Unit-tested modules (in scanned sources):
   - :core:db covers DAO behavior with in-memory Room database tests.
   - :core:network includes unit tests for networking-related logic (for example, interceptors).
-  - :data:game:impl tests mapping, repository behavior, and RemoteMediator behavior using mocks and paging snapshots.
-  - :feature:game includes ViewModel tests and Compose UI tests for feature screens/panes.
-  - :presentation:game includes UI mapping tests and Compose component tests.
+  - :data:game-list:impl tests mapping, repository behavior, and RemoteMediator behavior using mocks and paging snapshots.
+  - :feature:game-list includes ViewModel tests and Compose UI tests for feature screens/panes.
+  - :presentation:game-list includes UI mapping tests and Compose component tests.
   - :presentation:platform includes mapper tests.
 - Modules with limited or no current test coverage (in scanned sources):
   - :app contains an instrumentation template test.
-  - :data:game:api is a contract module and does not show unit tests in scanned sources.
+  - :data:game-list:api is a contract module and does not show unit tests in scanned sources.
   - :core:ui contains a test source set but no Kotlin test files were found in scanned sources.
 - The role of :testing:unit:
   - Provides shared unit test dependencies via an API surface (coroutines-test, paging-testing, Mockito, JUnit, Kotlin test).

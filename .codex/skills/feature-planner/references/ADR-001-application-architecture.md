@@ -10,7 +10,7 @@ This repository is organized as a multi-module Android app with a deliberate sep
 This ADR documents the current, dominant architecture as it exists today (as-is) to:
 - Make module boundaries and dependency direction explicit.
 - Reduce accidental cross-layer coupling as more features are added.
-- Provide a concrete reference flow using one representative feature: `:feature:game`.
+- Provide a concrete reference flow using one representative feature: `:feature:game-list`.
 
 Key constraints observed:
 - Multi-module Gradle build with an included `build-logic` build that centralizes convention plugins.
@@ -61,7 +61,7 @@ Notes:
 - `feature/*` depends on `data/*/api` (interfaces and models), not `data/*/impl`.
 - `:app` depends on `data/*/impl` to bring implementations into the DI graph.
 
-### Typical feature data flow (generic, based on `:feature:game`)
+### Typical feature data flow (generic, based on `:feature:game-list`)
 1) A top-level Compose host (in `:app`) renders a feature entry composable for the current route.
 2) The feature entry composable obtains its ViewModel via Hilt and starts collecting state flows.
 3) A user interaction triggers a ViewModel "onX" handler that updates local state and/or emits a one-off UI event.
@@ -169,7 +169,7 @@ Allowed:
 - `:core:*` -> external libraries only (no project feature/data dependencies)
 
 Current exceptions (if any):
-- `:presentation:platform` depends on `:data:game:api` types, which makes it "shared UI for this app" rather than a fully generic platform layer.
+- `:presentation:platform` depends on `:data:game-list:api` types, which makes it "shared UI for this app" rather than a fully generic platform layer.
 
 ### Placement of business logic and side effects
 - Business logic (screen-level decisions and orchestration) primarily lives in feature ViewModels and feature-level state/event reducers.
@@ -227,7 +227,7 @@ Modules and build logic:
 - `**/build.gradle.kts`
 - `gradle/libs.versions.toml`
 
-Feature example (`:feature:game`) flow:
+Feature example (`:feature:game-list`) flow:
 - `app/src/main/**`
 - `feature/game/src/main/**`
 - `presentation/**/src/main/**`

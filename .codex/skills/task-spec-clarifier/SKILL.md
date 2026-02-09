@@ -210,9 +210,25 @@ File content template:
 - No vague phrasing like "should work"
 
 ### Test plan (high-level)
-- Unit tests: what to cover
-- Integration tests: what to cover
-- UI tests: happy path + key edge cases
+- Goal: ensure every Acceptance Criteria item and every designed UI state/variant is test-covered.
+- Traceability:
+    - Acceptance criteria coverage: list AC1..ACn and map each to at least one test case (unit, integration, or UI).
+    - Design coverage: list each referenced Figma screen/state/variant and map each to at least one UI test scenario (or explain why it is not testable).
+    - Copy coverage: verify all visible text matches the design/copy requirements (including error messages, empty state text, button labels, and accessibility labels if specified).
+- Unit tests (required for all new logic):
+    - Business rules: validation, conditional behavior, precedence rules, state transitions, and edge cases.
+    - Data mapping: UI option -> stored value(s) mapping table, default/null behavior, backward compatibility rules.
+    - Error handling: error classification/mapping and retry rules (if applicable).
+    - Deterministic coverage: include boundary conditions and representative fixtures; avoid relying on network/device.
+- Integration tests (when boundaries change):
+    - API/contracts: request/response shape, serialization/deserialization, and error response handling.
+    - Persistence: read/write behavior, migrations/backward compatibility behaviors (if applicable).
+    - Repository boundaries: caching/fallback behavior, and interaction between remote/local sources (if applicable).
+- UI tests (required for all new user-facing behavior):
+    - End-to-end happy path for the primary user flow described in "User experience".
+    - All designed states: default, loading (if applicable), error, empty, disabled; plus any conditional visibility paths.
+    - Navigation: entry/exit points, back behavior, and state restoration for previously saved values (if applicable).
+    - Guardrails: verify no crashes for invalid inputs and that validation feedback is shown as specified.
 
 ### Open questions
 - Must be empty after clarification
