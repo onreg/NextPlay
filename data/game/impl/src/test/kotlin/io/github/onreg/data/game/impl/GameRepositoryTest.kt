@@ -28,7 +28,6 @@ internal class GameRepositoryTest {
         imageUrl = "image",
         releaseDate = null,
         rating = 4.5,
-        insertionOrder = 0,
     )
     private val entityWithPlatforms = GameWithPlatforms(
         game = gameEntity,
@@ -38,6 +37,7 @@ internal class GameRepositoryTest {
     private val driver = GameRepositoryTestDriver
         .Builder()
         .gameDaoPagingSource(listOf(entityWithPlatforms))
+        .seriesDaoPagingSource(listOf(entityWithPlatforms))
         .gameEntityMapperMap(entityWithPlatforms, mappedGame)
         .build()
 
@@ -46,6 +46,18 @@ internal class GameRepositoryTest {
         val items = driver.getGames().asSnapshot()
 
         verify(driver.gameDao).pagingSource()
+        verify(driver.entityMapper).map(entityWithPlatforms)
+        assertEquals(listOf(mappedGame), items)
+    }
+
+    @Test
+    fun `should get series`() = runTest {
+        val gameId = 77
+
+        val items = driver.getSeries(gameId).asSnapshot()
+
+        verify(driver.gameSeriesRemoteMediatorFactory).create(gameId)
+        verify(driver.seriesDao).pagingSource()
         verify(driver.entityMapper).map(entityWithPlatforms)
         assertEquals(listOf(mappedGame), items)
     }

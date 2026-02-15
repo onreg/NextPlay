@@ -2,11 +2,15 @@ package io.github.onreg.data.game.impl.paging
 
 import androidx.paging.LoadType
 import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
-import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
+import io.github.onreg.core.db.game.list.dao.GameListDao
+import io.github.onreg.core.db.game.list.dao.GameListRemoteKeysDao
+import io.github.onreg.core.db.game.list.entity.GameListEntity
+import io.github.onreg.core.db.game.list.entity.GameListRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
@@ -23,7 +27,8 @@ import org.mockito.kotlin.stub
 internal class GameRemoteMediatorTestDriver private constructor(
     val gameApi: GameApi,
     val gameDao: GameDao,
-    val remoteKeysDao: GameRemoteKeysDao,
+    val gameListDao: GameListDao,
+    val remoteKeysDao: GameListRemoteKeysDao,
     val dtoMapper: GameDtoMapper,
     val entityMapper: GameEntityMapper,
     val pagingConfig: PagingConfig,
@@ -33,6 +38,7 @@ internal class GameRemoteMediatorTestDriver private constructor(
         GameRemoteMediator(
             gameApi = gameApi,
             gameDao = gameDao,
+            gameListDao = gameListDao,
             remoteKeysDao = remoteKeysDao,
             dtoMapper = dtoMapper,
             entityMapper = entityMapper,
@@ -52,10 +58,25 @@ internal class GameRemoteMediatorTestDriver private constructor(
         leadingPlaceholderCount = 0,
     )
 
+    fun pagingStateWithLastItem(lastItem: GameWithPlatforms): PagingState<Int, GameWithPlatforms> =
+        PagingState(
+            pages = listOf(
+                PagingSource.LoadResult.Page(
+                    data = listOf(lastItem),
+                    prevKey = null,
+                    nextKey = null,
+                ),
+            ),
+            anchorPosition = 0,
+            config = pagingConfig,
+            leadingPlaceholderCount = 0,
+        )
+
     class Builder {
         private val gameApi: GameApi = mock()
         private val gameDao: GameDao = mock()
-        private val remoteKeysDao: GameRemoteKeysDao = mock()
+        private val gameListDao: GameListDao = mock()
+        private val remoteKeysDao: GameListRemoteKeysDao = mock()
         private val dtoMapper: GameDtoMapper = mock()
         private val entityMapper: GameEntityMapper = mock()
         private val transactionProvider = object : TransactionProvider {
@@ -73,12 +94,26 @@ internal class GameRemoteMediatorTestDriver private constructor(
                 gameApi.stub {
                     onBlocking {
                         getGames(
-                            page = 0,
+                            page = 1,
                             pageSize = pagingConfig.pageSize,
                         )
                     } doReturn response
                 }
             }
+
+        fun gameApiGetGames(
+            page: Int,
+            response: NetworkResponse<PaginatedResponseDto<GameDto>>,
+        ): Builder = apply {
+            gameApi.stub {
+                onBlocking {
+                    getGames(
+                        page = page,
+                        pageSize = pagingConfig.pageSize,
+                    )
+                } doReturn response
+            }
+        }
 
         fun gameDtoMapperMap(
             dto: GameDto,
@@ -89,15 +124,32 @@ internal class GameRemoteMediatorTestDriver private constructor(
 
         fun gameEntityMapperMap(
             games: List<Game>,
-            startOrder: Long,
             bundle: GameInsertionBundle,
         ): Builder = apply {
-            entityMapper.stub { on { map(games, startOrder) } doReturn bundle }
+            entityMapper.stub { on { map(games) } doReturn bundle }
+        }
+
+        fun gameEntityMapperMapGameListEntries(
+            games: List<Game>,
+            startPosition: Long,
+            entities: List<GameListEntity>,
+        ): Builder = apply {
+            entityMapper.stub {
+                on { mapGameListEntries(games, startPosition) } doReturn entities
+            }
+        }
+
+        fun remoteKeysDaoGetByGameId(
+            gameId: Int,
+            entity: GameListRemoteKeysEntity?,
+        ): Builder = apply {
+            remoteKeysDao.stub { onBlocking { getByGameId(gameId) } doReturn entity }
         }
 
         fun build() = GameRemoteMediatorTestDriver(
             gameApi = gameApi,
             gameDao = gameDao,
+            gameListDao = gameListDao,
             remoteKeysDao = remoteKeysDao,
             dtoMapper = dtoMapper,
             entityMapper = entityMapper,

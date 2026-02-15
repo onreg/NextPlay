@@ -6,8 +6,9 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
-import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
-import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
+import io.github.onreg.core.db.game.list.dao.GameListDao
+import io.github.onreg.core.db.game.list.dao.GameListRemoteKeysDao
+import io.github.onreg.core.db.game.list.entity.GameListRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.network.rawg.api.GameApi
 import io.github.onreg.core.network.rawg.dto.GameDto
@@ -22,7 +23,8 @@ private const val INITIAL_PAGE = 1
 public class GameRemoteMediator(
     private val gameApi: GameApi,
     private val gameDao: GameDao,
-    private val remoteKeysDao: GameRemoteKeysDao,
+    private val gameListDao: GameListDao,
+    private val remoteKeysDao: GameListRemoteKeysDao,
     private val dtoMapper: GameDtoMapper,
     private val entityMapper: GameEntityMapper,
     private val transactionProvider: TransactionProvider,
@@ -79,23 +81,26 @@ public class GameRemoteMediator(
         config: PagingConfig,
     ): Int? {
         val games = response.results.map(dtoMapper::map)
-        val insertionOrderStart =
+        val positionStart =
             (page - INITIAL_PAGE).toLong() * config.pageSize
-        val databaseBundle = entityMapper.map(games, insertionOrderStart)
+        val databaseBundle = entityMapper.map(games)
+        val listItems = entityMapper.mapGameListEntries(games, positionStart)
         val nextPage = response.next?.let(::getNextPageFromResponse)
 
         val keys = databaseBundle.games.map { entity ->
-            GameRemoteKeysEntity(
-                entity.id,
-                if (page == INITIAL_PAGE) null else page - 1,
-                nextPage,
+            GameListRemoteKeysEntity(
+                gameId = entity.id,
+                prevKey = if (page == INITIAL_PAGE) null else page - 1,
+                nextKey = nextPage,
             )
         }
         transactionProvider.run {
             if (isRefresh) {
-                gameDao.clearGames()
+                gameListDao.deleteAll()
+                remoteKeysDao.deleteAll()
             }
             gameDao.insertGamesWithPlatforms(databaseBundle)
+            gameListDao.insertGameListEntries(listItems)
             remoteKeysDao.insertRemoteKeys(keys)
         }
         return nextPage
@@ -136,7 +141,7 @@ public class GameRemoteMediator(
                 if (lastItem == null) {
                     NextPage.WaitForRefresh
                 } else {
-                    val remoteKey = remoteKeysDao.getRemoteKey(lastItem.game.id)
+                    val remoteKey = remoteKeysDao.getByGameId(lastItem.game.id)
                     if (remoteKey == null) {
                         NextPage.Error(
                             IllegalStateException("Missing remote key for id=${lastItem.game.id}"),
