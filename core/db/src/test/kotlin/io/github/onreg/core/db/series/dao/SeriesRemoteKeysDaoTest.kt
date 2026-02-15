@@ -84,6 +84,7 @@ internal class SeriesRemoteKeysDaoTest {
         )
 
         assertNull(remoteKeysDao.getByGameId(game.id))
+        assertEquals(0, countRows(SeriesEntity.TABLE_NAME))
     }
 
     @Test
@@ -111,4 +112,10 @@ internal class SeriesRemoteKeysDaoTest {
 
         assertNull(remoteKeysDao.getByGameId(game.id))
     }
+
+    private fun countRows(table: String): Int =
+        database.query("SELECT COUNT(*) FROM $table", null).use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
 }

@@ -96,5 +96,46 @@ internal class GameListRemoteKeysDaoTest {
 
         val loaded = remoteKeysDao.getByGameId(game.id)
         assertNull(loaded)
+        assertEquals(0, countRows(GameListEntity.TABLE_NAME))
     }
+
+    @Test
+    fun `should cascade delete remote key when list membership is cleared`() = runTest {
+        val game = GameEntity(
+            id = 43,
+            title = "Membership Cascade",
+            imageUrl = "image",
+            releaseDate = Instant.parse("2024-08-01T00:00:00Z"),
+            rating = 4.0,
+        )
+        gameDao.insertGames(listOf(game))
+        gameListDao.insertGameListEntries(
+            listOf(
+                GameListEntity(
+                    gameId = game.id,
+                    position = 0,
+                ),
+            ),
+        )
+        remoteKeysDao.insertRemoteKeys(
+            listOf(
+                GameListRemoteKeysEntity(
+                    gameId = game.id,
+                    prevKey = null,
+                    nextKey = 2,
+                ),
+            ),
+        )
+
+        gameListDao.deleteAll()
+
+        assertNull(remoteKeysDao.getByGameId(game.id))
+        assertEquals(0, countRows(GameListEntity.TABLE_NAME))
+    }
+
+    private fun countRows(table: String): Int =
+        database.query("SELECT COUNT(*) FROM $table", null).use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
 }

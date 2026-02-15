@@ -108,6 +108,62 @@ internal class GameScreenshotsDaoTest {
         assertEquals(2, countRows(GameEntity.TABLE_NAME))
     }
 
+    @Test
+    fun `should return empty list when game has no screenshots`() = runTest {
+        val gameId = 3001
+        gameDao.insertGames(listOf(game(gameId, "No Screenshots")))
+
+        val result = loadScreenshots(gameId)
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `should cascade delete screenshots for deleted game only`() = runTest {
+        val firstGameId = 3002
+        val secondGameId = 3003
+        gameDao.insertGames(listOf(game(firstGameId, "First"), game(secondGameId, "Second")))
+        val firstGameScreenshots = listOf(
+            ScreenshotEntity(
+                id = 20,
+                gameId = firstGameId,
+                position = 0,
+                imageUrl = "first-20",
+                width = 1920,
+                height = 1080,
+            ),
+            ScreenshotEntity(
+                id = 21,
+                gameId = firstGameId,
+                position = 1,
+                imageUrl = "first-21",
+                width = 1920,
+                height = 1080,
+            ),
+        )
+        val secondGameScreenshots = listOf(
+            ScreenshotEntity(
+                id = 22,
+                gameId = secondGameId,
+                position = 0,
+                imageUrl = "second-22",
+                width = 1280,
+                height = 720,
+            ),
+        )
+        gameScreenshotsDao.insertScreenshots(firstGameScreenshots + secondGameScreenshots)
+
+        database.openHelper.writableDatabase.execSQL(
+            "DELETE FROM ${GameEntity.TABLE_NAME} WHERE ${GameEntity.ID} = ?",
+            arrayOf(firstGameId),
+        )
+
+        assertTrue(loadScreenshots(firstGameId).isEmpty())
+        assertEquals(secondGameScreenshots, loadScreenshots(secondGameId))
+        assertEquals(1, countRows(GameEntity.TABLE_NAME))
+        assertEquals(secondGameScreenshots.size, countRows(ScreenshotEntity.TABLE_NAME))
+    }
+
     private fun game(
         id: Int,
         title: String,
