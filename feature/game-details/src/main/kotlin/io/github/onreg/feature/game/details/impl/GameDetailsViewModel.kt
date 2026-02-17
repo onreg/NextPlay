@@ -9,6 +9,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.onreg.core.util.android.intent.UrlOpener
 import io.github.onreg.core.util.android.lifecycle.ViewModelDelegateImpl
 import io.github.onreg.data.details.api.GameDetailsRepository
 import io.github.onreg.data.game.api.GameRepository
@@ -46,6 +47,7 @@ public class GameDetailsViewModel
         private val screenshotUiMapper: ScreenshotUiMapper,
         private val movieUiMapper: MovieUiMapper,
         private val gameCardUiMapper: GameCardUiMapper,
+        private val urlOpener: UrlOpener,
     ) : ViewModel() {
         private val delegate = ViewModelDelegateImpl<GameDetailsInternalState, GameDetailsEvent>(
             GameDetailsInternalState(
@@ -104,25 +106,25 @@ public class GameDetailsViewModel
         internal fun onWebsiteClicked() {
             val details = (state.value as? GameDetailsState.Ready)?.details ?: return
             details.website?.takeIf { it.isNotBlank() }?.let { website ->
-                with(delegate) { viewModelScope.sendEvent(GameDetailsEvent.OpenUrl(website)) }
+                urlOpener.open(website)
             }
         }
 
         internal fun onBannerClicked(url: String) {
             url.takeIf { it.isNotBlank() }?.let { imageUrl ->
-                with(delegate) { viewModelScope.sendEvent(GameDetailsEvent.OpenImage(imageUrl)) }
+                urlOpener.open(imageUrl)
             }
         }
 
         internal fun onImageClicked(url: String) {
             url.takeIf { it.isNotBlank() }?.let { imageUrl ->
-                with(delegate) { viewModelScope.sendEvent(GameDetailsEvent.OpenImage(imageUrl)) }
+                urlOpener.open(imageUrl)
             }
         }
 
         internal fun onVideoClicked(url: String) {
             url.takeIf { it.isNotBlank() }?.let { videoUrl ->
-                with(delegate) { viewModelScope.sendEvent(GameDetailsEvent.OpenVideo(videoUrl)) }
+                urlOpener.open(videoUrl)
             }
         }
 
