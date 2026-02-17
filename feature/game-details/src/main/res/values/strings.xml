@@ -1,0 +1,4 @@
+<resources>
+    <string name="role_developer">Developer</string>
+    <string name="role_publisher">Publisher</string>
+</resources>
