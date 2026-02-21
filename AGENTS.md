@@ -2,13 +2,11 @@
 
 - Use verification reports to fix code checks issues (Lint, Detekt, Ktlint, Unit tests) instead of
   terminal output.
+- Before creating a new Kotlin source file, read `docs/agent/code-organization.md` and follow its
+  rules.
 - Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
   and docs.
-- After any code change, run code checks and unit tests appropriate to the scope of the change.
-    - For large/multi-file changes (e.g. implementing a whole feature), run detekt + ktlint and all
-      Unit tests.
-    - For small/isolated changes (e.g. changing a single class), run detekt + ktlint and only the
-      single most relevant Unit test for that class (e.g. one test class), not the full suite.
+- Do not run any code quality checks until it will be requested or this step is written in implementation plan.
 
 ## Project Structure & Module Organization
 
