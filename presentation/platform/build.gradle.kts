@@ -1,5 +1,5 @@
 plugins {
-    id("non-ui.convention.plugin")
+    id("feature.convention.plugin")
 }
 
 android {
