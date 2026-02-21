@@ -17,6 +17,12 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.db)
     implementation(projects.core.network)
-    implementation(projects.feature.game)
+
+    implementation(projects.feature.gameList)
+    implementation(projects.feature.gameDetails)
+
     implementation(projects.data.game.impl)
+    implementation(projects.data.details.impl)
+    implementation(projects.data.screenshots.impl)
+    implementation(projects.data.movies.impl)
 }
