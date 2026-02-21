@@ -1,12 +1,17 @@
 package io.github.onreg.core.ui.components.header
 
-public data class AppHeaderUI(
-    val titleResId: Int,
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+
+public data class AppHeaderUi(
+    val title: String = "",
     val navigationItem: AppHeaderMenu? = null,
     val menuItems: List<AppHeaderMenu>? = null,
 )
 
 public data class AppHeaderMenu(
+    @param:DrawableRes
     val iconResId: Int,
+    @param:StringRes
     val contentDescriptionResId: Int,
 )

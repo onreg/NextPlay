@@ -19,7 +19,7 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 @Composable
 public fun AppHeader(
     modifier: Modifier = Modifier,
-    appHeaderUI: AppHeaderUI,
+    appHeaderUI: AppHeaderUi,
     onNavigationClicked: () -> Unit = {},
     vararg onMenuItemClicked: (() -> Unit) = emptyArray(),
 ) {
@@ -37,7 +37,7 @@ public fun AppHeader(
         },
         title = {
             Text(
-                text = stringResource(appHeaderUI.titleResId),
+                text = appHeaderUI.title,
                 style = MaterialTheme.typography.titleMedium,
             )
         },
@@ -63,8 +63,8 @@ public fun AppHeader(
 private fun AppHeaderPreview() {
     NextPlayTheme {
         AppHeader(
-            appHeaderUI = AppHeaderUI(
-                titleResId = R.string.preview_text,
+            appHeaderUI = AppHeaderUi(
+                title = "Sample content!",
                 navigationItem = AppHeaderMenu(
                     iconResId = R.drawable.ic_back_24,
                     contentDescriptionResId = R.string.preview_text,
