@@ -67,7 +67,7 @@
 - Source of truth (if this doc conflicts, these win):
     - Formatting: `.editorconfig` + ktlint
     - Static analysis: detekt + Android lint
-    - Architecture/testing conventions: ADRs in `.codex/skills/feature-planner/references/`
+    - Architecture/testing conventions: ADRs in `docs/adr/`
 - Naming conventions not covered by tooling/ADRs:
     - Compose previews: describe UI state only (e.g., `FilledPreview`, `EmptyStatePreview`)
     - Icons: `ic_<name>_<size>.xml` (e.g., `ic_close_24.xml`)
