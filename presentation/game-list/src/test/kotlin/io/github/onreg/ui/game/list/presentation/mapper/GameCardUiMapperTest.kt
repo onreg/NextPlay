@@ -41,7 +41,7 @@ class GameCardUiMapperTest {
 
         assertEquals(
             GameCardUI(
-                id = "1",
+                id = 1,
                 title = "First",
                 imageUrl = "image-1",
                 releaseDate = "Jul 19, 2023",

@@ -65,7 +65,7 @@ internal class GameListTestDriver private constructor(
     private val bookmarkButtonNode = composeRule.onNodeWithContentDescription(
         context.getString(CoreUiR.string.bookmark_add),
     )
-    private val cardNode: (String) -> SemanticsNodeInteraction =
+    private val cardNode: (Int) -> SemanticsNodeInteraction =
         { cardId ->
             composeRule.onNodeWithTag("${GameListTestTags.GAME_LIST_CARD_PREFIX}$cardId")
         }
@@ -75,8 +75,8 @@ internal class GameListTestDriver private constructor(
     private var errorContentCount: Int = 0
     private var emptyContentCount: Int = 0
     private var lastErrorType: GameErrorType? = null
-    private var lastBookmarkedId: String? = null
-    private var lastCardClickedId: String? = null
+    private var lastBookmarkedId: Int? = null
+    private var lastCardClickedId: Int? = null
 
     class Builder(private val composeRule: ComposeContentTestRule) {
         private val pagingState = MutableStateFlow<PagingData<GameCardUI>>(PagingData.empty())
@@ -221,13 +221,13 @@ internal class GameListTestDriver private constructor(
         }
     }
 
-    fun assertBookmarkClicked(expected: String?) {
+    fun assertBookmarkClicked(expected: Int?) {
         composeRule.runOnIdle {
             assertEquals(expected, lastBookmarkedId)
         }
     }
 
-    fun assertCardClicked(expected: String?) {
+    fun assertCardClicked(expected: Int?) {
         composeRule.runOnIdle {
             assertEquals(expected, lastCardClickedId)
         }
@@ -245,7 +245,7 @@ internal class GameListTestDriver private constructor(
         bookmarkButtonNode.performClick()
     }
 
-    fun clickCard(cardId: String) {
+    fun clickCard(cardId: Int) {
         cardNode(cardId).performClick()
     }
 }

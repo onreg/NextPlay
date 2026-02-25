@@ -26,10 +26,10 @@ public class GameCardUiMapperImpl
             game: Game,
             isBookmarked: Boolean,
         ): GameCardUI = GameCardUI(
-            id = game.id.toString(),
+            id = game.id,
             title = game.title,
             imageUrl = game.imageUrl,
-            releaseDate = instantTextFormatter.format(instant = game.releaseDate),
+            releaseDate = game.releaseDate?.let { instantTextFormatter.format(instant = it) } ?: "",
             platforms = platformUiMapper.mapPlatform(game.platforms),
             rating = ChipUI(
                 text = numberTextFormatter.format(value = game.rating),

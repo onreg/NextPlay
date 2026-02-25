@@ -32,7 +32,7 @@ internal class GameCardTest {
     }
 
     private fun gameCardUi(): GameCardUI = GameCardUI(
-        id = "1",
+        id = 1,
         title = "Game title",
         imageUrl = "https://image",
         releaseDate = "Jan 1, 2020",

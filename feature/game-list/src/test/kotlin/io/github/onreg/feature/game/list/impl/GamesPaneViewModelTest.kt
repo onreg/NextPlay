@@ -33,7 +33,7 @@ internal class GamesPaneViewModelTest {
     )
     private val pagingData = PagingData.from(listOf(game))
     private val defaultCard = GameCardUI(
-        id = "1",
+        id = 1,
         title = "Title",
         imageUrl = "image",
         releaseDate = "",
@@ -46,9 +46,14 @@ internal class GamesPaneViewModelTest {
     private val defaultDriverBuilder = GamesPaneViewModelTestDriver
         .Builder()
         .repositoryGames(gamesFlow)
-        .platformUiMapperMapPlatform(
-            setOf(GamePlatform.PC),
-            setOf(PlatformUI(name = "PC", iconRes = 1)),
+        .gameCardUiMapperMap(
+            game = game,
+            isBookmarked = false,
+            mapped = defaultCard,
+        ).gameCardUiMapperMap(
+            game = game,
+            isBookmarked = true,
+            mapped = defaultCard.copy(isBookmarked = true),
         )
 
     @Test
@@ -56,8 +61,8 @@ internal class GamesPaneViewModelTest {
         val driver = defaultDriverBuilder.build()
 
         driver.viewModel.events.test(this) {
-            driver.viewModel.onCardClicked("42")
-            assertLatest(GamesPaneEvent.GoToDetails("42"))
+            driver.viewModel.onCardClicked(42)
+            assertLatest(GamesPaneEvent.GoToDetails(42))
         }
     }
 
@@ -73,7 +78,7 @@ internal class GamesPaneViewModelTest {
     @Test
     fun `should bookmark the game`() = runTest {
         val driver = defaultDriverBuilder.build()
-        val testItemId = "1"
+        val testItemId = 1
         driver.viewModel.pagingState.test(this) {
             val itemsBefore = latestValue().asSnapshot()
             assertFalse(itemsBefore.first { it.id == testItemId }.isBookmarked)

@@ -25,7 +25,7 @@ import io.github.onreg.feature.game.list.impl.model.GamesPaneListEvent
 import io.github.onreg.feature.game.list.impl.test.GamesPaneTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.GameCardError
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
-import io.github.onreg.ui.game.list.presentation.components.card.model.GameListErrorType
+import io.github.onreg.ui.game.list.presentation.components.card.model.GameErrorType
 import io.github.onreg.ui.game.list.presentation.components.list.GameList
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestData
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +36,7 @@ import io.github.onreg.ui.game.list.presentation.R as PresentationR
 public fun GamesPane(
     modifier: Modifier = Modifier,
     isLargeScreen: Boolean = false,
-    onOpenGameDetails: (String) -> Unit,
+    onOpenGameDetails: (Int) -> Unit,
 ) {
     val viewModel = hiltViewModel<GamesPaneViewModel>()
 
@@ -73,8 +73,8 @@ internal fun GamesPaneScreen(
     pagingState: LazyPagingItems<GameCardUI>,
     onRefreshClicked: () -> Unit = {},
     onRetryClicked: () -> Unit = {},
-    onBookMarkClicked: (String) -> Unit = {},
-    onCardClicked: (String) -> Unit = {},
+    onBookMarkClicked: (Int) -> Unit = {},
+    onCardClicked: (Int) -> Unit = {},
 ) {
     ContentComponent(
         modifier = modifier,
@@ -94,8 +94,8 @@ private fun ContentComponent(
     pagingState: LazyPagingItems<GameCardUI>,
     onRefreshClicked: () -> Unit,
     onPageRetryClicked: () -> Unit,
-    onBookMarkClicked: (String) -> Unit,
-    onCardClicked: (String) -> Unit,
+    onBookMarkClicked: (Int) -> Unit,
+    onCardClicked: (Int) -> Unit,
 ) {
     GameList(
         modifier = modifier,
@@ -119,7 +119,7 @@ private fun ContentComponent(
 @Composable
 private fun ErrorComponent(
     modifier: Modifier = Modifier,
-    errorType: GameListErrorType,
+    errorType: GameErrorType,
     onRetry: () -> Unit,
 ) {
     Box(

@@ -71,7 +71,7 @@ public object GameListTestData {
     )
 
     public fun generateGameCards(count: Int): List<GameCardUI> = List(count) { index ->
-        val id = (index + 1).toString()
+        val id = index + 1
         GameCardUI(
             id = id,
             title = "Game $id",

@@ -45,8 +45,8 @@ public fun GameList(
     columns: Int = 1,
     onRefresh: () -> Unit = {},
     onRetry: () -> Unit = {},
-    onBookmarkClicked: (String) -> Unit = {},
-    onCardClicked: (String) -> Unit = {},
+    onBookmarkClicked: (Int) -> Unit = {},
+    onCardClicked: (Int) -> Unit = {},
     onError: @Composable (error: GameErrorType) -> Unit = {},
     onEmpty: @Composable () -> Unit = {},
 ) {
@@ -102,8 +102,8 @@ private fun GamesGrid(
     columns: Int = 1,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
-    onBookmarkClicked: (String) -> Unit,
-    onCardClicked: (String) -> Unit,
+    onBookmarkClicked: (Int) -> Unit,
+    onCardClicked: (Int) -> Unit,
 ) {
     val nextPageError = (lazyPagingItems.loadState.append as? LoadState.Error)
         ?.toGameListErrorType()
@@ -156,8 +156,8 @@ private fun GamesGridContent(
     isNextPageLoading: Boolean,
     nextPageError: GameErrorType?,
     onRetry: () -> Unit,
-    onBookmarkClicked: (String) -> Unit,
-    onCardClicked: (String) -> Unit,
+    onBookmarkClicked: (Int) -> Unit,
+    onCardClicked: (Int) -> Unit,
 ) {
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),

@@ -53,15 +53,15 @@ internal class GamesPaneTestDriver private constructor(
         context.getString(io.github.onreg.core.ui.R.string.error_network_message),
     )
 
-    private val cardNode: (String) -> SemanticsNodeInteraction =
+    private val cardNode: (Int) -> SemanticsNodeInteraction =
         { cardId ->
             composeRule.onNodeWithTag("${GameListTestTags.GAME_LIST_CARD_PREFIX}$cardId")
         }
 
     private var pageRetryCount: Int = 0
     private var refreshCount: Int = 0
-    private var lastBookmarkedId: String? = null
-    private var lastCardClickedId: String? = null
+    private var lastBookmarkedId: Int? = null
+    private var lastCardClickedId: Int? = null
 
     class Builder(private val composeRule: ComposeContentTestRule) {
         private val pagingState = MutableStateFlow<PagingData<GameCardUI>>(PagingData.empty())
@@ -143,13 +143,13 @@ internal class GamesPaneTestDriver private constructor(
         }
     }
 
-    fun assertBookmarkClicked(expected: String) {
+    fun assertBookmarkClicked(expected: Int) {
         composeRule.runOnIdle {
             assertEquals(expected, lastBookmarkedId)
         }
     }
 
-    fun assertCardClicked(expected: String) {
+    fun assertCardClicked(expected: Int) {
         composeRule.runOnIdle {
             assertEquals(expected, lastCardClickedId)
         }
@@ -167,7 +167,7 @@ internal class GamesPaneTestDriver private constructor(
         bookmarkButtonNode.performClick()
     }
 
-    fun clickCard(id: String) {
+    fun clickCard(id: Int) {
         cardNode(id).performClick()
     }
 }
