@@ -1,9 +1,21 @@
 package io.github.onreg.feature.game.details.impl.model
 
-internal sealed interface GameDetailsState {
-    data object Loading : GameDetailsState
+import io.github.onreg.core.ui.components.header.AppHeaderUi
 
-    data object Error : GameDetailsState
+internal sealed class GameDetailsState {
 
-    data class Ready(val details: GameDetailsUi) : GameDetailsState
+    abstract val headerUi: AppHeaderUi
+
+    data class Loading(
+        override val headerUi: AppHeaderUi
+    ) : GameDetailsState()
+
+    data class Error(
+        override val headerUi: AppHeaderUi
+    ) : GameDetailsState()
+
+    data class Ready(
+        val details: GameDetailsUi,
+        override val headerUi: AppHeaderUi
+    ) : GameDetailsState()
 }

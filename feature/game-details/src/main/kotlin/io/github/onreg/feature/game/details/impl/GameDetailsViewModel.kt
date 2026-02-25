@@ -9,6 +9,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.onreg.core.ui.components.header.AppHeaderUi
 import io.github.onreg.core.util.android.intent.UrlOpener
 import io.github.onreg.core.util.android.lifecycle.ViewModelDelegateImpl
 import io.github.onreg.data.details.api.GameDetailsRepository
@@ -16,7 +17,6 @@ import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.movies.api.GameMoviesRepository
 import io.github.onreg.data.screenshots.api.GameScreenshotsRepository
 import io.github.onreg.feature.game.details.impl.mapper.GameDetailsStateMapper
-import io.github.onreg.feature.game.details.impl.mapper.GameDetailsUiMapper
 import io.github.onreg.feature.game.details.impl.mapper.MovieUiMapper
 import io.github.onreg.feature.game.details.impl.mapper.ScreenshotUiMapper
 import io.github.onreg.feature.game.details.impl.model.ContentState
@@ -42,7 +42,6 @@ public class GameDetailsViewModel
         screenshotsRepository: GameScreenshotsRepository,
         moviesRepository: GameMoviesRepository,
         seriesRepository: GameRepository,
-        private val uiMapper: GameDetailsUiMapper,
         private val stateMapper: GameDetailsStateMapper,
         private val screenshotUiMapper: ScreenshotUiMapper,
         private val movieUiMapper: MovieUiMapper,
@@ -53,6 +52,8 @@ public class GameDetailsViewModel
             GameDetailsInternalState(
                 isBookmarked = false,
                 contentState = ContentState.Loading,
+                isDescriptionExpanded = false,
+                isReadMoreVisible = false,
             ),
         )
 
@@ -61,10 +62,14 @@ public class GameDetailsViewModel
             viewModelScope.mergedState(
                 remote = detailsRepository
                     .observeGameDetails(gameId)
-                    .onStart { refresh() }
-                    .map { details -> details?.let(uiMapper::map) },
-                merge = stateMapper::map,
-                initial = GameDetailsState.Loading,
+                    .onStart { refresh() },
+                merge = { localState, gameDetails ->
+                    stateMapper.map(
+                        gameDetails = gameDetails,
+                        localState = localState,
+                    )
+                },
+                initial = GameDetailsState.Loading(AppHeaderUi()) as GameDetailsState,
             )
         }
 
@@ -116,19 +121,19 @@ public class GameDetailsViewModel
             }
         }
 
-        internal fun onImageClicked(url: String) {
+        internal fun onScreenshotClicked(url: String) {
             url.takeIf { it.isNotBlank() }?.let { imageUrl ->
                 urlOpener.open(imageUrl)
             }
         }
 
-        internal fun onVideoClicked(url: String) {
+        internal fun onMovieClicked(url: String) {
             url.takeIf { it.isNotBlank() }?.let { videoUrl ->
                 urlOpener.open(videoUrl)
             }
         }
 
-        internal fun onSeriesGameClicked(gameId: Int) {
+        internal fun onSeriesClicked(gameId: Int) {
             with(delegate) { viewModelScope.sendEvent(GameDetailsEvent.GoGameDetails(gameId)) }
         }
 
@@ -136,6 +141,19 @@ public class GameDetailsViewModel
             val current = state.value as? GameDetailsState.Ready ?: return
             delegate.reduce {
                 it.copy(isBookmarked = !current.details.isBookmarked)
+            }
+        }
+
+        internal fun onDescriptionOverflowChanged(isOverflowed: Boolean) {
+            delegate.reduce {
+                it.copy(isReadMoreVisible = isOverflowed)
+            }
+        }
+
+        internal fun onDescriptionToggleClicked() {
+            val current = state.value as? GameDetailsState.Ready ?: return
+            delegate.reduce {
+                it.copy(isDescriptionExpanded = !current.details.gameDescriptionUi.isExpanded)
             }
         }
 

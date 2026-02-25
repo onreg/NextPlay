@@ -1,4 +1,4 @@
-package io.github.onreg.feature.game.details.impl.pane
+package io.github.onreg.feature.game.details.impl.pane.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import io.github.onreg.core.ui.animation.shimmer
 import io.github.onreg.core.ui.preview.ThemePreview
@@ -32,7 +29,6 @@ import io.github.onreg.core.ui.theme.ControlsSize
 import io.github.onreg.core.ui.theme.IconsSize
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
-import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 
 private const val PLACEHOLDER_WIDTH: Float = 0.5f
 private const val PLACEHOLDER_WIDTH_SMALL: Float = 0.3f
@@ -44,13 +40,8 @@ private const val MEDIA_SECTION_COUNT: Int = 3
 private const val MEDIA_SECTION_ITEMS_COUNT: Int = 3
 
 @Composable
-internal fun GameDetailsLoading(modifier: Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .testTag(GameDetailsTestTags.LOADING)
-            .verticalScroll(rememberScrollState()),
-    ) {
+internal fun LoadingComponent(modifier: Modifier) {
+    Column(modifier = modifier) {
         LoadingBannerSection()
         LoadingDetailsSection()
 
@@ -98,7 +89,7 @@ private fun LoadingBannerSection() {
     ShimmerSurface(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(BANNER_ASPECT_RATIO),
+            .aspectRatio(2f),
         shape = MaterialTheme.shapes.small,
     )
 }
@@ -222,8 +213,8 @@ private fun ShimmerSurface(
 
 @ThemePreview
 @Composable
-private fun GameDetailsLoadingPreview() {
+private fun LoadingComponentPreview() {
     NextPlayTheme {
-        GameDetailsLoading(modifier = Modifier.fillMaxSize())
+        LoadingComponent(modifier = Modifier.fillMaxSize())
     }
 }

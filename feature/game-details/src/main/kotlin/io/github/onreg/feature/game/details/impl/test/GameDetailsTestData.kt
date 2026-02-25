@@ -1,0 +1,150 @@
+package io.github.onreg.feature.game.details.impl.test
+
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
+import io.github.onreg.core.ui.components.chip.ChipUI
+import io.github.onreg.core.ui.components.header.AppHeaderMenu
+import io.github.onreg.core.ui.components.header.AppHeaderUi
+import io.github.onreg.feature.game.details.impl.model.DescriptionToggleUi
+import io.github.onreg.feature.game.details.impl.model.GameCompanyUi
+import io.github.onreg.feature.game.details.impl.model.GameDescriptionUi
+import io.github.onreg.feature.game.details.impl.model.GameDetailsState
+import io.github.onreg.feature.game.details.impl.model.GameDetailsUi
+import io.github.onreg.feature.game.details.impl.model.MovieUI
+import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
+import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
+import io.github.onreg.ui.platform.model.PlatformUI
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import io.github.onreg.core.ui.R as CoreUiR
+
+internal object GameDetailsTestData {
+    val readyState: GameDetailsState.Ready = GameDetailsState.Ready(
+        details = GameDetailsUi(
+            image = "example",
+            rating = ChipUI(text = "4.8", isSelected = true),
+            releaseDate = "Feb 25, 2022",
+            platforms = setOf(
+                PlatformUI(
+                    name = "PC",
+                    iconRes = CoreUiR.drawable.ic_controller_24,
+                ),
+                PlatformUI(
+                    name = "PlayStation",
+                    iconRes = CoreUiR.drawable.ic_controller_24,
+                ),
+            ),
+            website = "https://example.com/game",
+            gameDescriptionUi = GameDescriptionUi(
+                description = "An expansive open-world action RPG with rich storytelling.",
+                isExpanded = false,
+                descriptionToggleUi = DescriptionToggleUi(
+                    text = "Read more",
+                    isVisible = true,
+                ),
+            ),
+            companies = listOf(
+                GameCompanyUi(
+                    name = "FromSoftware",
+                    logoUrl = "example",
+                    role = "Developer",
+                ),
+                GameCompanyUi(
+                    name = "Bandai Namco",
+                    logoUrl = "example",
+                    role = "Publisher",
+                ),
+            ),
+            isBookmarked = true,
+        ),
+        headerUi = AppHeaderUi(
+            title = "Elden Ring",
+            navigationItem = AppHeaderMenu(
+                iconResId = CoreUiR.drawable.ic_back_24,
+                contentDescriptionResId = CoreUiR.string.back,
+            ),
+        ),
+    )
+
+    val screenshots: Flow<PagingData<ScreenshotUI>> = flowOf(
+        PagingData.from(
+            listOf(
+                ScreenshotUI(imageUrl = "example"),
+                ScreenshotUI(imageUrl = "example"),
+                ScreenshotUI(imageUrl = "example"),
+            ),
+        ),
+    )
+
+    val movies: Flow<PagingData<MovieUI>> = flowOf(
+        PagingData.from(
+            listOf(
+                MovieUI(
+                    videoUrl = "https://example.com/video-1.mp4",
+                    previewUrl = "example",
+                    name = "Launch Trailer",
+                ),
+                MovieUI(
+                    videoUrl = "https://example.com/video-2.mp4",
+                    previewUrl = "example",
+                    name = "Gameplay Overview",
+                ),
+                MovieUI(
+                    videoUrl = "https://example.com/video-3.mp4",
+                    previewUrl = "example",
+                    name = "Story Trailer",
+                ),
+            ),
+        ),
+    )
+
+    val seriesState: Flow<PagingData<GameCardUI>> = flowOf(
+        PagingData.from(
+            listOf(
+                GameCardUI(
+                    id = 2,
+                    title = "Dark Souls III",
+                    imageUrl = "example",
+                    releaseDate = "Mar 24, 2016",
+                    platforms = setOf(
+                        PlatformUI(
+                            name = "PC",
+                            iconRes = CoreUiR.drawable.ic_controller_24,
+                        ),
+                    ),
+                    rating = ChipUI(text = "4.6", isSelected = true),
+                    isBookmarked = false,
+                ),
+                GameCardUI(
+                    id = 3,
+                    title = "Sekiro: Shadows Die Twice",
+                    imageUrl = "example",
+                    releaseDate = "Mar 22, 2019",
+                    platforms = setOf(
+                        PlatformUI(
+                            name = "PC",
+                            iconRes = CoreUiR.drawable.ic_controller_24,
+                        ),
+                    ),
+                    rating = ChipUI(text = "4.5", isSelected = true),
+                    isBookmarked = false,
+                ),
+                GameCardUI(
+                    id = 4,
+                    title = "Bloodborne",
+                    imageUrl = "example",
+                    releaseDate = "Mar 24, 2015",
+                    platforms = setOf(
+                        PlatformUI(
+                            name = "PlayStation",
+                            iconRes = CoreUiR.drawable.ic_controller_24,
+                        ),
+                    ),
+                    rating = ChipUI(text = "4.7", isSelected = true),
+                    isBookmarked = false,
+                ),
+            ),
+        ),
+    )
+}

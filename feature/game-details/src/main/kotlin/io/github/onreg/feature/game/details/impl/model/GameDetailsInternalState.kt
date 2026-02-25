@@ -3,6 +3,8 @@ package io.github.onreg.feature.game.details.impl.model
 internal data class GameDetailsInternalState(
     val isBookmarked: Boolean,
     val contentState: ContentState,
+    val isDescriptionExpanded: Boolean,
+    val isReadMoreVisible: Boolean,
 )
 
 internal sealed interface ContentState {

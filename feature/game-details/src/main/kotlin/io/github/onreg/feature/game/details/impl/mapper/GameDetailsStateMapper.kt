@@ -1,33 +1,55 @@
 package io.github.onreg.feature.game.details.impl.mapper
 
+import io.github.onreg.core.ui.R
+import io.github.onreg.core.ui.components.header.AppHeaderMenu
+import io.github.onreg.core.ui.components.header.AppHeaderUi
+import io.github.onreg.data.details.api.model.GameDetails
 import io.github.onreg.feature.game.details.impl.model.ContentState
 import io.github.onreg.feature.game.details.impl.model.GameDetailsInternalState
 import io.github.onreg.feature.game.details.impl.model.GameDetailsState
-import io.github.onreg.feature.game.details.impl.model.GameDetailsUi
 import javax.inject.Inject
 
 internal interface GameDetailsStateMapper {
     fun map(
+        gameDetails: GameDetails?,
         localState: GameDetailsInternalState,
-        details: GameDetailsUi?,
     ): GameDetailsState
 }
 
+private val defaultHeaderUi = AppHeaderUi(
+    navigationItem = AppHeaderMenu(
+        iconResId = R.drawable.ic_back_24,
+        contentDescriptionResId = R.string.back,
+    ),
+)
+
 internal class GameDetailsStateMapperImpl
     @Inject
-    constructor() : GameDetailsStateMapper {
+    constructor(
+        private val gameDetailsUiMapper: GameDetailsUiMapper,
+    ) : GameDetailsStateMapper {
         override fun map(
+            gameDetails: GameDetails?,
             localState: GameDetailsInternalState,
-            details: GameDetailsUi?,
         ): GameDetailsState = when {
-            details != null -> GameDetailsState.Ready(
-                details = details.copy(isBookmarked = localState.isBookmarked),
+            gameDetails != null -> GameDetailsState.Ready(
+                details = gameDetailsUiMapper.map(
+                    model = gameDetails,
+                    localState = localState,
+                ),
+                headerUi = defaultHeaderUi.copy(
+                    title = gameDetails.title,
+                ),
             )
 
-            localState.contentState is ContentState.Loading -> GameDetailsState.Loading
+            localState.contentState is ContentState.Loading -> GameDetailsState.Loading(
+                headerUi = defaultHeaderUi,
+            )
 
-            localState.contentState is ContentState.Error -> GameDetailsState.Error
+            localState.contentState is ContentState.Error -> GameDetailsState.Error(
+                headerUi = defaultHeaderUi,
+            )
 
-            else -> error("Unsupported state combination: $localState, $details")
+            else -> error("Unsupported state combination: $gameDetails, $localState")
         }
     }
