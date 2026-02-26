@@ -2,7 +2,6 @@ package io.github.onreg.ui.game.list.presentation.components.list
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.paging.LoadState
-import io.github.onreg.ui.game.list.presentation.components.card.model.GameErrorType
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestData
 import org.junit.Rule
 import org.junit.Test
@@ -54,7 +53,7 @@ internal class GameListTest {
 
         driver.assertListIsNotDisplayed()
         driver.assertFullScreenLoadingIsNotDisplayed()
-        driver.assertErrorCallbackTriggered(GameErrorType.OTHER)
+        driver.assertErrorCallbackTriggered(ErrorType.OTHER)
         driver.assertEmptyCallbackNotTriggered()
     }
 
@@ -69,7 +68,7 @@ internal class GameListTest {
 
         driver.assertListIsNotDisplayed()
         driver.assertFullScreenLoadingIsNotDisplayed()
-        driver.assertErrorCallbackTriggered(GameErrorType.NETWORK)
+        driver.assertErrorCallbackTriggered(ErrorType.NETWORK)
         driver.assertEmptyCallbackNotTriggered()
     }
 
@@ -85,7 +84,7 @@ internal class GameListTest {
 
         driver.assertListIsNotDisplayed()
         driver.assertFullScreenLoadingIsNotDisplayed()
-        driver.assertErrorCallbackTriggered(GameErrorType.NETWORK)
+        driver.assertErrorCallbackTriggered(ErrorType.NETWORK)
         driver.assertEmptyCallbackNotTriggered()
     }
 

@@ -19,13 +19,12 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
-import io.github.onreg.ui.game.list.presentation.components.card.model.GameErrorType
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import io.github.onreg.ui.game.list.presentation.R as GamePresentationR
 import io.github.onreg.core.ui.R as CoreUiR
+import io.github.onreg.ui.game.list.presentation.R as GamePresentationR
 
 internal class GameListTestDriver private constructor(
     private val composeRule: ComposeContentTestRule,
@@ -74,7 +73,7 @@ internal class GameListTestDriver private constructor(
     private var pageRetryCount: Int = 0
     private var errorContentCount: Int = 0
     private var emptyContentCount: Int = 0
-    private var lastErrorType: GameErrorType? = null
+    private var lastErrorType: ErrorType? = null
     private var lastBookmarkedId: Int? = null
     private var lastCardClickedId: Int? = null
 
@@ -183,7 +182,7 @@ internal class GameListTestDriver private constructor(
         pullToRefreshIndicatorNode.assertIsDisplayed()
     }
 
-    fun assertErrorCallbackTriggered(type: GameErrorType?) {
+    fun assertErrorCallbackTriggered(type: ErrorType?) {
         composeRule.runOnIdle {
             assertEquals(1, errorContentCount)
             assertEquals(type, lastErrorType)

@@ -10,22 +10,22 @@ import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.ui.game.list.presentation.R
-import io.github.onreg.ui.game.list.presentation.components.card.model.GameErrorType
+import io.github.onreg.ui.game.list.presentation.components.list.ErrorType
 import io.github.onreg.core.ui.R as CoreUiR
 
 @Composable
 public fun GameCardError(
     modifier: Modifier = Modifier,
-    errorType: GameErrorType,
+    errorType: ErrorType,
     onRetry: () -> Unit = {},
 ) {
     val (iconResId, descriptionResId) = when (errorType) {
-        GameErrorType.NETWORK -> {
+        ErrorType.NETWORK -> {
             CoreUiR.drawable.ic_wifi_off_24 to
                 CoreUiR.string.error_network_message
         }
 
-        GameErrorType.OTHER -> {
+        ErrorType.OTHER -> {
             CoreUiR.drawable.ic_controller_off_24 to
                 CoreUiR.string.error_message
         }
@@ -52,7 +52,7 @@ public fun GameCardError(
 private fun GameCardNetworkErrorPreview() {
     NextPlayTheme {
         Surface {
-            GameCardError(errorType = GameErrorType.NETWORK)
+            GameCardError(errorType = ErrorType.NETWORK)
         }
     }
 }
@@ -62,7 +62,7 @@ private fun GameCardNetworkErrorPreview() {
 private fun GameCardErrorPreview() {
     NextPlayTheme {
         Surface {
-            GameCardError(errorType = GameErrorType.OTHER)
+            GameCardError(errorType = ErrorType.OTHER)
         }
     }
 }

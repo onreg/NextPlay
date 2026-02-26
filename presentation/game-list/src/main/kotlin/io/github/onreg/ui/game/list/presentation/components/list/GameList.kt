@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -30,11 +29,9 @@ import io.github.onreg.ui.game.list.presentation.components.card.GameCard
 import io.github.onreg.ui.game.list.presentation.components.card.GameCardError
 import io.github.onreg.ui.game.list.presentation.components.card.GameCardLoading
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
-import io.github.onreg.ui.game.list.presentation.components.card.model.GameErrorType
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestData
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.Flow
-import java.io.IOException
 
 private const val LOADING_ITEMS_COUNT = 20
 
@@ -47,44 +44,29 @@ public fun GameList(
     onRetry: () -> Unit = {},
     onBookmarkClicked: (Int) -> Unit = {},
     onCardClicked: (Int) -> Unit = {},
-    onError: @Composable (error: GameErrorType) -> Unit = {},
+    onError: @Composable (error: ErrorType) -> Unit = {},
     onEmpty: @Composable () -> Unit = {},
 ) {
-    val hasData = lazyPagingItems.itemCount > 0
-
-    val srcRefresh = lazyPagingItems.loadState.source.refresh
-    val medRefresh = lazyPagingItems.loadState.mediator?.refresh
-
-    val isLoading = srcRefresh is LoadState.Loading || medRefresh is LoadState.Loading
-    val refreshErrorState = (medRefresh as? LoadState.Error) ?: (srcRefresh as? LoadState.Error)
-    val refreshError = refreshErrorState?.toGameListErrorType()
-
-    val endReached = lazyPagingItems.loadState.append.endOfPaginationReached
-
-    val showFullScreenError = !hasData && !isLoading && refreshError != null
-    val showEmptyState = !hasData && !isLoading && endReached
-    val showFullScreenLoading = !hasData && !showFullScreenError && !showEmptyState
-
-    when {
-        showFullScreenLoading -> {
+    when (val pagingState = lazyPagingItems.resolveState()) {
+        PagedListState.Loading -> {
             LoadingGrid(
                 modifier = modifier.testTag(GameListTestTags.GAME_LIST_FULL_SCREEN_LOADING),
                 columns = columns,
             )
         }
 
-        showFullScreenError -> {
-            onError(refreshError)
+        is PagedListState.Error -> {
+            onError(pagingState.type)
         }
 
-        showEmptyState -> {
+        PagedListState.Empty -> {
             onEmpty()
         }
 
-        else -> {
+        is PagedListState.Loaded -> {
             GamesGrid(
                 modifier = modifier.testTag(GameListTestTags.GAME_LIST),
-                lazyPagingItems = lazyPagingItems,
+                pagingState = pagingState,
                 columns = columns,
                 onRefresh = onRefresh,
                 onRetry = onRetry,
@@ -98,36 +80,30 @@ public fun GameList(
 @Composable
 private fun GamesGrid(
     modifier: Modifier,
-    lazyPagingItems: LazyPagingItems<GameCardUI>,
+    pagingState: PagedListState.Loaded,
     columns: Int = 1,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
     onBookmarkClicked: (Int) -> Unit,
     onCardClicked: (Int) -> Unit,
 ) {
-    val nextPageError = (lazyPagingItems.loadState.append as? LoadState.Error)
-        ?.toGameListErrorType()
-    val isNextPageLoading = lazyPagingItems.loadState.append is LoadState.Loading
-    val isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading
-
     val pullToRefreshState = rememberPullToRefreshState()
     PullToRefreshBox(
         modifier = modifier,
         state = pullToRefreshState,
-        isRefreshing = isRefreshing,
+        isRefreshing = pagingState.isRefreshing,
         onRefresh = onRefresh,
         indicator = {
             GameListPullToRefreshIndicator(
-                isRefreshing = isRefreshing,
+                isRefreshing = pagingState.isRefreshing,
                 state = pullToRefreshState,
             )
         },
     ) {
         GamesGridContent(
-            lazyPagingItems = lazyPagingItems,
+            lazyPagingItems = pagingState.items,
             columns = columns,
-            isNextPageLoading = isNextPageLoading,
-            nextPageError = nextPageError,
+            appendState = pagingState.appendState,
             onRetry = onRetry,
             onBookmarkClicked = onBookmarkClicked,
             onCardClicked = onCardClicked,
@@ -153,8 +129,7 @@ private fun BoxScope.GameListPullToRefreshIndicator(
 private fun GamesGridContent(
     lazyPagingItems: LazyPagingItems<GameCardUI>,
     columns: Int,
-    isNextPageLoading: Boolean,
-    nextPageError: GameErrorType?,
+    appendState: AppendState,
     onRetry: () -> Unit,
     onBookmarkClicked: (Int) -> Unit,
     onCardClicked: (Int) -> Unit,
@@ -182,18 +157,18 @@ private fun GamesGridContent(
                 )
             }
         }
-        if (isNextPageLoading) {
+        if (appendState is AppendState.Loading) {
             items(LOADING_ITEMS_COUNT) {
                 GameCardLoading(
                     modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_LOADING),
                 )
             }
         }
-        if (nextPageError != null) {
+        if (appendState is AppendState.Error) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 GameCardError(
                     modifier = Modifier.testTag(GameListTestTags.GAME_LIST_APPEND_ERROR),
-                    errorType = nextPageError,
+                    errorType = appendState.type,
                     onRetry = onRetry,
                 )
             }
@@ -218,9 +193,6 @@ private fun LoadingGrid(
         }
     }
 }
-
-private fun LoadState.Error.toGameListErrorType(): GameErrorType =
-    if (error is IOException) GameErrorType.NETWORK else GameErrorType.OTHER
 
 @Composable
 @ThemePreview
