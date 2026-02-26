@@ -25,6 +25,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "NextPlay"
 include(":app")
 include(":core:ui")
+include(":core:ui-runtime")
 include(":core:network")
 include(":core:db")
 include(":core:util-android")

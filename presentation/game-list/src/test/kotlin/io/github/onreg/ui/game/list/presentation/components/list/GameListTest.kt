@@ -2,6 +2,7 @@ package io.github.onreg.ui.game.list.presentation.components.list
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.paging.LoadState
+import io.github.onreg.core.ui.runtime.paging.ErrorType
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestData
 import org.junit.Rule
 import org.junit.Test

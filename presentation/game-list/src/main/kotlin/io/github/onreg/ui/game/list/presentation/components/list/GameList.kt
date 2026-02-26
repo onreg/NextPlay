@@ -23,6 +23,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
+import io.github.onreg.core.ui.runtime.paging.AppendState
+import io.github.onreg.core.ui.runtime.paging.ErrorType
+import io.github.onreg.core.ui.runtime.paging.PagedListState
+import io.github.onreg.core.ui.runtime.paging.resolveState
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.ui.game.list.presentation.components.card.GameCard
@@ -80,7 +84,7 @@ public fun GameList(
 @Composable
 private fun GamesGrid(
     modifier: Modifier,
-    pagingState: PagedListState.Loaded,
+    pagingState: PagedListState.Loaded<GameCardUI>,
     columns: Int = 1,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,

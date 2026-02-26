@@ -8,9 +8,9 @@ import androidx.compose.ui.Modifier
 import io.github.onreg.core.ui.components.content.error.ContentError
 import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.preview.ThemePreview
+import io.github.onreg.core.ui.runtime.paging.ErrorType
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.ui.game.list.presentation.R
-import io.github.onreg.ui.game.list.presentation.components.list.ErrorType
 import io.github.onreg.core.ui.R as CoreUiR
 
 @Composable

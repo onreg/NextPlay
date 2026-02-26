@@ -18,6 +18,7 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.core.app.ApplicationProvider
+import io.github.onreg.core.ui.runtime.paging.ErrorType
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.MutableStateFlow
