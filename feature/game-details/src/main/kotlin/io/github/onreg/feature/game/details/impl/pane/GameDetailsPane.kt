@@ -19,14 +19,18 @@ import androidx.compose.ui.platform.testTag
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.onreg.core.ui.components.content.error.ContentError
 import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.components.header.AppHeader
+import io.github.onreg.core.ui.components.header.AppHeaderUi
 import io.github.onreg.core.ui.preview.ThemePreview
-import io.github.onreg.core.ui.runtime.collectWithLifecycle
+import io.github.onreg.core.ui.runtime.flow.collectWithLifecycle
+import io.github.onreg.core.ui.runtime.paging.PagedListState
+import io.github.onreg.core.ui.runtime.paging.resolveState
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.GameDetailsViewModel
@@ -40,16 +44,20 @@ import io.github.onreg.feature.game.details.impl.pane.component.CompanyComponent
 import io.github.onreg.feature.game.details.impl.pane.component.DescriptionComponent
 import io.github.onreg.feature.game.details.impl.pane.component.DetailsComponent
 import io.github.onreg.feature.game.details.impl.pane.component.LoadingComponent
+import io.github.onreg.feature.game.details.impl.pane.component.MoviesComponent
 import io.github.onreg.feature.game.details.impl.pane.component.ScreenshotsComponent
+import io.github.onreg.feature.game.details.impl.pane.component.SeriesComponent
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import io.github.onreg.core.ui.R as CoreUiR
 
 @Composable
 public fun GameDetailsPane(
     modifier: Modifier = Modifier,
+    isLargeScreen: Boolean = false,
     gameId: Int,
     goBack: () -> Unit,
     openGameDetails: (Int) -> Unit,
@@ -61,8 +69,9 @@ public fun GameDetailsPane(
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    GameDetailsScreen(
+    GameDetailsPaneScreen(
         modifier = modifier.fillMaxSize(),
+        isLargeScreen = isLargeScreen,
         gameDetailsState = state,
         onBackClicked = viewModel::onBackClicked,
         screenshots = viewModel.screenshots,
@@ -87,8 +96,10 @@ public fun GameDetailsPane(
 }
 
 @Composable
-private fun GameDetailsScreen(
-    modifier: Modifier,
+@Suppress("LongMethod")
+internal fun GameDetailsPaneScreen(
+    modifier: Modifier = Modifier,
+    isLargeScreen: Boolean = false,
     gameDetailsState: GameDetailsState,
     screenshots: Flow<PagingData<ScreenshotUI>>,
     movies: Flow<PagingData<MovieUI>>,
@@ -138,19 +149,27 @@ private fun GameDetailsScreen(
                 }
 
                 is GameDetailsState.Ready -> {
-                    val movies = movies.collectAsLazyPagingItems()
-                    val screenshots = screenshots.collectAsLazyPagingItems()
-                    val series = series.collectAsLazyPagingItems()
+                    val moviesItems = movies.collectAsLazyPagingItems()
+                    val screenshotsItems = screenshots.collectAsLazyPagingItems()
+                    val seriesItems = series.collectAsLazyPagingItems()
+
+                    val screenshotsState = screenshotsItems.resolveState()
+                    val moviesState = moviesItems.resolveState()
+                    val seriesState = seriesItems.resolveState()
 
                     GameDetailsContent(
                         modifier = modifier
                             .fillMaxSize()
                             .padding(bottom = Spacing.lg)
                             .testTag(GameDetailsTestTags.CONTENT),
+                        isLargeScreen = isLargeScreen,
                         details = gameDetailsState.details,
-                        screenshots = screenshots,
-                        movies = movies,
-                        series = series,
+                        screenshots = screenshotsItems,
+                        screenshotsState = screenshotsState,
+                        movies = moviesItems,
+                        moviesState = moviesState,
+                        series = seriesItems,
+                        seriesState = seriesState,
                         onWebsiteClicked = onWebsiteClicked,
                         onBookmarkClicked = onBookmarkClicked,
                         onDescriptionOverflowChanged = onDescriptionOverflowChanged,
@@ -187,12 +206,17 @@ internal fun ErrorContent(
 }
 
 @Composable
+@Suppress("LongMethod")
 private fun GameDetailsContent(
     modifier: Modifier = Modifier,
+    isLargeScreen: Boolean,
     details: GameDetailsUi,
     screenshots: LazyPagingItems<ScreenshotUI>,
+    screenshotsState: PagedListState<ScreenshotUI>,
     movies: LazyPagingItems<MovieUI>,
+    moviesState: PagedListState<MovieUI>,
     series: LazyPagingItems<GameCardUI>,
+    seriesState: PagedListState<GameCardUI>,
     onWebsiteClicked: () -> Unit,
     onBookmarkClicked: () -> Unit,
     onDescriptionOverflowChanged: (Boolean) -> Unit,
@@ -221,8 +245,7 @@ private fun GameDetailsContent(
         HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainerHigh)
 
         DescriptionComponent(
-            modifier = Modifier
-                .padding(top = Spacing.lg),
+            modifier = Modifier.padding(top = Spacing.lg),
             descriptionUi = details.gameDescriptionUi,
             onTextOverflow = onDescriptionOverflowChanged,
             onToggleClicked = onDescriptionToggleClicked,
@@ -237,39 +260,79 @@ private fun GameDetailsContent(
             )
         }
 
-        if (screenshots.itemCount > 0 || screenshots.loadState.refresh is LoadState.Loading) {
+        if (
+            screenshotsState is PagedListState.Loading ||
+            screenshotsState is PagedListState.Loaded
+        ) {
             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainerHigh)
-
             ScreenshotsComponent(
                 modifier = Modifier
+                    .padding(vertical = Spacing.lg)
                     .fillMaxWidth()
-                    .padding(top = Spacing.lg),
-                screenshots = screenshots,
+                    .testTag(GameDetailsTestTags.SCREENSHOTS_SECTION),
+                pagingState = screenshotsState,
                 onScreenshotClicked = onScreenshotClicked,
             )
         }
-        if (movies.itemCount > 0 || movies.loadState.refresh is LoadState.Loading) {
-            MoviesSection(
-                movies = movies,
-                isLoading = movies.loadState.refresh is LoadState.Loading,
+
+        if (
+            moviesState is PagedListState.Loading ||
+            moviesState is PagedListState.Loaded
+        ) {
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainerHigh)
+            MoviesComponent(
+                modifier = Modifier
+                    .padding(vertical = Spacing.lg)
+                    .fillMaxWidth()
+                    .testTag(GameDetailsTestTags.MOVIES_SECTION),
+                pagingState = moviesState,
                 onMovieClicked = onMovieClicked,
             )
         }
-        if (series.itemCount > 0 || series.loadState.refresh is LoadState.Loading) {
-            SeriesSection(
-                series = series,
-                isLoading = series.loadState.refresh is LoadState.Loading,
+
+        if (
+            seriesState is PagedListState.Loading ||
+            seriesState is PagedListState.Loaded
+        ) {
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainerHigh)
+            SeriesComponent(
+                modifier = Modifier
+                    .padding(vertical = Spacing.lg)
+                    .fillMaxWidth()
+                    .testTag(GameDetailsTestTags.SERIES_SECTION),
+                pagingState = seriesState,
                 onSeriesClicked = onSeriesClicked,
             )
         }
     }
 }
 
+@Composable
+@ThemePreview
+private fun LoadingPreview() {
+    GameDetailsPanePreview(
+        state = GameDetailsState.Loading(headerUi = AppHeaderUi()),
+        screenshots = emptyPagingFlow(),
+        movies = emptyPagingFlow(),
+        series = emptyPagingFlow(),
+    )
+}
+
+@Composable
+@ThemePreview
+private fun FilledDetailsWithLoadingMediaPreview() {
+    GameDetailsPanePreview(
+        state = GameDetailsTestData.readyState,
+        screenshots = loadingPagingFlow(),
+        movies = loadingPagingFlow(),
+        series = loadingPagingFlow(),
+    )
+}
 
 @Composable
 @ThemePreview
 private fun FilledPreview() {
-    GameDetailsContentPreview(
+    GameDetailsPanePreview(
         state = GameDetailsTestData.readyState,
         screenshots = GameDetailsTestData.screenshots,
         movies = GameDetailsTestData.movies,
@@ -278,40 +341,33 @@ private fun FilledPreview() {
 }
 
 @Composable
-private fun GameDetailsContentPreview(
-    state: GameDetailsState.Ready,
+private fun GameDetailsPanePreview(
+    state: GameDetailsState,
     screenshots: Flow<PagingData<ScreenshotUI>>,
     movies: Flow<PagingData<MovieUI>>,
     series: Flow<PagingData<GameCardUI>>,
 ) {
     NextPlayTheme {
-        val screenshotsItems = screenshots.collectAsLazyPagingItems()
-        val moviesItems = movies.collectAsLazyPagingItems()
-        val seriesItems = series.collectAsLazyPagingItems()
-
         Surface {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-            ) {
-                GameDetailsContent(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = Spacing.lg),
-                    details = state.details,
-                    screenshots = screenshotsItems,
-                    movies = moviesItems,
-                    series = seriesItems,
-                    onWebsiteClicked = {},
-                    onBookmarkClicked = {},
-                    onDescriptionOverflowChanged = {},
-                    onDescriptionToggleClicked = {},
-                    onScreenshotClicked = {},
-                    onMovieClicked = {},
-                    onSeriesClicked = {},
-                )
-            }
+            GameDetailsPaneScreen(
+                modifier = Modifier.fillMaxSize(),
+                gameDetailsState = state,
+                screenshots = screenshots,
+                movies = movies,
+                series = series,
+            )
         }
     }
 }
+
+private fun <T : Any> emptyPagingFlow(): Flow<PagingData<T>> = flowOf(PagingData.empty())
+
+private fun <T : Any> loadingPagingFlow(): Flow<PagingData<T>> = flowOf(
+    PagingData.empty(
+        sourceLoadStates = LoadStates(
+            refresh = LoadState.Loading,
+            prepend = LoadState.NotLoading(false),
+            append = LoadState.NotLoading(false),
+        ),
+    ),
+)

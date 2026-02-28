@@ -77,7 +77,7 @@ internal fun LoadingMediaSection(modifier: Modifier = Modifier) {
                     Box(
                         modifier = Modifier
                             .width(MediaSectionTokens.itemWidthPhone)
-                            .aspectRatio(MediaSectionTokens.aspectRatio16x9)
+                            .height(MediaSectionTokens.itemWidthPhone / MediaSectionTokens.aspectRatio16x9)
                             .shimmer(),
                     )
                 }
