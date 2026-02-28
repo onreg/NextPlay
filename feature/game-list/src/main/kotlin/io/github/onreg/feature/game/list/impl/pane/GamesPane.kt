@@ -16,7 +16,8 @@ import io.github.onreg.core.ui.components.content.info.ContentInfo
 import io.github.onreg.core.ui.components.content.info.ContentInfoUI
 import io.github.onreg.core.ui.preview.TabletThemePreview
 import io.github.onreg.core.ui.preview.ThemePreview
-import io.github.onreg.core.ui.runtime.collectWithLifecycle
+import io.github.onreg.core.ui.runtime.flow.collectWithLifecycle
+import io.github.onreg.core.ui.runtime.paging.ErrorType
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.feature.game.list.impl.GamesPaneViewModel
 import io.github.onreg.feature.game.list.impl.R
@@ -25,7 +26,6 @@ import io.github.onreg.feature.game.list.impl.model.GamesPaneListEvent
 import io.github.onreg.feature.game.list.impl.test.GamesPaneTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.GameCardError
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
-import io.github.onreg.ui.game.list.presentation.components.card.model.GameErrorType
 import io.github.onreg.ui.game.list.presentation.components.list.GameList
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestData
 import kotlinx.coroutines.flow.Flow
@@ -119,7 +119,7 @@ private fun ContentComponent(
 @Composable
 private fun ErrorComponent(
     modifier: Modifier = Modifier,
-    errorType: GameErrorType,
+    errorType: ErrorType,
     onRetry: () -> Unit,
 ) {
     Box(
