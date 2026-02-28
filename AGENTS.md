@@ -43,8 +43,6 @@
   guidance; do not rely on ad-hoc internet searches for that information.
 - Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and
   measurements rather than guessing UI details.
-- Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and measurements
-  rather than guessing UI details.
 
 ## Build, Test, and Development Commands
 
