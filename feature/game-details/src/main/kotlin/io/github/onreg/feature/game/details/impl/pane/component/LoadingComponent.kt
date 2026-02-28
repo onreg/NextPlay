@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -22,11 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.dp
 import io.github.onreg.core.ui.animation.shimmer
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.theme.ControlsSize
 import io.github.onreg.core.ui.theme.IconsSize
+import io.github.onreg.core.ui.theme.MediaSectionTokens
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 
@@ -68,14 +69,15 @@ internal fun LoadingMediaSection(modifier: Modifier = Modifier) {
     ) {
         SectionTitlePlaceholder(modifier = Modifier.padding(horizontal = Spacing.lg))
         LazyRow(
-            contentPadding = PaddingValues(horizontal = Spacing.lg),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+            contentPadding = PaddingValues(Spacing.lg),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
             items(MEDIA_SECTION_ITEMS_COUNT) {
                 Card(shape = MaterialTheme.shapes.medium) {
                     Box(
                         modifier = Modifier
-                            .size(width = 288.dp, height = 162.dp)
+                            .width(MediaSectionTokens.itemWidthPhone)
+                            .aspectRatio(MediaSectionTokens.aspectRatio16x9)
                             .shimmer(),
                     )
                 }
