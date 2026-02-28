@@ -42,18 +42,17 @@ internal class MainActivity : ComponentActivity() {
                         composable(
                             route = AppRoutes.GAME_DETAILS,
                             arguments = listOf(
-                                navArgument(AppRoutes.ARG_GAME_ID) { type = NavType.StringType },
+                                navArgument(AppRoutes.ARG_GAME_ID) { type = NavType.IntType },
                             ),
                         ) { backStackEntry ->
                             val gameId = backStackEntry.arguments
-                                ?.getString(AppRoutes.ARG_GAME_ID)
-                                ?.toIntOrNull()
+                                ?.getInt(AppRoutes.ARG_GAME_ID)
                                 ?: return@composable
                             GameDetailsPane(
                                 gameId = gameId,
                                 goBack = { nav.popBackStack() },
                                 openGameDetails = { nextGameId ->
-                                    nav.navigate(AppRoutes.gameDetailsRoute(nextGameId.toString()))
+                                    nav.navigate(AppRoutes.gameDetailsRoute(nextGameId))
                                 },
                             )
                         }
@@ -70,5 +69,5 @@ private object AppRoutes {
 
     const val GAME_DETAILS: String = "GameDetails/{$ARG_GAME_ID}"
 
-    fun gameDetailsRoute(gameId: String): String = "GameDetails/$gameId"
+    fun gameDetailsRoute(gameId: Int): String = "GameDetails/$gameId"
 }
