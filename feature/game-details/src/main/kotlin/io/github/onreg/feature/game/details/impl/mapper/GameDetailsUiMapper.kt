@@ -36,7 +36,9 @@ constructor(
         localState: GameDetailsInternalState,
     ): GameDetailsUi = GameDetailsUi(
         image = model.imageUrl,
-        releaseDate = instantTextFormatter.format(instant = model.releaseDate),
+        releaseDate = model.releaseDate
+            ?.let { instantTextFormatter.format(instant = it) }
+            .orEmpty(),
         rating = ChipUI(
             text = numberTextFormatter.format(value = model.rating),
             isSelected = true,

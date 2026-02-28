@@ -42,14 +42,12 @@ internal class GameDetailsStateMapperImpl
                 ),
             )
 
-            localState.contentState is ContentState.Loading -> GameDetailsState.Loading(
-                headerUi = defaultHeaderUi,
-            )
-
             localState.contentState is ContentState.Error -> GameDetailsState.Error(
                 headerUi = defaultHeaderUi,
             )
 
-            else -> error("Unsupported state combination: $gameDetails, $localState")
+            else -> GameDetailsState.Loading(
+                headerUi = defaultHeaderUi,
+            )
         }
     }

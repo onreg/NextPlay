@@ -8,6 +8,7 @@ android {
 
 dependencies {
     implementation(projects.core.ui)
+    implementation(projects.core.uiRuntime)
     implementation(projects.core.utilAndroid)
 
     implementation(projects.presentation.gameList)
