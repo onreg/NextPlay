@@ -4,9 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -14,80 +17,113 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.onreg.core.ui.components.image.DynamicAsyncImage
 import io.github.onreg.core.ui.preview.ThemePreview
+import io.github.onreg.core.ui.runtime.paging.PagedListState
+import io.github.onreg.core.ui.runtime.paging.resolveState
+import io.github.onreg.core.ui.theme.MediaSectionTokens
 import io.github.onreg.core.ui.theme.NextPlayTheme
+import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 internal fun ScreenshotsComponent(
     modifier: Modifier = Modifier,
-    screenshots: LazyPagingItems<ScreenshotUI>,
+    pagingState: PagedListState<ScreenshotUI>,
     onScreenshotClicked: (String) -> Unit,
 ) {
-    val isLoading = screenshots.loadState.refresh is LoadState.Loading
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.screenshots_section_title),
-            modifier = Modifier.padding(horizontal = 16.dp),
-            style = MaterialTheme.typography.titleMedium,
-        )
-        if (isLoading) {
-            LoadingMediaSection()
-        } else {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+
+    when (pagingState) {
+        PagedListState.Loading -> {
+            LoadingMediaSection(modifier = modifier)
+        }
+
+        is PagedListState.Loaded -> {
+            Column(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(Spacing.lg),
             ) {
-                items(screenshots) { screenshot ->
-                    Card(
-                        modifier = Modifier.clickable { onScreenshotClicked(screenshot.imageUrl) },
-                        shape = MaterialTheme.shapes.medium,
-                    ) {
-                        DynamicAsyncImage(
-                            modifier = Modifier.size(288.dp, 162.dp),
-                            imageUrl = screenshot.imageUrl,
-                        )
+                Text(
+                    text = stringResource(R.string.screenshots_section_title),
+                    modifier = Modifier.padding(horizontal = Spacing.lg),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                LazyHorizontalGrid(
+                    rows = GridCells.Fixed(1),
+                    contentPadding = PaddingValues(Spacing.lg),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                ) {
+                    val items = pagingState.items
+                    items(items.itemCount) { index ->
+                        val screenshot = items[index] ?: return@items
+                        Card(
+                            modifier = Modifier
+                                .width(MediaSectionTokens.itemWidthPhone)
+                                .aspectRatio(MediaSectionTokens.aspectRatio16x9)
+                                .clickable { onScreenshotClicked(screenshot.imageUrl) },
+                            shape = MaterialTheme.shapes.medium,
+                        ) {
+                            DynamicAsyncImage(
+                                modifier = Modifier.fillMaxSize(),
+                                imageUrl = screenshot.imageUrl,
+                            )
+                        }
                     }
                 }
             }
         }
+
+        PagedListState.Empty -> Unit
+
+        is PagedListState.Error -> Unit
     }
 }
 
-@ThemePreview
 @Composable
-private fun LoadedStatePreview() {
-    val screenshots = GameDetailsTestData.screenshots.collectAsLazyPagingItems()
+@ThemePreview
+private fun LoadedPreview() {
+    ScreenshotsComponentPreview(
+        screenshots = GameDetailsTestData.screenshots,
+    )
+}
+
+@Composable
+@ThemePreview
+private fun LoadingPreview() {
+    ScreenshotsComponentPreview(
+        screenshots = loadingScreenshots(),
+    )
+}
+
+@Composable
+private fun ScreenshotsComponentPreview(
+    screenshots: Flow<PagingData<ScreenshotUI>>,
+) {
     NextPlayTheme {
+        val screenshotsItems = screenshots.collectAsLazyPagingItems()
         Surface {
             ScreenshotsComponent(
-                screenshots = screenshots,
+                pagingState = screenshotsItems.resolveState(),
                 onScreenshotClicked = {},
             )
         }
     }
 }
 
-@ThemePreview
-@Composable
-private fun LoadingStatePreview() {
-    val screenshots = GameDetailsTestData.screenshots.collectAsLazyPagingItems()
-    NextPlayTheme {
-        Surface {
-            ScreenshotsComponent(
-                screenshots = screenshots,
-                onScreenshotClicked = {},
-            )
-        }
-    }
-}
+private fun loadingScreenshots(): Flow<PagingData<ScreenshotUI>> = flowOf(
+    PagingData.empty(
+        sourceLoadStates = LoadStates(
+            refresh = LoadState.Loading,
+            prepend = LoadState.NotLoading(false),
+            append = LoadState.NotLoading(false),
+        ),
+    ),
+)
