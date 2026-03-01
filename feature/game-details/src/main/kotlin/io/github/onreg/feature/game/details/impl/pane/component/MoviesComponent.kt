@@ -1,6 +1,5 @@
 package io.github.onreg.feature.game.details.impl.pane.component
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import io.github.onreg.core.ui.components.image.DynamicAsyncImage
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.paging.PagedListState
@@ -37,6 +38,7 @@ import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.model.MovieUI
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
+import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import io.github.onreg.core.ui.R as CoreUiR
@@ -68,14 +70,20 @@ internal fun MoviesComponent(
                     contentPadding = PaddingValues(Spacing.lg),
                     horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                 ) {
-                    val items = pagingState.items
-                    items(items.itemCount) { index ->
-                        val movie = items[index] ?: return@items
+                    val lazyPagingItems = pagingState.items
+                    items(
+                        count = lazyPagingItems.itemCount,
+                        key = lazyPagingItems.itemKey { movie ->
+                            movie.id
+                        },
+                    ) { index ->
+                        val movie = lazyPagingItems[index] ?: return@items
                         Card(
+                            onClick = { onMovieClicked(movie.videoUrl) },
                             modifier = Modifier
                                 .width(MediaSectionTokens.itemWidthPhone)
                                 .aspectRatio(MediaSectionTokens.aspectRatio16x9)
-                                .clickable { onMovieClicked(movie.videoUrl) },
+                                .testTag(GameDetailsTestTags.movieItemTag(movie.id)),
                             shape = MaterialTheme.shapes.medium,
                         ) {
                             Box(modifier = Modifier.fillMaxSize()) {

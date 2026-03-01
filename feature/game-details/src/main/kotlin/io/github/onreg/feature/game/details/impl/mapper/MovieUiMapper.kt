@@ -12,6 +12,7 @@ internal class MovieUiMapperImpl
     @Inject
     constructor() : MovieUiMapper {
         override fun map(model: Movie): MovieUI = MovieUI(
+            id = model.id,
             videoUrl = model.videoUrl,
             previewUrl = model.previewUrl.orEmpty(),
             name = model.name.orEmpty(),

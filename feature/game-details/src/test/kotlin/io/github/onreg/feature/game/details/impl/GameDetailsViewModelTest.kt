@@ -204,7 +204,15 @@ internal class GameDetailsViewModelTest {
 
         val items = driver.viewModel.screenshots.first().asSnapshot()
 
-        assertEquals(listOf(ScreenshotUI(imageUrl = screenshot.imageUrl)), items)
+        assertEquals(
+            listOf(
+                ScreenshotUI(
+                    id = screenshot.id,
+                    imageUrl = screenshot.imageUrl,
+                ),
+            ),
+            items,
+        )
     }
 
     @Test
@@ -225,6 +233,7 @@ internal class GameDetailsViewModelTest {
         assertEquals(
             listOf(
                 MovieUI(
+                    id = movie.id,
                     videoUrl = movie.videoUrl,
                     previewUrl = movie.previewUrl.orEmpty(),
                     name = movie.name.orEmpty(),

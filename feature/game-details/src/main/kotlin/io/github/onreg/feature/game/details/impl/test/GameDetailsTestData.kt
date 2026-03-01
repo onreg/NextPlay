@@ -70,9 +70,9 @@ internal object GameDetailsTestData {
     val screenshots: Flow<PagingData<ScreenshotUI>> = flowOf(
         PagingData.from(
             listOf(
-                ScreenshotUI(imageUrl = "example"),
-                ScreenshotUI(imageUrl = "example"),
-                ScreenshotUI(imageUrl = "example"),
+                ScreenshotUI(id = 1, imageUrl = "example"),
+                ScreenshotUI(id = 2, imageUrl = "example"),
+                ScreenshotUI(id = 3, imageUrl = "example"),
             ),
         ),
     )
@@ -81,16 +81,19 @@ internal object GameDetailsTestData {
         PagingData.from(
             listOf(
                 MovieUI(
+                    id = 1,
                     videoUrl = "https://example.com/video-1.mp4",
                     previewUrl = "example",
                     name = "Launch Trailer",
                 ),
                 MovieUI(
+                    id = 2,
                     videoUrl = "https://example.com/video-2.mp4",
                     previewUrl = "example",
                     name = "Gameplay Overview",
                 ),
                 MovieUI(
+                    id = 3,
                     videoUrl = "https://example.com/video-3.mp4",
                     previewUrl = "example",
                     name = "Story Trailer",

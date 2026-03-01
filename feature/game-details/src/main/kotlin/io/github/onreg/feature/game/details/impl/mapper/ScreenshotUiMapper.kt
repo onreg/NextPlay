@@ -12,6 +12,7 @@ internal class ScreenshotUiMapperImpl
     @Inject
     constructor() : ScreenshotUiMapper {
         override fun map(model: Screenshot): ScreenshotUI = ScreenshotUI(
+            id = model.id,
             imageUrl = model.imageUrl,
         )
     }

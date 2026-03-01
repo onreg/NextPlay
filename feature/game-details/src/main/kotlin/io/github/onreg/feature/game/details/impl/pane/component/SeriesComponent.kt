@@ -1,6 +1,5 @@
 package io.github.onreg.feature.game.details.impl.pane.component
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -28,6 +28,7 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
+import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.GameCard
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
@@ -66,8 +67,9 @@ internal fun SeriesComponent(
                         GameCard(
                             modifier = Modifier
                                 .width(MediaSectionTokens.itemWidthPhone)
-                                .clickable { onSeriesClicked(game.id) },
+                                .testTag(GameDetailsTestTags.seriesItemTag(game.id)),
                             gameData = game,
+                            onCardClicked = { onSeriesClicked(game.id) },
                         )
 
                     }

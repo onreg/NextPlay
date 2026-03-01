@@ -20,7 +20,7 @@ class ScreenshotUiMapperTest {
         val result = mapper.map(model = model)
 
         assertEquals(
-            ScreenshotUI(imageUrl = "img"),
+            ScreenshotUI(id = 1, imageUrl = "img"),
             result,
         )
     }

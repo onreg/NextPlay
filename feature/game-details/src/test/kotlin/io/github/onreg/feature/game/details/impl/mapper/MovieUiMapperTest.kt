@@ -21,6 +21,7 @@ class MovieUiMapperTest {
 
         assertEquals(
             MovieUI(
+                id = 1,
                 videoUrl = "video",
                 previewUrl = "",
                 name = "",
