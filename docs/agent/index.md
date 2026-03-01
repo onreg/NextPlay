@@ -13,5 +13,7 @@ Read only documents whose triggers match your change.
 
 - Editing `app/src/main/java/**/presentation/**/*ViewModel*.kt` or class extends `ViewModel`:
   - Read `viewmodel.md`
-- Beore creating a new Kotlin source file:
+- Editing tests (`**/src/test/**`, `**/*Test.kt`, `**/*TestDriver.kt`):
+  - Read `testing.md`
+- Before creating a new Kotlin source file:
   - Read `code-organization.md`
