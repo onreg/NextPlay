@@ -11,6 +11,7 @@ import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.paging.ErrorType
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.ui.game.list.presentation.R
+import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestData
 import io.github.onreg.core.ui.R as CoreUiR
 
 @Composable
@@ -52,7 +53,7 @@ public fun GameCardError(
 private fun GameCardNetworkErrorPreview() {
     NextPlayTheme {
         Surface {
-            GameCardError(errorType = ErrorType.NETWORK)
+            GameCardError(errorType = GameListTestData.networkErrorType)
         }
     }
 }
@@ -62,7 +63,7 @@ private fun GameCardNetworkErrorPreview() {
 private fun GameCardErrorPreview() {
     NextPlayTheme {
         Surface {
-            GameCardError(errorType = ErrorType.OTHER)
+            GameCardError(errorType = GameListTestData.errorType)
         }
     }
 }

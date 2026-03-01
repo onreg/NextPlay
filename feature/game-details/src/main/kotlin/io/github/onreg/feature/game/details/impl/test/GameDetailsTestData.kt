@@ -1,11 +1,12 @@
 package io.github.onreg.feature.game.details.impl.test
 
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.core.ui.components.header.AppHeaderMenu
 import io.github.onreg.core.ui.components.header.AppHeaderUi
+import io.github.onreg.core.ui.runtime.paging.emptyPagingFlow
+import io.github.onreg.core.ui.runtime.paging.loadedPagingFlow
+import io.github.onreg.core.ui.runtime.paging.loadingPagingFlow
 import io.github.onreg.feature.game.details.impl.model.DescriptionToggleUi
 import io.github.onreg.feature.game.details.impl.model.GameCompanyUi
 import io.github.onreg.feature.game.details.impl.model.GameDescriptionUi
@@ -16,7 +17,6 @@ import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.model.PlatformUI
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import io.github.onreg.core.ui.R as CoreUiR
 
 internal object GameDetailsTestData {
@@ -67,87 +67,89 @@ internal object GameDetailsTestData {
         ),
     )
 
-    val screenshots: Flow<PagingData<ScreenshotUI>> = flowOf(
-        PagingData.from(
-            listOf(
-                ScreenshotUI(id = 1, imageUrl = "example"),
-                ScreenshotUI(id = 2, imageUrl = "example"),
-                ScreenshotUI(id = 3, imageUrl = "example"),
-            ),
+    val loadingState: GameDetailsState.Loading = GameDetailsState.Loading(headerUi = AppHeaderUi())
+
+    val screenshotsItems: List<ScreenshotUI> = listOf(
+        ScreenshotUI(id = 1, imageUrl = "example"),
+        ScreenshotUI(id = 2, imageUrl = "example"),
+        ScreenshotUI(id = 3, imageUrl = "example"),
+    )
+
+    val moviesItems: List<MovieUI> = listOf(
+        MovieUI(
+            id = 1,
+            videoUrl = "https://example.com/video-1.mp4",
+            previewUrl = "example",
+            name = "Launch Trailer",
+        ),
+        MovieUI(
+            id = 2,
+            videoUrl = "https://example.com/video-2.mp4",
+            previewUrl = "example",
+            name = "Gameplay Overview",
+        ),
+        MovieUI(
+            id = 3,
+            videoUrl = "https://example.com/video-3.mp4",
+            previewUrl = "example",
+            name = "Story Trailer",
         ),
     )
 
-    val movies: Flow<PagingData<MovieUI>> = flowOf(
-        PagingData.from(
-            listOf(
-                MovieUI(
-                    id = 1,
-                    videoUrl = "https://example.com/video-1.mp4",
-                    previewUrl = "example",
-                    name = "Launch Trailer",
-                ),
-                MovieUI(
-                    id = 2,
-                    videoUrl = "https://example.com/video-2.mp4",
-                    previewUrl = "example",
-                    name = "Gameplay Overview",
-                ),
-                MovieUI(
-                    id = 3,
-                    videoUrl = "https://example.com/video-3.mp4",
-                    previewUrl = "example",
-                    name = "Story Trailer",
+    val seriesItems: List<GameCardUI> = listOf(
+        GameCardUI(
+            id = 2,
+            title = "Dark Souls III",
+            imageUrl = "example",
+            releaseDate = "Mar 24, 2016",
+            platforms = setOf(
+                PlatformUI(
+                    name = "PC",
+                    iconRes = CoreUiR.drawable.ic_controller_24,
                 ),
             ),
+            rating = ChipUI(text = "4.6", isSelected = true),
+            isBookmarked = false,
+        ),
+        GameCardUI(
+            id = 3,
+            title = "Sekiro: Shadows Die Twice",
+            imageUrl = "example",
+            releaseDate = "Mar 22, 2019",
+            platforms = setOf(
+                PlatformUI(
+                    name = "PC",
+                    iconRes = CoreUiR.drawable.ic_controller_24,
+                ),
+            ),
+            rating = ChipUI(text = "4.5", isSelected = true),
+            isBookmarked = false,
+        ),
+        GameCardUI(
+            id = 4,
+            title = "Bloodborne",
+            imageUrl = "example",
+            releaseDate = "Mar 24, 2015",
+            platforms = setOf(
+                PlatformUI(
+                    name = "PlayStation",
+                    iconRes = CoreUiR.drawable.ic_controller_24,
+                ),
+            ),
+            rating = ChipUI(text = "4.7", isSelected = true),
+            isBookmarked = false,
         ),
     )
 
-    val seriesState: Flow<PagingData<GameCardUI>> = flowOf(
-        PagingData.from(
-            listOf(
-                GameCardUI(
-                    id = 2,
-                    title = "Dark Souls III",
-                    imageUrl = "example",
-                    releaseDate = "Mar 24, 2016",
-                    platforms = setOf(
-                        PlatformUI(
-                            name = "PC",
-                            iconRes = CoreUiR.drawable.ic_controller_24,
-                        ),
-                    ),
-                    rating = ChipUI(text = "4.6", isSelected = true),
-                    isBookmarked = false,
-                ),
-                GameCardUI(
-                    id = 3,
-                    title = "Sekiro: Shadows Die Twice",
-                    imageUrl = "example",
-                    releaseDate = "Mar 22, 2019",
-                    platforms = setOf(
-                        PlatformUI(
-                            name = "PC",
-                            iconRes = CoreUiR.drawable.ic_controller_24,
-                        ),
-                    ),
-                    rating = ChipUI(text = "4.5", isSelected = true),
-                    isBookmarked = false,
-                ),
-                GameCardUI(
-                    id = 4,
-                    title = "Bloodborne",
-                    imageUrl = "example",
-                    releaseDate = "Mar 24, 2015",
-                    platforms = setOf(
-                        PlatformUI(
-                            name = "PlayStation",
-                            iconRes = CoreUiR.drawable.ic_controller_24,
-                        ),
-                    ),
-                    rating = ChipUI(text = "4.7", isSelected = true),
-                    isBookmarked = false,
-                ),
-            ),
-        ),
-    )
+    val screenshots: Flow<PagingData<ScreenshotUI>> = loadedPagingFlow(screenshotsItems)
+    val movies: Flow<PagingData<MovieUI>> = loadedPagingFlow(moviesItems)
+    val seriesState: Flow<PagingData<GameCardUI>> = loadedPagingFlow(seriesItems)
+
+    val emptyScreenshots: Flow<PagingData<ScreenshotUI>> = emptyPagingFlow()
+    val emptyMovies: Flow<PagingData<MovieUI>> = emptyPagingFlow()
+    val emptySeries: Flow<PagingData<GameCardUI>> = emptyPagingFlow()
+
+    val loadingScreenshots: Flow<PagingData<ScreenshotUI>> = loadingPagingFlow()
+    val loadingMovies: Flow<PagingData<MovieUI>> = loadingPagingFlow()
+    val loadingSeries: Flow<PagingData<GameCardUI>> = loadingPagingFlow()
 }

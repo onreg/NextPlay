@@ -79,7 +79,15 @@ internal class GameListTestDriver private constructor(
     private var lastCardClickedId: Int? = null
 
     class Builder(private val composeRule: ComposeContentTestRule) {
-        private val pagingState = MutableStateFlow<PagingData<GameCardUI>>(PagingData.empty())
+        private val pagingState = MutableStateFlow(
+            PagingData.empty<GameCardUI>(
+                sourceLoadStates = LoadStates(
+                    refresh = LoadState.NotLoading(endOfPaginationReached = false),
+                    prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                    append = LoadState.NotLoading(endOfPaginationReached = false),
+                ),
+            ),
+        )
 
         fun pagingState(
             data: List<GameCardUI>,
@@ -94,20 +102,20 @@ internal class GameListTestDriver private constructor(
                 mediatorRefresh != null || mediatorAppend != null || mediatorPrepend != null
             ) {
                 LoadStates(
-                    refresh = mediatorRefresh ?: LoadState.NotLoading(false),
-                    append = mediatorAppend ?: LoadState.NotLoading(false),
-                    prepend = mediatorPrepend ?: LoadState.NotLoading(false),
+                    refresh = mediatorRefresh ?: LoadState.NotLoading(endOfPaginationReached = false),
+                    prepend = mediatorPrepend ?: LoadState.NotLoading(endOfPaginationReached = false),
+                    append = mediatorAppend ?: LoadState.NotLoading(endOfPaginationReached = false),
                 )
             } else {
                 null
             }
 
             pagingState.value = PagingData.from(
-                data,
+                data = data,
                 sourceLoadStates = LoadStates(
                     refresh = refresh,
-                    append = append,
                     prepend = prepend,
+                    append = append,
                 ),
                 mediatorLoadStates = mediatorLoadStates,
             )

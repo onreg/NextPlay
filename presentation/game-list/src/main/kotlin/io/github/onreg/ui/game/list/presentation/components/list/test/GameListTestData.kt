@@ -1,13 +1,17 @@
 package io.github.onreg.ui.game.list.presentation.components.list.test
 
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import io.github.onreg.core.ui.components.chip.ChipUI
+import io.github.onreg.core.ui.runtime.paging.ErrorType
+import io.github.onreg.core.ui.runtime.paging.appendErrorPagingFlow
+import io.github.onreg.core.ui.runtime.paging.appendLoadingPagingFlow
+import io.github.onreg.core.ui.runtime.paging.emptyPagingFlow
+import io.github.onreg.core.ui.runtime.paging.errorPagingFlow
+import io.github.onreg.core.ui.runtime.paging.loadedPagingFlow
+import io.github.onreg.core.ui.runtime.paging.loadingPagingFlow
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.model.PlatformUI
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import java.io.IOException
 import io.github.onreg.core.ui.R as CoreUiR
 
@@ -15,60 +19,41 @@ public object GameListTestData {
     public val emptyItems: List<GameCardUI> = emptyList()
     public val twoItems: List<GameCardUI> = generateGameCards(2)
     public val eightItems: List<GameCardUI> = generateGameCards(8)
+    public val previewCard: GameCardUI = generateGameCards(1).first()
+    public val networkErrorType: ErrorType = ErrorType.NETWORK
+    public val errorType: ErrorType = ErrorType.OTHER
 
-    public val emptyState: Flow<PagingData<GameCardUI>> = buildPagingFlow(emptyItems)
-    public val loadingState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(emptyItems, LoadState.Loading)
+    public val emptyState: Flow<PagingData<GameCardUI>> = emptyPagingFlow()
+    public val loadingState: Flow<PagingData<GameCardUI>> = loadingPagingFlow()
 
     public val networkErrorState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(emptyItems, LoadState.Error(IOException("Preview error")))
+        errorPagingFlow(IOException("Preview error"))
 
     public val errorState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(emptyItems, LoadState.Error(IllegalStateException("Preview error")))
+        errorPagingFlow(IllegalStateException("Preview error"))
 
-    public val loadedState: Flow<PagingData<GameCardUI>> = buildPagingFlow(eightItems)
+    public val loadedState: Flow<PagingData<GameCardUI>> = loadedPagingFlow(eightItems)
 
     public val nextPageLoadingState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(twoItems, append = LoadState.Loading)
+        appendLoadingPagingFlow(twoItems)
 
     public val nextPageErrorState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(twoItems, append = LoadState.Error(IllegalStateException("Preview error")))
+        appendErrorPagingFlow(twoItems, IllegalStateException("Preview error"))
 
     public val nextPageNetworkErrorState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(twoItems, append = LoadState.Error(IOException("Preview error")))
+        appendErrorPagingFlow(twoItems, IOException("Preview error"))
 
     public val refreshingState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(eightItems, refresh = LoadState.Loading)
+        loadingPagingFlow(eightItems)
 
     public val nextPageLoadingLargeState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(eightItems, append = LoadState.Loading)
+        appendLoadingPagingFlow(eightItems)
 
     public val nextPageErrorLargeState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(
-            eightItems,
-            append = LoadState.Error(IllegalStateException("Preview error")),
-        )
+        appendErrorPagingFlow(eightItems, IllegalStateException("Preview error"))
 
     public val nextPageNetworkErrorLargeState: Flow<PagingData<GameCardUI>> =
-        buildPagingFlow(
-            eightItems,
-            append = LoadState.Error(IOException("Preview error")),
-        )
-
-    private fun <T : Any> buildPagingFlow(
-        items: List<T>,
-        refresh: LoadState = LoadState.NotLoading(false),
-        append: LoadState = LoadState.NotLoading(false),
-    ): Flow<PagingData<T>> = flowOf(
-        PagingData.from(
-            items,
-            sourceLoadStates = LoadStates(
-                refresh = refresh,
-                append = append,
-                prepend = LoadState.NotLoading(false),
-            ),
-        ),
-    )
+        appendErrorPagingFlow(eightItems, IOException("Preview error"))
 
     public fun generateGameCards(count: Int): List<GameCardUI> = List(count) { index ->
         val id = index + 1

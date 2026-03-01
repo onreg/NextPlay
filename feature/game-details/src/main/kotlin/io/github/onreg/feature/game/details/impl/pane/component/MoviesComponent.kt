@@ -22,8 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
@@ -40,7 +38,6 @@ import io.github.onreg.feature.game.details.impl.model.MovieUI
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import io.github.onreg.core.ui.R as CoreUiR
 
 @Composable
@@ -125,7 +122,7 @@ private fun LoadedPreview() {
 @ThemePreview
 private fun LoadingPreview() {
     MoviesComponentPreview(
-        movies = loadingMovies(),
+        movies = GameDetailsTestData.loadingMovies,
     )
 }
 
@@ -143,13 +140,3 @@ private fun MoviesComponentPreview(
         }
     }
 }
-
-private fun loadingMovies(): Flow<PagingData<MovieUI>> = flowOf(
-    PagingData.empty(
-        sourceLoadStates = LoadStates(
-            refresh = LoadState.Loading,
-            prepend = LoadState.NotLoading(false),
-            append = LoadState.NotLoading(false),
-        ),
-    ),
-)

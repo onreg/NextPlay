@@ -18,8 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
@@ -35,7 +33,6 @@ import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 @Composable
 internal fun ScreenshotsComponent(
@@ -107,7 +104,7 @@ private fun LoadedPreview() {
 @ThemePreview
 private fun LoadingPreview() {
     ScreenshotsComponentPreview(
-        screenshots = loadingScreenshots(),
+        screenshots = GameDetailsTestData.loadingScreenshots,
     )
 }
 
@@ -125,13 +122,3 @@ private fun ScreenshotsComponentPreview(
         }
     }
 }
-
-private fun loadingScreenshots(): Flow<PagingData<ScreenshotUI>> = flowOf(
-    PagingData.empty(
-        sourceLoadStates = LoadStates(
-            refresh = LoadState.Loading,
-            prepend = LoadState.NotLoading(false),
-            append = LoadState.NotLoading(false),
-        ),
-    ),
-)

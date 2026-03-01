@@ -2,6 +2,10 @@ package io.github.onreg.feature.game.details.impl.pane
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import io.github.onreg.core.ui.components.chip.ChipUI
+import io.github.onreg.core.ui.runtime.paging.emptyPagingFlow
+import io.github.onreg.core.ui.runtime.paging.errorPagingFlow
+import io.github.onreg.core.ui.runtime.paging.loadedPagingFlow
+import io.github.onreg.core.ui.runtime.paging.loadingPagingFlow
 import io.github.onreg.feature.game.details.impl.model.MovieUI
 import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
@@ -83,9 +87,9 @@ internal class GameDetailsPaneTest {
         val driver = GameDetailsPaneTestDriver
             .Builder(composeRule)
             .state(GameDetailsTestData.readyState)
-            .screenshots(GameDetailsPaneTestDriver.loaded(listOf(screenshotItem)))
-            .movies(GameDetailsPaneTestDriver.loaded(listOf(movieItem)))
-            .series(GameDetailsPaneTestDriver.loaded(listOf(seriesItem)))
+            .screenshots(loadedPagingFlow(listOf(screenshotItem)))
+            .movies(loadedPagingFlow(listOf(movieItem)))
+            .series(loadedPagingFlow(listOf(seriesItem)))
             .build()
 
         driver.assertContentBranchDisplayed()
@@ -131,9 +135,9 @@ internal class GameDetailsPaneTest {
     fun `should show media sections when paging is loading`() {
         val driver = GameDetailsPaneTestDriver
             .Builder(composeRule)
-            .screenshots(GameDetailsPaneTestDriver.loading())
-            .movies(GameDetailsPaneTestDriver.loading())
-            .series(GameDetailsPaneTestDriver.loading())
+            .screenshots(loadingPagingFlow())
+            .movies(loadingPagingFlow())
+            .series(loadingPagingFlow())
             .build()
 
         driver.assertScreenshotsSectionExists()
@@ -145,9 +149,9 @@ internal class GameDetailsPaneTest {
     fun `should hide media sections when paging is empty`() {
         val driver = GameDetailsPaneTestDriver
             .Builder(composeRule)
-            .screenshots(GameDetailsPaneTestDriver.empty())
-            .movies(GameDetailsPaneTestDriver.empty())
-            .series(GameDetailsPaneTestDriver.empty())
+            .screenshots(emptyPagingFlow())
+            .movies(emptyPagingFlow())
+            .series(emptyPagingFlow())
             .build()
 
         driver.assertScreenshotsSectionDoesNotExist()
@@ -159,9 +163,9 @@ internal class GameDetailsPaneTest {
     fun `should hide media sections when paging has error`() {
         val driver = GameDetailsPaneTestDriver
             .Builder(composeRule)
-            .screenshots(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
-            .movies(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
-            .series(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
+            .screenshots(errorPagingFlow(IllegalStateException("boom")))
+            .movies(errorPagingFlow(IllegalStateException("boom")))
+            .series(errorPagingFlow(IllegalStateException("boom")))
             .build()
 
         driver.assertScreenshotsSectionDoesNotExist()
@@ -173,9 +177,9 @@ internal class GameDetailsPaneTest {
     fun `should trigger screenshot callback on screenshot item click`() {
         val driver = GameDetailsPaneTestDriver
             .Builder(composeRule)
-            .screenshots(GameDetailsPaneTestDriver.loaded(listOf(screenshotItem)))
-            .movies(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
-            .series(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
+            .screenshots(loadedPagingFlow(listOf(screenshotItem)))
+            .movies(errorPagingFlow(IllegalStateException("boom")))
+            .series(errorPagingFlow(IllegalStateException("boom")))
             .build()
 
         driver.clickScreenshot(screenshotItem.id)
@@ -187,9 +191,9 @@ internal class GameDetailsPaneTest {
     fun `should trigger movie callback on movie item click`() {
         val driver = GameDetailsPaneTestDriver
             .Builder(composeRule)
-            .screenshots(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
-            .movies(GameDetailsPaneTestDriver.loaded(listOf(movieItem)))
-            .series(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
+            .screenshots(errorPagingFlow(IllegalStateException("boom")))
+            .movies(loadedPagingFlow(listOf(movieItem)))
+            .series(errorPagingFlow(IllegalStateException("boom")))
             .build()
 
         driver.clickMovie(movieItem.id)
@@ -201,9 +205,9 @@ internal class GameDetailsPaneTest {
     fun `should trigger series callback on series item click`() {
         val driver = GameDetailsPaneTestDriver
             .Builder(composeRule)
-            .screenshots(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
-            .movies(GameDetailsPaneTestDriver.error(IllegalStateException("boom")))
-            .series(GameDetailsPaneTestDriver.loaded(listOf(seriesItem)))
+            .screenshots(errorPagingFlow(IllegalStateException("boom")))
+            .movies(errorPagingFlow(IllegalStateException("boom")))
+            .series(loadedPagingFlow(listOf(seriesItem)))
             .build()
 
         driver.clickSeriesGame(seriesItem.id)

@@ -15,8 +15,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.click
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.test.core.app.ApplicationProvider
 import io.github.onreg.core.ui.components.header.AppHeaderUi
@@ -28,7 +26,6 @@ import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlin.test.assertEquals
 import io.github.onreg.core.ui.R as CoreUiR
 import io.github.onreg.feature.game.details.impl.R as DetailsR
@@ -294,49 +291,6 @@ internal class GameDetailsPaneTestDriver private constructor(
     }
 
     companion object {
-        fun <T : Any> loaded(items: List<T>): Flow<PagingData<T>> = flowOf(
-            PagingData.from(
-                data = items,
-                sourceLoadStates = LoadStates(
-                    refresh = LoadState.NotLoading(endOfPaginationReached = false),
-                    prepend = LoadState.NotLoading(endOfPaginationReached = false),
-                    append = LoadState.NotLoading(endOfPaginationReached = false),
-                ),
-            ),
-        )
-
-        fun <T : Any> loading(): Flow<PagingData<T>> = flowOf(
-            PagingData.empty(
-                sourceLoadStates = LoadStates(
-                    refresh = LoadState.Loading,
-                    prepend = LoadState.NotLoading(endOfPaginationReached = false),
-                    append = LoadState.NotLoading(endOfPaginationReached = false),
-                ),
-            ),
-        )
-
-        fun <T : Any> empty(): Flow<PagingData<T>> = flowOf(
-            PagingData.from(
-                data = emptyList(),
-                sourceLoadStates = LoadStates(
-                    refresh = LoadState.NotLoading(endOfPaginationReached = false),
-                    prepend = LoadState.NotLoading(endOfPaginationReached = false),
-                    append = LoadState.NotLoading(endOfPaginationReached = true),
-                ),
-            ),
-        )
-
-        fun <T : Any> error(throwable: Throwable): Flow<PagingData<T>> = flowOf(
-            PagingData.from(
-                data = emptyList(),
-                sourceLoadStates = LoadStates(
-                    refresh = LoadState.Error(throwable),
-                    prepend = LoadState.NotLoading(endOfPaginationReached = false),
-                    append = LoadState.NotLoading(endOfPaginationReached = false),
-                ),
-            ),
-        )
-
         fun loadingState(): GameDetailsState = GameDetailsState.Loading(AppHeaderUi())
 
         fun errorState(): GameDetailsState = GameDetailsState.Error(AppHeaderUi())

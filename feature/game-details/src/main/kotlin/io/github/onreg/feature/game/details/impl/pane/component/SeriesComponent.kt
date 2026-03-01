@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.onreg.core.ui.preview.ThemePreview
@@ -32,7 +30,6 @@ import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.GameCard
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 @Composable
 @Suppress("LongMethod")
@@ -95,7 +92,7 @@ private fun LoadedPreview() {
 @ThemePreview
 private fun LoadingPreview() {
     SeriesComponentPreview(
-        series = loadingSeries(),
+        series = GameDetailsTestData.loadingSeries,
     )
 }
 
@@ -113,13 +110,3 @@ private fun SeriesComponentPreview(
         }
     }
 }
-
-private fun loadingSeries(): Flow<PagingData<GameCardUI>> = flowOf(
-    PagingData.empty(
-        sourceLoadStates = LoadStates(
-            refresh = LoadState.Loading,
-            prepend = LoadState.NotLoading(false),
-            append = LoadState.NotLoading(false),
-        ),
-    ),
-)

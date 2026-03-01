@@ -18,15 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.onreg.core.ui.components.content.error.ContentError
 import io.github.onreg.core.ui.components.content.error.ContentErrorUI
 import io.github.onreg.core.ui.components.header.AppHeader
-import io.github.onreg.core.ui.components.header.AppHeaderUi
 import io.github.onreg.core.ui.preview.ThemePreview
 import io.github.onreg.core.ui.runtime.flow.collectWithLifecycle
 import io.github.onreg.core.ui.runtime.paging.PagedListState
@@ -51,7 +48,6 @@ import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import io.github.onreg.core.ui.R as CoreUiR
 
 @Composable
@@ -311,10 +307,10 @@ private fun GameDetailsContent(
 @ThemePreview
 private fun LoadingPreview() {
     GameDetailsPanePreview(
-        state = GameDetailsState.Loading(headerUi = AppHeaderUi()),
-        screenshots = emptyPagingFlow(),
-        movies = emptyPagingFlow(),
-        series = emptyPagingFlow(),
+        state = GameDetailsTestData.loadingState,
+        screenshots = GameDetailsTestData.emptyScreenshots,
+        movies = GameDetailsTestData.emptyMovies,
+        series = GameDetailsTestData.emptySeries,
     )
 }
 
@@ -323,9 +319,9 @@ private fun LoadingPreview() {
 private fun FilledDetailsWithLoadingMediaPreview() {
     GameDetailsPanePreview(
         state = GameDetailsTestData.readyState,
-        screenshots = loadingPagingFlow(),
-        movies = loadingPagingFlow(),
-        series = loadingPagingFlow(),
+        screenshots = GameDetailsTestData.loadingScreenshots,
+        movies = GameDetailsTestData.loadingMovies,
+        series = GameDetailsTestData.loadingSeries,
     )
 }
 
@@ -359,15 +355,3 @@ private fun GameDetailsPanePreview(
         }
     }
 }
-
-private fun <T : Any> emptyPagingFlow(): Flow<PagingData<T>> = flowOf(PagingData.empty())
-
-private fun <T : Any> loadingPagingFlow(): Flow<PagingData<T>> = flowOf(
-    PagingData.empty(
-        sourceLoadStates = LoadStates(
-            refresh = LoadState.Loading,
-            prepend = LoadState.NotLoading(false),
-            append = LoadState.NotLoading(false),
-        ),
-    ),
-)

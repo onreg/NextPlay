@@ -133,12 +133,10 @@ private fun safeTitleEndPadding() = (ControlsSize.IconButton - Spacing.sm).coerc
 @Composable
 @ThemePreview
 private fun GameListCardPreview() {
-    val gameData = GameListTestData.generateGameCards(1).first()
-
     NextPlayTheme {
         GameCard(
             modifier = Modifier,
-            gameData = gameData,
+            gameData = GameListTestData.previewCard,
         )
     }
 }
