@@ -1,8 +1,8 @@
 package io.github.onreg.ui.game.list.presentation.mapper
 
 import io.github.onreg.core.ui.components.chip.ChipUI
-import io.github.onreg.core.ui.format.InstantTextFormatter
-import io.github.onreg.core.ui.format.NumberTextFormatter
+import io.github.onreg.core.util.format.InstantTextFormatter
+import io.github.onreg.core.util.format.NumberTextFormatter
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.platform.mapper.PlatformUiMapper

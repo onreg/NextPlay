@@ -86,7 +86,7 @@ public fun GameDetailsPane(
     viewModel.events.collectWithLifecycle { event ->
         when (event) {
             GameDetailsEvent.GoBack -> goBack()
-            is GameDetailsEvent.GoGameDetails -> openGameDetails(event.gameId)
+            is GameDetailsEvent.GoToGameDetails -> openGameDetails(event.gameId)
         }
     }
 }

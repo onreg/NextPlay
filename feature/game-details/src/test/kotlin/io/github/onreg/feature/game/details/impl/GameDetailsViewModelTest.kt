@@ -97,7 +97,7 @@ internal class GameDetailsViewModelTest {
 
         driver.viewModel.events.test(this) {
             driver.viewModel.onSeriesClicked(42)
-            assertLatest(GameDetailsEvent.GoGameDetails(42))
+            assertLatest(GameDetailsEvent.GoToGameDetails(42))
         }
     }
 

@@ -7,6 +7,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.util)
     implementation(projects.core.ui)
     implementation(projects.core.uiRuntime)
     implementation(projects.data.game.api)

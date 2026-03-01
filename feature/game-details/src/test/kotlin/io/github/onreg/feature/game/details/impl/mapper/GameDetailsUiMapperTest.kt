@@ -1,9 +1,9 @@
 package io.github.onreg.feature.game.details.impl.mapper
 
 import io.github.onreg.core.ui.components.chip.ChipUI
-import io.github.onreg.core.ui.format.InstantTextFormatterImpl
-import io.github.onreg.core.ui.format.NumberTextFormatterImpl
 import io.github.onreg.core.util.android.resources.ResourcesProvider
+import io.github.onreg.core.util.format.InstantTextFormatterImpl
+import io.github.onreg.core.util.format.NumberTextFormatterImpl
 import io.github.onreg.data.details.api.model.GameCompany
 import io.github.onreg.data.details.api.model.GameCompanyRole
 import io.github.onreg.data.details.api.model.GameDetails
