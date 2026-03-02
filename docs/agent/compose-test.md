@@ -1,65 +1,79 @@
 ## Compose UI testing rules
 
-Applies to Robolectric Compose UI tests under `src/test` that use:
-- `androidx.compose.ui.test.*`
-- `createComposeRule` / `ComposeContentTestRule`
-
-Does not apply to:
-- Non-Compose unit tests under `src/test` → read `unit-test.md`
-- Room DAO tests under `core/db/**/src/test/**` (these are closer to integration)
-
 ### Test setup
 
-- Use Robolectric for JVM Compose tests: `@RunWith(RobolectricTestRunner::class)`.
+Robolectric (`src/test`):
+- Use `@RunWith(RobolectricTestRunner::class)`.
 - Use `@get:Rule val composeRule = createComposeRule()`.
-- For instrumentation Compose tests under `src/androidTest`, use `createAndroidComposeRule` and `AndroidJUnit4` (same driver + selector rules apply).
-- Keep test classes `internal`.
+
+Instrumentation (`src/androidTest`):
+- Use `createAndroidComposeRule` and `AndroidJUnit4`.
 
 ### Test naming
 
-- Use backticked, sentence-like names that read as a spec (e.g. `should show empty state when not loading and no cached data`).
-- Prefer one behavior per test; split scenarios instead of branching inside a test.
+- Use backticked, sentence-like names that read as a spec (example: `should show empty state when not loading and no cached data`).
+- Prefer one behavior per test; split scenarios instead of branching inside a single test.
 
 ### Arrange / act / assert structure
 
 - Arrange via a `*TestDriver.Builder(composeRule)` that sets up inputs and calls `composeRule.setContent { ... }` in `build()`.
-- Act through a single user intent (tap, swipe, scroll, retry, etc.) exposed as a driver method.
-- Assert on visible UI first, then assert callbacks/side effects (counts, last clicked id/url, etc.).
+- Act through a single user intent exposed as a driver method (tap, swipe, scroll, retry, pull-to-refresh).
+- Assert on visible UI first, then assert callbacks/side effects (counts, last clicked).
 
 ### Test drivers
 
-- Keep the driver constructor `private` and expose a `Builder` to configure the UI state/inputs.
-- In the `Builder`, define inputs as `var` properties with “empty” defaults (e.g. `emptyPagingFlow()`, `emptyFlow()`, empty state models).
-  - Builder methods must reassign these `var` properties.
-- Keep all `composeRule.onNode...` queries inside the driver; tests should not repeat selectors.
-- Store callback effects in the driver (counters, last clicked value) and update them via lambdas passed to the Composable under test.
-- Assert callback effects inside `composeRule.runOnIdle { ... }` to avoid race conditions.
+Implementation rules:
+- Keep the driver constructor `private` and expose a `Builder` to configure UI state/inputs.
+- In the `Builder`, define inputs as `var` properties with “empty” defaults (empty lists, empty models, `emptyPagingFlow()`).
+- Builder methods should reassign these `var` properties.
+- In the driver, define *all* UI nodes needed by tests as `private` properties (prefer computed getters like `private val retryButton get() = composeRule.onNodeWithTag(...)`).
+  - Reuse these node properties inside driver methods like `driver.assertEmptyStateDisplayed()` and `driver.clickRetryButton()` to keep selectors centralized and consistent.
 
 ### Node selection rules
 
-- Prefer `onNodeWithTag(...)` with stable `*TestTags` constants when asserting state-driven UI branches or groups of elements (loading/error/empty/content containers).
-  - If the UI has no test tags yet, add them in production code (tags are part of the component API).
-- Prefer `onNodeWithContentDescription(...)` for icon-only buttons.
-- Use `onNodeWithText(...)` for static UI that does not depend on state (fixed labels/headers/actions).
-  - Prefer localized strings via `ApplicationProvider.getApplicationContext<Context>().getString(R.string...)` instead of hardcoded text.
-  - Avoid `onNodeWithText` for dynamic content (values that change with state, loaded data, user-generated text).
+Prefer stable selectors, from most to least preferred:
+
+1) `onNodeWithTag(...)` + stable `*TestTags` constants
+   - Use tags for state-driven UI branches or containers (loading/error/empty/content).
+   - If the UI has no tag yet, add it in production code.
+   - Keep tags next to the component that owns them (pattern in this repo: `.../src/main/.../test/*TestTags.kt`).
+2) `onNodeWithContentDescription(...)`
+   - Prefer for icon-only buttons.
+3) `onNodeWithText(...)`
+   - Use for fixed labels/actions, and for message assertions where the *text is part of the spec* (for example: correct error message).
+   - Prefer localized strings via `ApplicationProvider.getApplicationContext<Context>().getString(R.string...)` instead of hardcoded text.
 
 ### Paging, Flow, and state inputs
 
-- For `Flow<PagingData<...>>`, prefer existing paging test helpers (e.g. `loadedPagingFlow`, `loadingPagingFlow`, `emptyPagingFlow`, `errorPagingFlow`).
-- Collect the paging flow via `collectAsLazyPagingItems()` in the `build` function, pass `LazyPagingItems` into tested component.
+- For `Flow<PagingData<...>>`, prefer paging flow helpers:
+  - `emptyPagingFlow`, `loadingPagingFlow`, `loadedPagingFlow`, `errorPagingFlow`, `appendLoadingPagingFlow`, `appendErrorPagingFlow`
+  - Location: `core/ui-runtime/src/main/kotlin/io/github/onreg/core/ui/runtime/paging/PagingDataBuilders.kt`
+- If a specific UI branch depends on `LoadStates`, it’s acceptable to build a `PagingData.from(..., sourceLoadStates = ...)` directly in the driver builder.
+- Collect paging via `collectAsLazyPagingItems()` in `build()` and pass `LazyPagingItems` into the tested Composable/screen.
 
 ### Scrolling and clicking
 
 - If a node might be off-screen, call `performScrollTo()` before `performClick()`.
-- When multiple nodes match, iterate deterministically (fetch nodes, try click, `composeRule.waitForIdle()`, verify expected side effect).
-- Avoid sleeps/time-based waits; Compose test rules are synchronized by default.
+- When multiple nodes match, make selection deterministic:
+  - Prefer adding/using a tag that includes an id (for example, `CARD_PREFIX + id`) over relying on index order.
 
 ### Assertions
 
-- Prefer `assertIsDisplayed`, `assertIsNotDisplayed`
-- Use `assertCountEquals` when asserting the number of matching nodes (e.g. for lists, multiple error messages, etc.).
+- Prefer `assertIsDisplayed` / `assertIsNotDisplayed` to check if node is visible or hidden for user.
+- Use `assertCountEquals` when asserting the number of matching nodes (lists, repeated error items).
 
 ### Theming
 
-- Wrap content in the app theme (`NextPlayTheme`) only when the Composable under test depends on it (Material tokens, typography, shapes, etc.).
+- Wrap content in the app theme (`NextPlayTheme`) only when the Composable under test depends on it (Material tokens, typography, shapes).
+
+### Verification
+
+After completing changes (tests and any required production code such as test tags), verify with this checklist:
+
+- Tests arrange via `*TestDriver.Builder(composeRule)` that calls `composeRule.setContent { ... }` in `build()`.
+- The driver defines `private` node properties for all UI nodes required by driver actions/assertions.
+- The driver methods do not contain node-finding logic.
+- Tests do not call `composeRule.onNode...` directly.
+- Tests perform actions only through driver methods `driver.clickRetryButton()`.
+- Tests perform assertions only through driver methods: `driver.assertEmptyStateDisplayed()`.
+- No sleeps/time-based waits are used.
