@@ -7,8 +7,7 @@ Does not apply to:
 
 ### Test naming
 
-- Use backticked, sentence-like names that read as a spec (e.g. `state is error when refresh fails and details are absent`).
-- Keep naming consistent across the codebase (imperative `should ...` is fine; outcome-focused `returns ...` / `maps ...` / `is ... when ...` is preferred).
+- Use backticked, sentence-like names that read as a spec (e.g. `should show empty state when not loading and no cached data`).
 - Prefer one behavior per test; split scenarios into separate tests instead of branching inside one test.
 
 ### Arrange / act / assert structure
