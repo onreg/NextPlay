@@ -1,5 +1,10 @@
 ## Unit testing rules
 
+Applies to non-Compose unit tests under `src/test`.
+Does not apply to:
+- Compose tests (e.g., `createComposeRule`, `ComposeContentTestRule`)
+- Room DAO tests under `core/db/**/src/test/**` (e.g., `Room.inMemoryDatabaseBuilder`, `AndroidJUnit4`)
+
 ### Test naming
 
 - Use backticked, sentence-like names that read as a spec (e.g. `state is error when refresh fails and details are absent`).
@@ -17,7 +22,8 @@
 - Prefer `*TestDriver` helpers to keep tests readable and to centralize mocking/stubbing.
 - Keep the driver constructor `private` and expose a fluent `Builder` that sets up only what a test needs.
 - Hold mocks inside the driver and expose them as `val` so tests can `verify(...)` interactions.
-- In the driver `Builder`, define mocks as properties and stub them in dedicated builder methods (e.g. `gameEntityMapperMap(...)`, `daoObserveGame(...)`).
+- In the driver `Builder`, define mocks as basic properties (`private val repository: GameRepository = mock()`) and stub them only in dedicated builder methods (e.g. `gameEntityMapperMap(...)`, `daoObserveGame(...)`).
+- Do not stub in property initializers (avoid `mock { on { ... } doReturn ... }` in the `Builder` fields). Keep all stubbing inside explicit builder methods so tests control setup.
 - Name builder methods after the collaborator + behavior being stubbed.
 - Build the subject-under-test lazily (`val viewModel by lazy { ... }`) to allow builders to finish stubbing first.
 
@@ -25,8 +31,7 @@
 
 - Use `org.mockito.kotlin` (`mock`, `stub`, `doReturn`, `doAnswer`) for collaborators.
 - For suspend functions, stub with `onBlocking { ... } doReturn ...` (or `doAnswer` when return depends on builder state).
-- Prefer `flowOf(...)` for simple, fixed emissions.
-- Use `MutableStateFlow` only when a test needs to drive multiple emissions.
+- Always use `flowOf(...)` for stubbing `Flow` values (including multiple emissions via `flowOf(first, second, ...)`).
 
 ### Coroutines & dispatchers
 
@@ -36,13 +41,15 @@
 ### Flow, Paging, and stream testing
 
 - Use `Flow<T>.test(this)` from `testing/unit` to collect values and make assertions (`latestValue()`, `assertLatest(...)`) when a test needs to observe multiple emissions.
+- Use `Flow<T>.test(this)` when a test needs to interleave actions and assertions (subscribe → assert initial → act → assert next).
+- Do not use `Flow<T>.test(this)` for one-shot assertions; prefer terminal operators like `.first()` / `.single()` when you only need a single value.
 - For one-shot streams, use terminal operators like `.first()`.
-- Convert `Flow<PagingData<T>>` into `List<T>` with `asSnapshot()` and assert on the list (e.g. `assertEquals(expected, items)`).
-- For mocking paging flows, use the shared paging builders from `PagingDataBuilders.kt` instead of creating PagingData manually.
+- Convert `Flow<PagingData<T>>` into `List<T>` with `androidx.paging.testing.asSnapshot()` and assert on the list (e.g. `assertEquals(expected, items)`).
+- Convert `PagingData<T>` into `List<T>` with `io.github.onreg.testing.unit.paging.asSnapshot()` and assert on the list.
 
 ### Assertions & interaction verification
 
-- Prefer `kotlin.test` assertions whole values with (`assertEquals`, `assertTrue`, `assertFalse`, `assertIs`) instead of checking individual properties.
+- Prefer `kotlin.test` assertions on whole values (`assertEquals`, `assertTrue`, `assertFalse`, `assertIs`) instead of checking individual properties.
 - For `Result`, assert via `isSuccess` / `isFailure` and check `exceptionOrNull()` when needed.
 - Use Mockito `verify(...)` for interaction verification.
 - Prefer `verifyNoInteractions(mock)` over multiple negative `verify(..., never())` calls when nothing should happen.
