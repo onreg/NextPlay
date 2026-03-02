@@ -14,8 +14,7 @@ Read only documents whose triggers match your change.
 - Editing `app/src/main/java/**/presentation/**/*ViewModel*.kt` or class extends `ViewModel`:
   - Read `viewmodel.md`
 - Editing Compose tests (imports `androidx.compose.ui.test.*` / uses `createComposeRule` / `createAndroidComposeRule` / `ComposeContentTestRule`):
-  - No micro-doc yet (we will add one later). Follow existing Compose tests patterns for now.
-  - Do not apply `unit-test.md` rules here (Compose tests have different structure and helpers).
+  - Read `compose-test.md`
 - Editing Room DAO tests in `core/db/**/src/test/**` (symbols: `Room.inMemoryDatabaseBuilder`, `AndroidJUnit4`):
   - No micro-doc yet (we will add one later). Follow existing DAO tests patterns for now.
   - Do not apply `unit-test.md` rules here (these tests are closer to integration).
