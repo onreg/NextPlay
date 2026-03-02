@@ -52,3 +52,14 @@ Does not apply to:
 - For `Result`, assert via `isSuccess` / `isFailure` and check `exceptionOrNull()` when needed.
 - Use Mockito `verify(...)` for interaction verification.
 - Prefer `verifyNoInteractions(mock)` over multiple negative `verify(..., never())` calls when nothing should happen.
+
+### Verification
+
+After completing changes (tests and any required production code), verify with this checklist:
+
+- Tests are placed under `src/test` and are not Compose or Room DAO tests.
+- Coroutines and Flow tests are wrapped in `runTest`.
+- ViewModel-related tests install `MainDispatcherRule` when `Dispatchers.Main` is used.
+- Tests use a `*TestDriver.Builder` (private constructor, fluent builder) for setup, and the subject is built lazily after stubbing.
+- All stubbing is done via explicit builder methods (no stubbing in property initializers).
+- Flow and Paging assertions use the recommended helpers (`Flow<T>.test(this)` when observing multiple emissions, snapshot helpers for paging).

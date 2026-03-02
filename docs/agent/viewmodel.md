@@ -50,3 +50,14 @@
 
 - Treat functions as UI intents (`onXClicked`, `onXChanged`); they either update local state, send a one-off event, or launch async work and reflect results in state.
 - Avoid “doEverything” methods; prefer small, composable intent handlers.
+
+### Verification
+
+After completing ViewModel changes, verify with this checklist:
+
+- All dependencies are injected via the constructor (no `Context`/Android framework types).
+- Runtime parameters use assisted injection and remain immutable (`val`).
+- The UI reads from a single `StateFlow` source of truth (paging streams stay separate).
+- One-off events are implemented via a single `Channel` exposed as `Flow` via `receiveAsFlow()`, and events are sent via `viewModelScope.sendEvent(...)`.
+- Domain-to-UI mapping happens in the ViewModel layer (pure mapping; no IO or state writes inside mapping).
+- Paging streams map items and are `cachedIn(viewModelScope)`.
