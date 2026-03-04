@@ -97,7 +97,6 @@ public class GameRemoteMediator(
         transactionProvider.run {
             if (isRefresh) {
                 gameListDao.deleteAll()
-                remoteKeysDao.deleteAll()
             }
             gameDao.insertGamesWithPlatforms(databaseBundle)
             gameListDao.insertGameListEntries(listItems)
