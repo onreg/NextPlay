@@ -18,12 +18,4 @@ public interface GameScreenshotRemoteKeysDao {
         """,
     )
     public suspend fun getByGameId(gameId: Int): GameScreenshotRemoteKeysEntity?
-
-    @Query(
-        """
-            DELETE FROM ${GameScreenshotRemoteKeysEntity.TABLE_NAME}
-            WHERE ${GameScreenshotRemoteKeysEntity.GAME_ID} = :gameId
-        """,
-    )
-    public suspend fun deleteByGameId(gameId: Int)
 }

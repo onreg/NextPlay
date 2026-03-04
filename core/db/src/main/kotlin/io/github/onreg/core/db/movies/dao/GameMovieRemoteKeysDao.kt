@@ -18,12 +18,4 @@ public interface GameMovieRemoteKeysDao {
         """,
     )
     public suspend fun getByGameId(gameId: Int): GameMovieRemoteKeysEntity?
-
-    @Query(
-        """
-            DELETE FROM ${GameMovieRemoteKeysEntity.TABLE_NAME}
-            WHERE ${GameMovieRemoteKeysEntity.GAME_ID} = :gameId
-        """,
-    )
-    public suspend fun deleteByGameId(gameId: Int)
 }

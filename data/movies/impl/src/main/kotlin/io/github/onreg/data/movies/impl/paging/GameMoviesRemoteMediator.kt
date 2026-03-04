@@ -44,7 +44,6 @@ public class GameMoviesRemoteMediator(
 
                 if (loadType == LoadType.REFRESH) {
                     moviesDao.deleteByGameId(gameId)
-                    remoteKeysDao.deleteByGameId(gameId)
                 }
 
                 moviesDao.insertMovies(items)

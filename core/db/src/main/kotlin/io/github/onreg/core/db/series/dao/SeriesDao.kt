@@ -30,6 +30,14 @@ public interface SeriesDao {
     @Query(
         """
             DELETE FROM ${SeriesEntity.TABLE_NAME}
+            WHERE ${SeriesEntity.GAME_ID} IN (:gameIds)
+        """,
+    )
+    public suspend fun deleteByGameIds(gameIds: List<Int>)
+
+    @Query(
+        """
+            DELETE FROM ${SeriesEntity.TABLE_NAME}
         """,
     )
     public suspend fun deleteAll()

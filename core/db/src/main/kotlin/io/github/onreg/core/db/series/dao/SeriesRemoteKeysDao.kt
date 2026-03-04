@@ -18,11 +18,4 @@ public interface SeriesRemoteKeysDao {
         """,
     )
     public suspend fun getByGameId(gameId: Int): SeriesRemoteKeysEntity?
-
-    @Query(
-        """
-            DELETE FROM ${SeriesRemoteKeysEntity.TABLE_NAME}
-        """,
-    )
-    public suspend fun deleteAll()
 }

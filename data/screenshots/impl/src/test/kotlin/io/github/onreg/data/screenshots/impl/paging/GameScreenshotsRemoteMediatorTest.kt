@@ -79,7 +79,6 @@ internal class GameScreenshotsRemoteMediatorTest {
         assertTrue(result is RemoteMediator.MediatorResult.Success)
         assertTrue(!result.endOfPaginationReached)
         verify(dao).deleteByGameId(7)
-        verify(keysDao).deleteByGameId(7)
         verify(dao).insertScreenshots(
             listOf(
                 entity1,
@@ -216,7 +215,6 @@ internal class GameScreenshotsRemoteMediatorTest {
         assertTrue(result is RemoteMediator.MediatorResult.Success)
         assertTrue(!result.endOfPaginationReached)
         verify(dao, never()).deleteByGameId(7)
-        verify(keysDao, never()).deleteByGameId(7)
         verify(dao).insertScreenshots(
             listOf(mappedEntity),
         )

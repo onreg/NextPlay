@@ -57,7 +57,6 @@ internal class GameMoviesRemoteMediatorTest {
         )
         verify(driver.moviesApi).getMovies(driver.gameId, 1, driver.pagingConfig.pageSize)
         verify(driver.moviesDao).deleteByGameId(driver.gameId)
-        verify(driver.remoteKeysDao).deleteByGameId(driver.gameId)
         verify(driver.moviesDao).insertMovies(listOf(expectedEntity))
         verify(driver.remoteKeysDao).insertRemoteKeys(
             listOf(

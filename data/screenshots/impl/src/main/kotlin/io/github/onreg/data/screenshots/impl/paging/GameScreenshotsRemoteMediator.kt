@@ -107,7 +107,6 @@ public class GameScreenshotsRemoteMediator(
     ) {
         if (loadType == LoadType.REFRESH) {
             screenshotsDao.deleteByGameId(gameId)
-            remoteKeysDao.deleteByGameId(gameId)
         }
 
         screenshotsDao.insertScreenshots(items)

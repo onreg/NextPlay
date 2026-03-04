@@ -118,7 +118,7 @@ internal class GameSeriesRemoteMediatorTest {
         val result = mediator.load(LoadType.REFRESH, emptyPagingState())
 
         assertTrue(result is RemoteMediator.MediatorResult.Success)
-        verify(seriesDao).deleteAll()
+        verify(seriesDao).deleteByGameIds(listOf(1))
         verify(seriesRemoteKeysDao).deleteAll()
         verify(gameDao).insertGamesWithPlatforms(insertionBundle)
         verify(entityMapper).mapSeriesEntries(listOf(mappedGame), 0)

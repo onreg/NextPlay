@@ -108,9 +108,8 @@ public class GameSeriesRemoteMediator(
         val bundle = entityMapper.map(games)
         val seriesEntries = entityMapper.mapSeriesEntries(games, insertionStart)
 
-        if (loadType == LoadType.REFRESH) {
-            seriesDao.deleteAll()
-            seriesRemoteKeysDao.deleteAll()
+        if (loadType == LoadType.REFRESH && games.isNotEmpty()) {
+            seriesDao.deleteByGameIds(games.map(Game::id))
         }
 
         gameDao.insertGamesWithPlatforms(bundle)
