@@ -2,8 +2,8 @@
 
 - Use verification reports to fix code checks issues (Lint, Detekt, Ktlint, Unit tests) instead of
   terminal output.
-- Before creating a new Kotlin source file, read `docs/agent/code-organization.md` and follow its
-  rules.
+- For any change, consult `docs/agent/index.md` and read only the micro-docs whose triggers match
+  the edited paths/symbols.
 - Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
   and docs.
 - Do not run any code quality checks until it will be requested or this step is written in implementation plan.
