@@ -5,7 +5,6 @@ import io.github.onreg.core.ui.components.chip.ChipUI
 import io.github.onreg.data.game.api.model.Game
 import io.github.onreg.data.game.api.model.GamePlatform
 import io.github.onreg.feature.game.list.impl.model.GamesPaneEvent
-import io.github.onreg.feature.game.list.impl.model.GamesPaneListEvent
 import io.github.onreg.testing.unit.coroutines.MainDispatcherRule
 import io.github.onreg.testing.unit.flow.test
 import io.github.onreg.testing.unit.paging.asSnapshot
@@ -94,9 +93,9 @@ internal class GamesPaneViewModelTest {
     fun `should emit event on page retry`() = runTest {
         val driver = defaultDriverBuilder.build()
 
-        driver.viewModel.pagingEvents.test(this) {
+        driver.viewModel.events.test(this) {
             driver.viewModel.onRetryClicked()
-            assertLatest(GamesPaneListEvent.Retry)
+            assertLatest(GamesPaneEvent.Retry)
         }
     }
 
@@ -104,9 +103,9 @@ internal class GamesPaneViewModelTest {
     fun `should emit event on refresh`() = runTest {
         val driver = defaultDriverBuilder.build()
 
-        driver.viewModel.pagingEvents.test(this) {
+        driver.viewModel.events.test(this) {
             driver.viewModel.onRefreshClicked()
-            assertLatest(GamesPaneListEvent.Refresh)
+            assertLatest(GamesPaneEvent.Refresh)
         }
     }
 }

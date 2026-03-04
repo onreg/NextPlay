@@ -11,6 +11,6 @@ dependencies {
     implementation(projects.core.uiRuntime)
     implementation(projects.data.game.api)
     implementation(projects.presentation.gameList)
-    implementation(projects.core.utilAndroid)
+    implementation(projects.core.util)
     testImplementation(projects.presentation.platform)
 }

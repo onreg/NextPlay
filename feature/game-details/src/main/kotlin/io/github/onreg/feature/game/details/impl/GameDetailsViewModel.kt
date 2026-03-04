@@ -10,8 +10,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.onreg.core.ui.components.header.AppHeaderUi
+import io.github.onreg.core.util.flow.deriveState
+import io.github.onreg.core.util.flow.reduce
+import io.github.onreg.core.util.flow.sendEvent
 import io.github.onreg.core.util.android.intent.UrlOpener
-import io.github.onreg.core.util.android.lifecycle.ViewModelDelegateImpl
 import io.github.onreg.data.details.api.GameDetailsRepository
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.movies.api.GameMoviesRepository
@@ -27,10 +29,13 @@ import io.github.onreg.feature.game.details.impl.model.MovieUI
 import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import io.github.onreg.ui.game.list.presentation.mapper.GameCardUiMapper
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = GameDetailsViewModel.Factory::class)
@@ -48,7 +53,7 @@ public class GameDetailsViewModel
         private val gameCardUiMapper: GameCardUiMapper,
         private val urlOpener: UrlOpener,
     ) : ViewModel() {
-        private val delegate = ViewModelDelegateImpl<GameDetailsInternalState, GameDetailsEvent>(
+        private val localState = MutableStateFlow(
             GameDetailsInternalState(
                 isBookmarked = false,
                 contentState = ContentState.Loading,
@@ -56,22 +61,22 @@ public class GameDetailsViewModel
                 isReadMoreVisible = false,
             ),
         )
+        private val eventChannel = Channel<GameDetailsEvent>()
 
-        internal val events: Flow<GameDetailsEvent> = delegate.events
-        internal val state: StateFlow<GameDetailsState> = with(delegate) {
-            viewModelScope.mergedState(
-                remote = detailsRepository
-                    .observeGameDetails(gameId)
-                    .onStart { refresh() },
-                merge = { localState, gameDetails ->
-                    stateMapper.map(
-                        gameDetails = gameDetails,
-                        localState = localState,
-                    )
-                },
-                initial = GameDetailsState.Loading(AppHeaderUi()) as GameDetailsState,
-            )
-        }
+        internal val events: Flow<GameDetailsEvent> = eventChannel.receiveAsFlow()
+        internal val state: StateFlow<GameDetailsState> = localState.deriveState(
+            scope = viewModelScope,
+            remote = detailsRepository
+                .observeGameDetails(gameId)
+                .onStart { refresh() },
+            merge = { currentState, gameDetails ->
+                stateMapper.map(
+                    gameDetails = gameDetails,
+                    localState = currentState,
+                )
+            },
+            initial = GameDetailsState.Loading(AppHeaderUi()) as GameDetailsState,
+        )
 
         internal val screenshots: Flow<PagingData<ScreenshotUI>> = screenshotsRepository
             .getScreenshots(gameId)
@@ -92,20 +97,20 @@ public class GameDetailsViewModel
             }.cachedIn(viewModelScope)
 
         internal fun refresh() {
-            delegate.reduce { it.copy(contentState = ContentState.Loading) }
+            localState.reduce { it.copy(contentState = ContentState.Loading) }
             viewModelScope.launch {
                 detailsRepository
                     .refreshGameDetails(gameId)
                     .onSuccess {
-                        delegate.reduce { it.copy(contentState = ContentState.Idle) }
+                        localState.reduce { it.copy(contentState = ContentState.Idle) }
                     }.onFailure {
-                        delegate.reduce { it.copy(contentState = ContentState.Error) }
+                        localState.reduce { it.copy(contentState = ContentState.Error) }
                     }
             }
         }
 
         internal fun onBackClicked() {
-            with(delegate) { viewModelScope.sendEvent(GameDetailsEvent.GoBack) }
+            viewModelScope.sendEvent(eventChannel, GameDetailsEvent.GoBack)
         }
 
         internal fun onWebsiteClicked() {
@@ -134,25 +139,25 @@ public class GameDetailsViewModel
         }
 
         internal fun onSeriesClicked(gameId: Int) {
-            with(delegate) { viewModelScope.sendEvent(GameDetailsEvent.GoGameDetails(gameId)) }
+            viewModelScope.sendEvent(eventChannel, GameDetailsEvent.GoToGameDetails(gameId))
         }
 
         internal fun onBookmarkClicked() {
             val current = state.value as? GameDetailsState.Ready ?: return
-            delegate.reduce {
+            localState.reduce {
                 it.copy(isBookmarked = !current.details.isBookmarked)
             }
         }
 
         internal fun onDescriptionOverflowChanged(isOverflowed: Boolean) {
-            delegate.reduce {
+            localState.reduce {
                 it.copy(isReadMoreVisible = isOverflowed)
             }
         }
 
         internal fun onDescriptionToggleClicked() {
             val current = state.value as? GameDetailsState.Ready ?: return
-            delegate.reduce {
+            localState.reduce {
                 it.copy(isDescriptionExpanded = !current.details.gameDescriptionUi.isExpanded)
             }
         }

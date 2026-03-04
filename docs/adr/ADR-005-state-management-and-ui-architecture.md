@@ -15,7 +15,7 @@ NextPlay is a Compose-first, multi-module Android app. UI is split into:
 The state and event architecture is implemented in code but was not explicitly documented as an "as-is" decision.
 
 ## Decision
-The current UI architecture is MVVM with a reducer-like state delegate:
+The current UI architecture is MVVM with explicit Flow primitives and reducer-style updates:
 - Screen state is owned by feature ViewModels and exposed as `StateFlow`.
 - ViewModels handle user inputs via explicit `onX` functions.
 - One-off actions are exposed as `Flow` of events backed by a `Channel`.
@@ -55,25 +55,25 @@ PagingData<API model> -> (presentation mapper in VM) -> PagingData<UI model>
 ### State model and ownership
 - Primary state holder: feature ViewModel.
 - State representation:
-  - `StateFlow<State>` for "screen state" using a delegate that wraps an internal `MutableStateFlow`.
+  - `StateFlow<State>` for "screen state", backed by a private `MutableStateFlow`.
   - `StateFlow<UI>` for derived state created via `combine(...).stateIn(...)`.
   - Paging uses `Flow<PagingData<...>>` in repositories, and is exposed to UI as `StateFlow<PagingData<UI model>>` and then as `LazyPagingItems` in Compose.
 - Reducer-style updates:
-  - State updates are performed via a `reduce { current -> new }` function on the delegate (internally `MutableStateFlow.update`).
+  - State updates are performed via `reduce { current -> new }` helpers on `MutableStateFlow` (internally `MutableStateFlow.update`).
 - Game example (ownership split):
   - A "pane state" exists as a single `data object` (no fields).
-  - A separate state delegate holds "bookmark ids" as `Set<String>`, and that state is merged with the repository paging stream to produce UI paging state.
+  - A separate local state flow holds "bookmark ids" as `Set<Int>`, and that state is merged with the repository paging stream to produce UI paging state.
 
 ### Event model (one-off actions) and navigation triggering
 - One-off event representation: `Channel<Event>` exposed as `Flow<Event>` via `receiveAsFlow()`.
-- Emission: ViewModel sends events using `viewModelScope.launch { channel.send(event) }`.
+- Emission: ViewModel sends events via `viewModelScope.sendEvent(channel, event)`.
 - Consumption and side effects:
   - Feature Composables collect event flows using a lifecycle-aware collector and perform side effects:
     - Navigation: event -> `NavHostController.navigate(...)`.
     - Paging UI actions: event -> `LazyPagingItems.refresh()` / `LazyPagingItems.retry()`.
 - Game example:
   - `onCardClicked(gameId)` emits a navigation event.
-  - `onRefreshClicked()` / `onRetryClicked()` emit paging action events that are translated to Paging calls in the Composable.
+  - `onRefreshClicked()` / `onRetryClicked()` emit paging action events on the same `GamesPaneEvent` stream, then the Composable translates them to Paging calls.
 
 ### ViewModel conventions (dependencies, constructor injection, saved state, scoping)
 - Construction: `@HiltViewModel` with constructor injection.
@@ -166,7 +166,7 @@ Operational impact:
 ## Compliance checklist
 (PR and LLM)
 - [ ] Keep screen state as `StateFlow` owned by the feature ViewModel.
-- [ ] Update state via delegate `reduce { ... }` (or equivalent) rather than mutating state in UI.
+- [ ] Update state via `MutableStateFlow.reduce { ... }` (or equivalent) rather than mutating state in UI.
 - [ ] Model one-off actions as event flows (Channel-backed in current code) and handle side effects in Composables.
 - [ ] Do not inject `NavHostController` into ViewModels; emit navigation events instead.
 - [ ] Keep Paging creation (Pager, RemoteMediator, Room PagingSource) in `data/*/impl`.
@@ -182,30 +182,34 @@ App entry and navigation host:
 - `app/src/main/kotlin/io/github/onreg/nextplay/MainActivity.kt`
 
 Feature game state, events, ViewModel, pane wiring:
-- `feature/game/src/main/kotlin/io/github/onreg/feature/game/impl/GamesPaneViewModel.kt`
-- `feature/game/src/main/kotlin/io/github/onreg/feature/game/impl/model/GamePaneState.kt`
-- `feature/game/src/main/kotlin/io/github/onreg/feature/game/impl/pane/GamesPane.kt`
-- `feature/game/src/main/kotlin/io/github/onreg/feature/game/impl/pane/GameDetailsPane.kt`
-- `feature/game/src/main/kotlin/io/github/onreg/feature/game/impl/test/GamesPaneTestTags.kt`
+- `feature/game-list/src/main/kotlin/io/github/onreg/feature/game/list/impl/GamesPaneViewModel.kt`
+- `feature/game-list/src/main/kotlin/io/github/onreg/feature/game/list/impl/model/GamePaneState.kt`
+- `feature/game-list/src/main/kotlin/io/github/onreg/feature/game/list/impl/pane/GamesPane.kt`
+- `feature/game-list/src/main/kotlin/io/github/onreg/feature/game/list/impl/test/GamesPaneTestTags.kt`
+- `feature/game-details/src/main/kotlin/io/github/onreg/feature/game/details/impl/GameDetailsViewModel.kt`
+- `feature/game-details/src/main/kotlin/io/github/onreg/feature/game/details/impl/model/GameDetailsState.kt`
+- `feature/game-details/src/main/kotlin/io/github/onreg/feature/game/details/impl/model/GameDetailsEvent.kt`
+- `feature/game-details/src/main/kotlin/io/github/onreg/feature/game/details/impl/pane/GameDetailsPane.kt`
 
-State delegate and lifecycle collection helper:
-- `core/util-android/src/main/kotlin/io/github/onreg/core/util/android/lifecycle/ViewModelDelegate.kt`
-- `core/ui/src/main/kotlin/io/github/onreg/core/ui/runtime/FlowLifecycleExtensions.kt`
+State helpers and lifecycle collection helper:
+- `core/util/src/main/kotlin/io/github/onreg/core/util/flow/ViewModelFlowExtensions.kt`
+- `core/ui-runtime/src/main/kotlin/io/github/onreg/core/ui/runtime/flow/FlowLifecycleExtensions.kt`
 
 Compose primitives and theme examples:
 - `core/ui/src/main/kotlin/io/github/onreg/core/ui/theme/Theme.kt`
 - `core/ui/src/main/kotlin/io/github/onreg/core/ui/components/image/DynamicAsyncImage.kt`
 
 Paging UI and error classification:
-- `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/components/list/GameList.kt`
-- `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/components/card/GameCard.kt`
-- `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/components/card/GameCardError.kt`
-- `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/components/card/model/GameCardUI.kt`
-- `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/components/card/model/GameListErrorType.kt`
+- `presentation/game-list/src/main/kotlin/io/github/onreg/ui/game/list/presentation/components/list/GameList.kt`
+- `presentation/game-list/src/main/kotlin/io/github/onreg/ui/game/list/presentation/components/card/GameCard.kt`
+- `presentation/game-list/src/main/kotlin/io/github/onreg/ui/game/list/presentation/components/card/GameCardError.kt`
+- `presentation/game-list/src/main/kotlin/io/github/onreg/ui/game/list/presentation/components/card/model/GameCardUI.kt`
+- `core/ui-runtime/src/main/kotlin/io/github/onreg/core/ui/runtime/paging/Paging.kt`
+- `core/ui-runtime/src/main/kotlin/io/github/onreg/core/ui/runtime/paging/PagedListState.kt`
 
 Presentation mappers and DI:
-- `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/mapper/GameUiMapper.kt`
-- `presentation/game/src/main/kotlin/io/github/onreg/ui/game/presentation/di/GamePresentationModule.kt`
+- `presentation/game-list/src/main/kotlin/io/github/onreg/ui/game/list/presentation/mapper/GameCardUiMapper.kt`
+- `presentation/game-list/src/main/kotlin/io/github/onreg/ui/game/list/presentation/di/GameListPresentationModule.kt`
 - `presentation/platform/src/main/kotlin/io/github/onreg/ui/platform/mapper/PlatformUiMapper.kt`
 - `presentation/platform/src/main/kotlin/io/github/onreg/ui/platform/di/PlatformPresentationModule.kt`
 
@@ -232,14 +236,14 @@ Testing utilities and representative tests:
 - `testing/unit/src/main/kotlin/io/github/onreg/testing/unit/flow/FlowTest.kt`
 - `testing/unit/src/main/kotlin/io/github/onreg/testing/unit/flow/TestObserver.kt`
 - `testing/unit/src/main/kotlin/io/github/onreg/testing/unit/paging/PagingSnapshot.kt`
-- `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/GamesPaneViewModelTest.kt`
-- `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/GamesPaneViewModelTestDriver.kt`
-- `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/pane/GamesPaneTest.kt`
-- `feature/game/src/test/kotlin/io/github/onreg/feature/game/impl/pane/GamesPaneTestDriver.kt`
-- `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/components/list/GameListTest.kt`
-- `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/components/list/GameListTestDriver.kt`
-- `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/mapper/GameUiMapperTest.kt`
-- `presentation/game/src/test/kotlin/io/github/onreg/ui/game/presentation/mapper/GameUiMapperTestDriver.kt`
+- `feature/game-list/src/test/kotlin/io/github/onreg/feature/game/list/impl/GamesPaneViewModelTest.kt`
+- `feature/game-list/src/test/kotlin/io/github/onreg/feature/game/list/impl/GamesPaneViewModelTestDriver.kt`
+- `feature/game-list/src/test/kotlin/io/github/onreg/feature/game/list/impl/pane/GamesPaneTest.kt`
+- `feature/game-list/src/test/kotlin/io/github/onreg/feature/game/list/impl/pane/GamesPaneTestDriver.kt`
+- `feature/game-details/src/test/kotlin/io/github/onreg/feature/game/details/impl/GameDetailsViewModelTest.kt`
+- `presentation/game-list/src/test/kotlin/io/github/onreg/ui/game/list/presentation/components/list/GameListTest.kt`
+- `presentation/game-list/src/test/kotlin/io/github/onreg/ui/game/list/presentation/components/list/GameListTestDriver.kt`
+- `presentation/game-list/src/test/kotlin/io/github/onreg/ui/game/list/presentation/mapper/GameCardUiMapperTest.kt`
 
 ## Open questions
 None.

@@ -23,6 +23,7 @@ import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardU
 import io.github.onreg.ui.game.list.presentation.components.card.test.GameCardTestTags
 import io.github.onreg.ui.game.list.presentation.components.list.test.GameListTestTags
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlin.test.assertEquals
 import io.github.onreg.ui.game.list.presentation.R as GamePresentationR
 
@@ -64,7 +65,7 @@ internal class GamesPaneTestDriver private constructor(
     private var lastCardClickedId: Int? = null
 
     class Builder(private val composeRule: ComposeContentTestRule) {
-        private val pagingState = MutableStateFlow(
+        private var pagingState = flowOf(
             PagingData.empty<GameCardUI>(
                 sourceLoadStates = LoadStates(
                     refresh = LoadState.NotLoading(endOfPaginationReached = false),
@@ -80,13 +81,15 @@ internal class GamesPaneTestDriver private constructor(
             append: LoadState = LoadState.NotLoading(false),
             prepend: LoadState = LoadState.NotLoading(false),
         ): Builder = apply {
-            pagingState.value = PagingData.from(
-                data = data,
-                sourceLoadStates = LoadStates(
-                    refresh = refresh,
-                    prepend = prepend,
-                    append = append,
-                ),
+            pagingState = flowOf(
+                PagingData.from(
+                    data = data,
+                    sourceLoadStates = LoadStates(
+                        refresh = refresh,
+                        prepend = prepend,
+                        append = append,
+                    ),
+                )
             )
         }
 

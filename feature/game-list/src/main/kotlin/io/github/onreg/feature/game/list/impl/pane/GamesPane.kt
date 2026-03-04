@@ -22,7 +22,6 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.feature.game.list.impl.GamesPaneViewModel
 import io.github.onreg.feature.game.list.impl.R
 import io.github.onreg.feature.game.list.impl.model.GamesPaneEvent
-import io.github.onreg.feature.game.list.impl.model.GamesPaneListEvent
 import io.github.onreg.feature.game.list.impl.test.GamesPaneTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.GameCardError
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
@@ -55,13 +54,8 @@ public fun GamesPane(
     viewModel.events.collectWithLifecycle { event ->
         when (event) {
             is GamesPaneEvent.GoToDetails -> onOpenGameDetails(event.gameId)
-        }
-    }
-
-    viewModel.pagingEvents.collectWithLifecycle { event ->
-        when (event) {
-            GamesPaneListEvent.Retry -> pagingState.retry()
-            GamesPaneListEvent.Refresh -> pagingState.refresh()
+            GamesPaneEvent.Retry -> pagingState.retry()
+            GamesPaneEvent.Refresh -> pagingState.refresh()
         }
     }
 }

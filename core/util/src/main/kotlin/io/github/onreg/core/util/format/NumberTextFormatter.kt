@@ -1,4 +1,4 @@
-package io.github.onreg.core.ui.format
+package io.github.onreg.core.util.format
 
 import java.math.BigDecimal
 import java.math.RoundingMode

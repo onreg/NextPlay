@@ -144,7 +144,8 @@ Typical contents:
 - `core/ui`: theme, reusable Compose components, runtime helpers.
 - `core/network`: Retrofit/OkHttp/Moshi configuration, interceptors, response adapters, API interfaces.
 - `core/db`: Room database, DAOs, entities, transaction helpers.
-- `core/util-android`: lifecycle/state utilities and resource helpers.
+- `core/util`: lifecycle/state Flow helpers.
+- `core/util-android`: Android resource and intent helpers.
 
 Must not contain:
 - Feature-specific business logic.
