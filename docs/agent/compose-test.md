@@ -24,7 +24,8 @@ Instrumentation (`src/androidTest`):
 
 Implementation rules:
 - Keep the driver constructor `private` and expose a `Builder` to configure UI state/inputs.
-- In the `Builder`, define inputs as `var` properties with “empty” defaults (empty lists, empty models, `emptyPagingFlow()`).
+- In the `Builder`, define inputs as `var` properties with baseline fixture defaults (small, realistic, and valid) so each test starts from the same baseline UI state.
+  - Provide explicit builder methods to override baseline data for empty/loading/error states (for example `emptyState()`, `loading()`, `error(...)`) instead of relying on “empty-by-default” inputs.
 - Builder methods should reassign these `var` properties.
 - In the driver, define *all* UI nodes needed by tests as `private` properties (prefer computed getters like `private val retryButton get() = composeRule.onNodeWithTag(...)`).
   - Reuse these node properties inside driver methods like `driver.assertEmptyStateDisplayed()` and `driver.clickRetryButton()` to keep selectors centralized and consistent.
@@ -71,6 +72,7 @@ Prefer stable selectors, from most to least preferred:
 After completing changes (tests and any required production code such as test tags), verify with this checklist:
 
 - Tests arrange via `*TestDriver.Builder(composeRule)` that calls `composeRule.setContent { ... }` in `build()`.
+- Driver builder inputs have baseline fixture defaults, and tests override only scenario-specific state.
 - The driver defines `private` node properties for all UI nodes required by driver actions/assertions.
 - The driver methods do not contain node-finding logic.
 - Tests do not call `composeRule.onNode...` directly.

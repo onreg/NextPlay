@@ -16,6 +16,12 @@ Does not apply to:
 - Assert on outputs first (returned value, emitted state/event), then verify key interactions/side effects.
 - Keep assertions focused on what the unit owns; avoid asserting through multiple collaborators.
 
+### Default fixture data
+
+- Define default fixture objects as `private val` test class properties (small, realistic, and valid).
+- Prefer a consistent baseline arrangement for the test class (via a `defaults()` driver builder method, a shared `arrangeDefault()` helper, or `@BeforeTest`), so each test starts from the same baseline.
+- Add only scenario-specific fixture changes in test bodies (prefer `copy(...)`/small overrides over rebuilding object graphs).
+
 ### Test drivers (builders)
 
 - Prefer `*TestDriver` helpers to keep tests readable and to centralize mocking/stubbing.
@@ -60,6 +66,7 @@ After completing changes (tests and any required production code), verify with t
 - Tests are placed under `src/test` and are not Compose or Room DAO tests.
 - Coroutines and Flow tests are wrapped in `runTest`.
 - ViewModel-related tests install `MainDispatcherRule` when `Dispatchers.Main` is used.
+- Default fixture data is defined once (as `private val` properties or helpers) and reused; tests add only scenario-specific changes.
 - Tests use a `*TestDriver.Builder` (private constructor, fluent builder) for setup, and the subject is built lazily after stubbing.
 - All stubbing is done via explicit builder methods (no stubbing in property initializers).
 - Flow and Paging assertions use the recommended helpers (`Flow<T>.test(this)` when observing multiple emissions, snapshot helpers for paging).

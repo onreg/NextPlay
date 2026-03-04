@@ -1,7 +1,16 @@
 ## Code organization (Kotlin)
 
-This document defines lightweight rules for Kotlin code organization: interface placement, mapper
-structure, and UI model naming.
+This document defines lightweight rules for Kotlin code organization when adding new Kotlin source
+files: interface placement, file boundaries, and naming.
+
+For package/directory placement rules, see: `packages.md`.
+
+If the new file is a mapper/DI/paging/schema/navigation change, also follow the specialized docs:
+- Mappers: `mapper.md`
+- DI: `di.md`
+- Paging data layer: `paging-data.md`
+- Room schema: `room-schema.md`
+- App navigation host: `navigation.md`
 
 ### Interfaces
 
@@ -14,19 +23,40 @@ structure, and UI model naming.
   - The interface is `internal` (or effectively internal by module boundaries) and has **a single
     implementation**.
 
-### Mapper rules
+### Files and boundaries
 
-- Do not implement mappers as extension functions. Use an interface + implementation class (e.g.,
-  `PlatformUiMapper` + `PlatformUiMapperImpl`) to keep mapping logic injectable and testable.
-- Co-locate the mapper interface and its primary implementation in the same file when the mapper is
-  `internal` and has a single implementation.
+- Prefer one “primary” top-level type per file.
+  - Co-location is allowed for tight pairs like `interface` + `Impl` when the interface is `internal`
+    and has a single implementation.
+- Name files after the primary type they contain.
+- Keep public API types in stable packages, and keep implementations in `impl` packages/folders when
+  the module structure uses that split.
 
 ### Naming convention
 
-- When co-locating, name the file after the interface (e.g., `GameEntityMapper.kt`) and keep the
-  implementation name explicit (e.g., `GameEntityMapperImpl`).
+- When co-locating `interface` + implementation, name the file after the interface (for example
+  `GameEntityMapper.kt`) and keep the implementation name explicit (for example
+  `GameEntityMapperImpl`).
+- Follow these suffix conventions (matching existing code) when adding new types:
+  - Room entities: `XxxEntity`, remote keys: `XxxRemoteKeysEntity`, cross refs: `XxxCrossRef`.
+  - Network DTOs: `XxxDto` (`core/network/.../dto/**`).
+  - Repositories: `XxxRepository` in `data/*/api`, `XxxRepositoryImpl` in `data/*/impl`.
+  - Paging mediators: `XxxRemoteMediator` and factories as `XxxRemoteMediatorFactory`.
+  - DI: `XxxModule` for Hilt modules under `.../di/**`.
+  - Tests: `XxxTest`, `XxxTestDriver`, `XxxTestData`, `XxxTestTags`.
 
 ### UI model naming
 
-- UI models (presentation-layer types that represent UI state for a screen/component) must end with
-  `Ui`, for example `GameCardUi`.
+- New UI models (types that represent UI state for a screen/component) should end with `Ui`
+  (for example `GameDetailsUi`).
+- Legacy types may already use `UI` suffix (for example `GameCardUI`, `ContentInfoUI`). Do not rename
+  existing types as part of unrelated changes.
+
+### Verification
+
+Before finishing a change that adds new Kotlin source files, verify:
+
+- New interfaces follow the separate-file vs co-location rules.
+- File names match the primary types in the file.
+- New UI model naming follows `...Ui` for new types, without renaming legacy `...UI` types.
+- New types are placed in the correct package/directory for their layer and role (`packages.md`).
