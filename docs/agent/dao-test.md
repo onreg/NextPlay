@@ -1,7 +1,7 @@
 ## Room DAO testing rules (core/db `src/test`)
 
 Applies to Room DAO tests under `core/db/**/src/test/**`.
-These tests are database integration-style tests and should not follow `unit-test.md`.
+These tests are database integration-style tests and should not follow `non-compose-test.md`.
 
 ### Test setup
 

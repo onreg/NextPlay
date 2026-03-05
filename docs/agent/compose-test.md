@@ -27,7 +27,7 @@ Implementation rules:
 - In the `Builder`, define inputs as `var` properties with baseline fixture defaults (small, realistic, and valid) so each test starts from the same baseline UI state.
   - Provide explicit builder methods to override baseline data for empty/loading/error states (for example `emptyState()`, `loading()`, `error(...)`) instead of relying on “empty-by-default” inputs.
 - Builder methods should reassign these `var` properties.
-- In the driver, define *all* UI nodes needed by tests as `private` properties (prefer computed getters like `private val retryButton get() = composeRule.onNodeWithTag(...)`).
+- In the driver, define *all* UI nodes needed by tests as `private` properties (for example `private val retryButton = composeRule.onNodeWithTag(...)`).
   - Reuse these node properties inside driver methods like `driver.assertEmptyStateDisplayed()` and `driver.clickRetryButton()` to keep selectors centralized and consistent.
 
 ### Node selection rules
@@ -61,7 +61,7 @@ Prefer stable selectors, from most to least preferred:
 ### Assertions
 
 - Prefer `assertIsDisplayed` / `assertIsNotDisplayed` to check if node is visible or hidden for user.
-- Use `assertCountEquals` when asserting the number of matching nodes (lists, repeated error items).
+- Use `assertCountEquals` only when asserting the number of matching nodes (for example lists or repeated items), not for negative visibility checks.
 
 ### Theming
 

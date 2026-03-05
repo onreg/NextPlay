@@ -6,10 +6,19 @@ Read only documents whose triggers match your change.
 ## How to use
 
 - Identify edited paths + main intent (ViewModel, tests, mapping, snapshot).
-- Use the triggers table below.
+- For test tasks, resolve test-doc triggers first using the ordered rules below.
+- Use the triggers table below for everything else.
 - If multiple triggers match, read all matched docs (usually 1–3).
 
 ## Triggers table (paths/symbols)
+
+- Test-doc trigger order (mutually exclusive, evaluate top-to-bottom; first match wins, do not read later test docs):
+  - Writing or editing tests for Composables (including when the target file is a Pane/Screen like `feature/**/src/main/**/impl/pane/**` with `@Composable` / `*Pane` / `*Screen`, or test code uses `androidx.compose.ui.test.*`, `createComposeRule`, `createAndroidComposeRule`, `ComposeContentTestRule`):
+    - Read `compose-test.md` only
+  - Editing Room DAO tests in `core/db/**/src/test/**` (symbols: `Room.inMemoryDatabaseBuilder`, `RobolectricTestRunner`, `AndroidJUnit4`):
+    - Read `dao-test.md` only
+  - Editing non-Compose, non-Room unit tests (`**/src/test/**`, `**/*Test.kt`, `**/*TestDriver.kt`) only when path is not `core/db/**/src/test/**` and test code has no Compose test symbols:
+    - Read `non-compose-test.md` only
 
 - Editing a production ViewModel (`**/src/main/kotlin/**/**ViewModel*.kt`, `@HiltViewModel`, or class extends `ViewModel`):
   - Read `viewmodel.md`
@@ -17,12 +26,6 @@ Read only documents whose triggers match your change.
   - Read `composable-screen.md`
 - Editing a Pane that creates an assisted ViewModel (symbols: `@AssistedInject`, `@AssistedFactory`, `hiltViewModel<..., ...Factory>`, `creationCallback`):
   - Read `assisted-viewmodel.md`
-- Editing Compose tests (imports `androidx.compose.ui.test.*` / uses `createComposeRule` / `createAndroidComposeRule` / `ComposeContentTestRule`):
-  - Read `compose-test.md`
-- Editing Room DAO tests in `core/db/**/src/test/**` (symbols: `Room.inMemoryDatabaseBuilder`, `RobolectricTestRunner`, `AndroidJUnit4`):
-  - Read `dao-test.md`
-- Editing unit tests (`**/src/test/**`, `**/*Test.kt`, `**/*TestDriver.kt`):
-  - Read `unit-test.md`
 - Editing mappers (folders named `mapper`, files `*Mapper*.kt`):
   - Read `mapper.md`
 - Editing DI modules (paths `**/di/**`, files `*Module.kt`, symbols: `@Module`, `@InstallIn`, `@Binds`, `@Provides`):

@@ -1,9 +1,9 @@
-## Unit testing rules
+## Non-Compose unit testing rules
 
 Applies to non-Compose unit tests under `src/test`.
 Does not apply to:
 - Compose tests (e.g., `createComposeRule`, `ComposeContentTestRule`)
-- Room DAO tests under `core/db/**/src/test/**` (e.g., `Room.inMemoryDatabaseBuilder`, `AndroidJUnit4`)
+- Room DAO tests under `core/db/**/src/test/**` (always handled by `dao-test.md`; e.g., `Room.inMemoryDatabaseBuilder`, `AndroidJUnit4`)
 
 ### Test naming
 
