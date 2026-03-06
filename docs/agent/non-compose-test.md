@@ -18,16 +18,13 @@ Does not apply to:
 
 ### Default fixture data
 
-- Prefer class-level `private val` fixtures over companion objects unless a fixture truly must be static.
-- Define default fixture objects as immutable `private val` test class properties and treat them as a baseline, not as state to mutate across tests.
-- Use direct `copy(...)` only for a single-level, one-off override in a test body.
-- If a test needs a nested `copy(...)`, extract a helper instead of rebuilding the object graph inline.
-- If the same variation appears in more than one test, extract a helper on the first repeat.
-- Add helpers for both input fixtures and expected results when they make assertions easier to read (e.g. `fun TestObject.withDrivingLicence(...)`, `fun GameDetailsState.Ready.withExpandedDescription()`).
-- Prefer semantic helper names that describe the scenario, not the mechanics of rebuilding the object graph.
-- Keep fixture helpers small: return a new instance, override only the relevant subtree, and avoid builders or helpers with many optional parameters.
-- Prefer a consistent baseline arrangement for the test class (via a `defaults()` driver builder method, a shared `arrangeDefault()` helper, or `@BeforeTest`), so each test starts from the same baseline.
-- Add only scenario-specific fixture changes in test bodies.
+- Keep one immutable `private val` baseline fixture per test class and reuse it across tests.
+- Use direct `copy(...)` only for a single-level, one-off change in a test body.
+- If a variation is nested or reused, extract a small semantic helper for it on the fixture or expected state (e.g. `withDrivingLicence()`, `withBookmarked()`, `withExpandedDescription()`).
+- Helpers must read like scenarios, return a new instance, and change only the relevant subtree.
+- Do not create mini-builders disguised as helpers: no multiple boolean flags, many optional parameters, or generic state-bag/internal-state arguments such as `toReadyState(localState)` or `toReadyState(defaultLocalState.copy(...))`.
+- Prefer composing small helpers over parameterizing one large helper (e.g. `gameDetails.readyState().withExpandedDescription().withBookmarked()`).
+- Keep test bodies limited to the baseline plus scenario-specific changes.
 
 ### Test drivers (builders)
 
@@ -76,7 +73,8 @@ After completing changes (tests and any required production code), verify with t
 - Default fixture data is defined once as `private val` fixtures and reused across tests.
 - Single-level fixture variations use direct `copy(...)`; nested or repeated variations use small focused helpers/extensions.
 - Shared default fixtures are treated as immutable baselines and are never mutated in place.
-- Test doesn't parameter-heavy helper functions for building test fixtures.
+- Test helper functions do not become mini-builders with multiple boolean flags or many optional parameters.
+- Expected-state helpers do not accept internal-state objects or generic state bags to describe test scenarios.
 - Tests use a `*TestDriver.Builder` (private constructor, fluent builder) for setup, and the subject is built lazily after stubbing.
 - All stubbing is done via explicit builder methods (no stubbing in property initializers).
 - Flow and Paging assertions use the recommended helpers (`Flow<T>.test(this)` when observing multiple emissions, snapshot helpers for paging).
