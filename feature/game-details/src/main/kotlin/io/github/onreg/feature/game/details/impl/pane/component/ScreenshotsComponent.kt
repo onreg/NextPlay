@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -27,6 +28,7 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
+import io.github.onreg.feature.game.details.impl.test.GameDetailsPaneTestTags
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import kotlinx.coroutines.flow.Flow
 
@@ -44,7 +46,7 @@ internal fun ScreenshotsComponent(
 
         is PagedListState.Loaded -> {
             Column(
-                modifier = modifier,
+                modifier = modifier.testTag(GameDetailsPaneTestTags.GAME_DETAILS_SCREENSHOTS_SECTION),
                 verticalArrangement = Arrangement.spacedBy(Spacing.lg),
             ) {
                 Text(
@@ -67,6 +69,11 @@ internal fun ScreenshotsComponent(
                         Card(
                             onClick = { onScreenshotClicked(screenshot.imageUrl) },
                             modifier = Modifier
+                                .testTag(
+                                    GameDetailsPaneTestTags.GAME_DETAILS_SCREENSHOT_PREFIX.plus(
+                                        screenshot.id,
+                                    ),
+                                )
                                 .width(MediaSectionTokens.itemWidthPhone)
                                 .aspectRatio(MediaSectionTokens.aspectRatio16x9),
                             shape = MaterialTheme.shapes.medium,

@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
@@ -43,6 +44,7 @@ import io.github.onreg.feature.game.details.impl.pane.component.LoadingComponent
 import io.github.onreg.feature.game.details.impl.pane.component.MoviesComponent
 import io.github.onreg.feature.game.details.impl.pane.component.ScreenshotsComponent
 import io.github.onreg.feature.game.details.impl.pane.component.SeriesComponent
+import io.github.onreg.feature.game.details.impl.test.GameDetailsPaneTestTags
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
@@ -128,7 +130,8 @@ internal fun GameDetailsPaneScreen(
                 is GameDetailsState.Error -> {
                     ErrorContent(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .testTag(GameDetailsPaneTestTags.GAME_DETAILS_ERROR),
                         onRetry = onRetry,
                     )
                 }
@@ -136,7 +139,8 @@ internal fun GameDetailsPaneScreen(
                 is GameDetailsState.Loading -> {
                     LoadingComponent(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .testTag(GameDetailsPaneTestTags.GAME_DETAILS_LOADING),
                     )
                 }
 
@@ -216,7 +220,9 @@ private fun GameDetailsContent(
     onMovieClicked: (String) -> Unit,
     onSeriesClicked: (Int) -> Unit,
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.testTag(GameDetailsPaneTestTags.GAME_DETAILS_CONTENT),
+    ) {
         BannerComponent(
             modifier = Modifier.fillMaxWidth(),
             rating = details.rating,

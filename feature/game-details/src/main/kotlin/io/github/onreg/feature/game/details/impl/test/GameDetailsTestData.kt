@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.Flow
 import io.github.onreg.core.ui.R as CoreUiR
 
 internal object GameDetailsTestData {
+    const val readyTitle: String = "Elden Ring"
+
     val readyState: GameDetailsState.Ready = GameDetailsState.Ready(
         details = GameDetailsUi(
             image = "example",
@@ -59,7 +61,7 @@ internal object GameDetailsTestData {
             isBookmarked = true,
         ),
         headerUi = AppHeaderUi(
-            title = "Elden Ring",
+            title = readyTitle,
             navigationItem = AppHeaderMenu(
                 iconResId = CoreUiR.drawable.ic_back_24,
                 contentDescriptionResId = CoreUiR.string.back,
@@ -70,9 +72,9 @@ internal object GameDetailsTestData {
     val loadingState: GameDetailsState.Loading = GameDetailsState.Loading(headerUi = AppHeaderUi())
 
     val screenshotsItems: List<ScreenshotUI> = listOf(
-        ScreenshotUI(id = 1, imageUrl = "example"),
-        ScreenshotUI(id = 2, imageUrl = "example"),
-        ScreenshotUI(id = 3, imageUrl = "example"),
+        ScreenshotUI(id = 1, imageUrl = "https://example.com/screenshot-1.webp"),
+        ScreenshotUI(id = 2, imageUrl = "https://example.com/screenshot-2.webp"),
+        ScreenshotUI(id = 3, imageUrl = "https://example.com/screenshot-3.webp"),
     )
 
     val moviesItems: List<MovieUI> = listOf(
@@ -152,4 +154,8 @@ internal object GameDetailsTestData {
     val loadingScreenshots: Flow<PagingData<ScreenshotUI>> = loadingPagingFlow()
     val loadingMovies: Flow<PagingData<MovieUI>> = loadingPagingFlow()
     val loadingSeries: Flow<PagingData<GameCardUI>> = loadingPagingFlow()
+
+    val longDescription: String = List(120) {
+        "This sprawling fantasy adventure crosses ruined kingdoms, hidden catacombs, towering castles, forgotten battlefields, and labyrinthine cities packed with secrets."
+    }.joinToString(separator = " ")
 }

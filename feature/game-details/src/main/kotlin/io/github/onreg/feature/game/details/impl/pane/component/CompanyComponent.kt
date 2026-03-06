@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import io.github.onreg.core.ui.components.image.DynamicAsyncImage
 import io.github.onreg.core.ui.preview.ThemePreview
@@ -20,6 +21,7 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.model.GameCompanyUi
+import io.github.onreg.feature.game.details.impl.test.GameDetailsPaneTestTags
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 
 @Composable
@@ -27,7 +29,7 @@ internal fun CompanyComponent(
     modifier: Modifier = Modifier,
     companies: List<GameCompanyUi>,
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.testTag(GameDetailsPaneTestTags.GAME_DETAILS_COMPANIES_SECTION)) {
         Text(
             text = stringResource(R.string.developers_and_publishers_section_title),
             style = MaterialTheme.typography.titleMedium,

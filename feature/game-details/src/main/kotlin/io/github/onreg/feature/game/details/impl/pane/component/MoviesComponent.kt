@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
@@ -33,6 +34,7 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.model.MovieUI
+import io.github.onreg.feature.game.details.impl.test.GameDetailsPaneTestTags
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import kotlinx.coroutines.flow.Flow
 import io.github.onreg.core.ui.R as CoreUiR
@@ -52,7 +54,7 @@ internal fun MoviesComponent(
 
         is PagedListState.Loaded -> {
             Column(
-                modifier = modifier,
+                modifier = modifier.testTag(GameDetailsPaneTestTags.GAME_DETAILS_MOVIES_SECTION),
                 verticalArrangement = Arrangement.spacedBy(Spacing.lg),
             ) {
                 Text(
@@ -75,6 +77,11 @@ internal fun MoviesComponent(
                         Card(
                             onClick = { onMovieClicked(movie.videoUrl) },
                             modifier = Modifier
+                                .testTag(
+                                    GameDetailsPaneTestTags.GAME_DETAILS_MOVIE_PREFIX.plus(
+                                        movie.id,
+                                    ),
+                                )
                                 .width(MediaSectionTokens.itemWidthPhone)
                                 .aspectRatio(MediaSectionTokens.aspectRatio16x9),
                             shape = MaterialTheme.shapes.medium,

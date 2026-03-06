@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -21,6 +22,7 @@ import io.github.onreg.core.ui.theme.MediaSectionTokens
 import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
+import io.github.onreg.feature.game.details.impl.test.GameDetailsPaneTestTags
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
 import io.github.onreg.ui.game.list.presentation.components.card.GameCard
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
@@ -40,7 +42,7 @@ internal fun SeriesComponent(
 
         is PagedListState.Loaded -> {
             Column(
-                modifier = modifier,
+                modifier = modifier.testTag(GameDetailsPaneTestTags.GAME_DETAILS_SERIES_SECTION),
                 verticalArrangement = Arrangement.spacedBy(Spacing.lg),
             ) {
                 Text(
@@ -58,6 +60,9 @@ internal fun SeriesComponent(
                         val game = items[index] ?: return@items
                         GameCard(
                             modifier = Modifier
+                                .testTag(
+                                    GameDetailsPaneTestTags.GAME_DETAILS_SERIES_PREFIX.plus(game.id),
+                                )
                                 .width(MediaSectionTokens.itemWidthPhone),
                             gameData = game,
                             onCardClicked = { onSeriesClicked(game.id) },
