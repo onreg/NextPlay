@@ -3,9 +3,7 @@ package io.github.onreg.feature.game.details.impl.pane.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.MaterialTheme
@@ -13,8 +11,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -26,7 +22,6 @@ import io.github.onreg.core.ui.theme.NextPlayTheme
 import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
-import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.GameCard
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
@@ -63,8 +58,7 @@ internal fun SeriesComponent(
                         val game = items[index] ?: return@items
                         GameCard(
                             modifier = Modifier
-                                .width(MediaSectionTokens.itemWidthPhone)
-                                .testTag(GameDetailsTestTags.seriesItemTag(game.id)),
+                                .width(MediaSectionTokens.itemWidthPhone),
                             gameData = game,
                             onCardClicked = { onSeriesClicked(game.id) },
                         )

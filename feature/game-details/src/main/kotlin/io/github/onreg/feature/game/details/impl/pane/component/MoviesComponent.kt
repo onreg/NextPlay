@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
@@ -36,7 +34,6 @@ import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.model.MovieUI
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
-import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import kotlinx.coroutines.flow.Flow
 import io.github.onreg.core.ui.R as CoreUiR
 
@@ -79,8 +76,7 @@ internal fun MoviesComponent(
                             onClick = { onMovieClicked(movie.videoUrl) },
                             modifier = Modifier
                                 .width(MediaSectionTokens.itemWidthPhone)
-                                .aspectRatio(MediaSectionTokens.aspectRatio16x9)
-                                .testTag(GameDetailsTestTags.movieItemTag(movie.id)),
+                                .aspectRatio(MediaSectionTokens.aspectRatio16x9),
                             shape = MaterialTheme.shapes.medium,
                         ) {
                             Box(modifier = Modifier.fillMaxSize()) {

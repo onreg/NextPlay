@@ -36,6 +36,8 @@ Prefer stable selectors, from most to least preferred:
 
 1) `onNodeWithTag(...)` + stable `*TestTags` constants
    - Use tags for state-driven UI branches or containers (loading/error/empty/content).
+   - For repeated items in lists or grids, expose deterministic tags using a stable prefix plus item id (for example `CARD_PREFIX + id`).
+   - In tests, find repeated items by that exact `prefix + id` combination instead of text or position.
    - If the UI has no tag yet, add it in production code.
    - Keep tags next to the component that owns them (pattern in this repo: `.../src/main/.../test/*TestTags.kt`).
 2) `onNodeWithContentDescription(...)`
@@ -56,12 +58,13 @@ Prefer stable selectors, from most to least preferred:
 
 - If a node might be off-screen, call `performScrollTo()` before `performClick()`.
 - When multiple nodes match, make selection deterministic:
-  - Prefer adding/using a tag that includes an id (for example, `CARD_PREFIX + id`) over relying on index order.
+  - Prefer adding/using a tag that includes an id (for example, `CARD_PREFIX + id`) over relying on index order, repeated text, or item position.
 
 ### Assertions
 
 - Prefer `assertIsDisplayed` / `assertIsNotDisplayed` to check if node is visible or hidden for user.
-- Use `assertCountEquals` only when asserting the number of matching nodes (for example lists or repeated items), not for negative visibility checks.
+- Do not use `assertCountEquals(0)` to check that a component is hidden or absent.
+- Use `assertIsNotDisplayed` for negative visibility checks, even when the component should not exist in the rendered UI.
 
 ### Theming
 

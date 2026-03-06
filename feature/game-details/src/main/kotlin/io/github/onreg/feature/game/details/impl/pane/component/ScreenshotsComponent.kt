@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Card
@@ -17,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.testTag
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
@@ -31,7 +28,6 @@ import io.github.onreg.core.ui.theme.Spacing
 import io.github.onreg.feature.game.details.impl.R
 import io.github.onreg.feature.game.details.impl.model.ScreenshotUI
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
-import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -72,8 +68,7 @@ internal fun ScreenshotsComponent(
                             onClick = { onScreenshotClicked(screenshot.imageUrl) },
                             modifier = Modifier
                                 .width(MediaSectionTokens.itemWidthPhone)
-                                .aspectRatio(MediaSectionTokens.aspectRatio16x9)
-                                .testTag(GameDetailsTestTags.screenshotItemTag(screenshot.id)),
+                                .aspectRatio(MediaSectionTokens.aspectRatio16x9),
                             shape = MaterialTheme.shapes.medium,
                         ) {
                             DynamicAsyncImage(

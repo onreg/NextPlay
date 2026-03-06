@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
@@ -45,7 +44,6 @@ import io.github.onreg.feature.game.details.impl.pane.component.MoviesComponent
 import io.github.onreg.feature.game.details.impl.pane.component.ScreenshotsComponent
 import io.github.onreg.feature.game.details.impl.pane.component.SeriesComponent
 import io.github.onreg.feature.game.details.impl.test.GameDetailsTestData
-import io.github.onreg.feature.game.details.impl.test.GameDetailsTestTags
 import io.github.onreg.ui.game.list.presentation.components.card.model.GameCardUI
 import kotlinx.coroutines.flow.Flow
 import io.github.onreg.core.ui.R as CoreUiR
@@ -130,8 +128,7 @@ internal fun GameDetailsPaneScreen(
                 is GameDetailsState.Error -> {
                     ErrorContent(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .testTag(GameDetailsTestTags.ERROR),
+                            .fillMaxSize(),
                         onRetry = onRetry,
                     )
                 }
@@ -139,8 +136,7 @@ internal fun GameDetailsPaneScreen(
                 is GameDetailsState.Loading -> {
                     LoadingComponent(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .testTag(GameDetailsTestTags.LOADING),
+                            .fillMaxSize(),
                     )
                 }
 
@@ -156,8 +152,7 @@ internal fun GameDetailsPaneScreen(
                     GameDetailsContent(
                         modifier = modifier
                             .fillMaxSize()
-                            .padding(bottom = Spacing.lg)
-                            .testTag(GameDetailsTestTags.CONTENT),
+                            .padding(bottom = Spacing.lg),
                         isLargeScreen = isLargeScreen,
                         details = gameDetailsState.details,
                         screenshots = screenshotsItems,
@@ -264,8 +259,7 @@ private fun GameDetailsContent(
             ScreenshotsComponent(
                 modifier = Modifier
                     .padding(vertical = Spacing.lg)
-                    .fillMaxWidth()
-                    .testTag(GameDetailsTestTags.SCREENSHOTS_SECTION),
+                    .fillMaxWidth(),
                 pagingState = screenshotsState,
                 onScreenshotClicked = onScreenshotClicked,
             )
@@ -279,8 +273,7 @@ private fun GameDetailsContent(
             MoviesComponent(
                 modifier = Modifier
                     .padding(vertical = Spacing.lg)
-                    .fillMaxWidth()
-                    .testTag(GameDetailsTestTags.MOVIES_SECTION),
+                    .fillMaxWidth(),
                 pagingState = moviesState,
                 onMovieClicked = onMovieClicked,
             )
@@ -294,8 +287,7 @@ private fun GameDetailsContent(
             SeriesComponent(
                 modifier = Modifier
                     .padding(vertical = Spacing.lg)
-                    .fillMaxWidth()
-                    .testTag(GameDetailsTestTags.SERIES_SECTION),
+                    .fillMaxWidth(),
                 pagingState = seriesState,
                 onSeriesClicked = onSeriesClicked,
             )
