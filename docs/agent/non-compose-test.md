@@ -19,6 +19,8 @@ Does not apply to:
 ### Default fixture data
 
 - Define default fixture objects as `private val` test class properties (small, realistic, and valid).
+- Prefer class-level `private val` fixtures over companion objects unless a fixture truly must be static.
+- For expected state/value assertions, prefer a default expected object as a `private val` plus small helper functions that modify that fixture for scenario-specific differences.
 - Prefer a consistent baseline arrangement for the test class (via a `defaults()` driver builder method, a shared `arrangeDefault()` helper, or `@BeforeTest`), so each test starts from the same baseline.
 - Add only scenario-specific fixture changes in test bodies (prefer `copy(...)`/small overrides over rebuilding object graphs).
 
