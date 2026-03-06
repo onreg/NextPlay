@@ -18,11 +18,16 @@ Does not apply to:
 
 ### Default fixture data
 
-- Define default fixture objects as `private val` test class properties (small, realistic, and valid).
 - Prefer class-level `private val` fixtures over companion objects unless a fixture truly must be static.
-- For expected state/value assertions, prefer a default expected object as a `private val` plus small helper functions that modify that fixture for scenario-specific differences.
+- Define default fixture objects as immutable `private val` test class properties and treat them as a baseline, not as state to mutate across tests.
+- Use direct `copy(...)` only for a single-level, one-off override in a test body.
+- If a test needs a nested `copy(...)`, extract a helper instead of rebuilding the object graph inline.
+- If the same variation appears in more than one test, extract a helper on the first repeat.
+- Add helpers for both input fixtures and expected results when they make assertions easier to read (e.g. `fun TestObject.withDrivingLicence(...)`, `fun GameDetailsState.Ready.withExpandedDescription()`).
+- Prefer semantic helper names that describe the scenario, not the mechanics of rebuilding the object graph.
+- Keep fixture helpers small: return a new instance, override only the relevant subtree, and avoid builders or helpers with many optional parameters.
 - Prefer a consistent baseline arrangement for the test class (via a `defaults()` driver builder method, a shared `arrangeDefault()` helper, or `@BeforeTest`), so each test starts from the same baseline.
-- Add only scenario-specific fixture changes in test bodies (prefer `copy(...)`/small overrides over rebuilding object graphs).
+- Add only scenario-specific fixture changes in test bodies.
 
 ### Test drivers (builders)
 
@@ -68,7 +73,10 @@ After completing changes (tests and any required production code), verify with t
 - Tests are placed under `src/test` and are not Compose or Room DAO tests.
 - Coroutines and Flow tests are wrapped in `runTest`.
 - ViewModel-related tests install `MainDispatcherRule` when `Dispatchers.Main` is used.
-- Default fixture data is defined once (as `private val` properties or helpers) and reused; tests add only scenario-specific changes.
+- Default fixture data is defined once as `private val` fixtures and reused across tests.
+- Single-level fixture variations use direct `copy(...)`; nested or repeated variations use small focused helpers/extensions.
+- Shared default fixtures are treated as immutable baselines and are never mutated in place.
+- Test doesn't parameter-heavy helper functions for building test fixtures.
 - Tests use a `*TestDriver.Builder` (private constructor, fluent builder) for setup, and the subject is built lazily after stubbing.
 - All stubbing is done via explicit builder methods (no stubbing in property initializers).
 - Flow and Paging assertions use the recommended helpers (`Flow<T>.test(this)` when observing multiple emissions, snapshot helpers for paging).
