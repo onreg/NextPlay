@@ -18,7 +18,7 @@ Does not apply to:
 
 ### Default fixture data
 
-- Keep one immutable `private val` baseline fixture per test class and reuse it across tests.
+- Define default fixture objects as test class properties (games, platforms, cross-refs, list entries).
 - Use direct `copy(...)` only for a single-level, one-off change in a test body.
 - If a variation is nested or reused, extract a small semantic helper for it on the fixture or expected state (e.g. `withDrivingLicence()`, `withBookmarked()`, `withExpandedDescription()`).
 - Helpers must read like scenarios, return a new instance, and change only the relevant subtree.
@@ -70,7 +70,7 @@ After completing changes (tests and any required production code), verify with t
 - Tests are placed under `src/test` and are not Compose or Room DAO tests.
 - Coroutines and Flow tests are wrapped in `runTest`.
 - ViewModel-related tests install `MainDispatcherRule` when `Dispatchers.Main` is used.
-- Default fixture data is defined once as `private val` fixtures and reused across tests.
+- Default fixture objects is defined once as `private val` fixtures and reused across tests.
 - Single-level fixture variations use direct `copy(...)`; nested or repeated variations use small focused helpers/extensions.
 - Shared default fixtures are treated as immutable baselines and are never mutated in place.
 - Test helper functions do not become mini-builders with multiple boolean flags or many optional parameters.

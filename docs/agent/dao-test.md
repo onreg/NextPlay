@@ -9,7 +9,8 @@ These tests are database integration-style tests and should not follow `non-comp
 - Create DB with `Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), NextPlayDatabase::class.java)`.
 - Use `.allowMainThreadQueries()` in test DB setup.
 - Keep DAOs as test class properties created from the same DB instance.
-- Populate the database with default fixture data in `@BeforeTest` using DAO methods.
+- Prefer arranging only the data needed by each test inside the test body.
+- Use `@BeforeTest` only when a shared baseline meaningfully reduces duplication across most tests.
 - Close DB in `@AfterTest`.
 
 ### Test naming and structure
@@ -24,9 +25,14 @@ These tests are database integration-style tests and should not follow `non-comp
 ### Data setup
 
 - Define default fixture objects as test class properties (games, platforms, cross-refs, list entries).
-- Insert those default fixtures in `@BeforeTest` so each test starts from the same baseline dataset.
+- Insert fixtures in the test body.
+- Use direct `copy(...)` only for a single-level, one-off change in a test body.
+- If a variation is nested or reused, extract a small semantic helper for it on the fixture or expected state (e.g. `withDrivingLicence()`, `withBookmarked()`, `withExpandedDescription()`).
+- For DAO tests, do not wrap `Entity(...)` construction in generic helpers such as `game(id, title, rating)`.
+- Only extract helpers for named scenarios or state changes; otherwise build entities inline in the test.
+- Prefer composing small helpers over parameterizing one large helper (e.g. `gameDetails.readyState().withExpandedDescription().withBookmarked()`).
 - When validating relationships, insert data through production DAO methods (for example `insertGamesWithPlatforms(...)`) instead of bypassing write paths.
-- Add only scenario-specific data in test bodies when baseline fixtures are not enough.
+- Add only scenario-specific data needed for the assertion.
 
 ### Paging assertions
 
@@ -37,8 +43,10 @@ These tests are database integration-style tests and should not follow `non-comp
 
 ### Deletion and table-scope behavior
 
-- Do not use raw SQL or `database.query(...)` in tests.
-- For clear/delete behaviors, verify state only through DAO read methods.
+- Do not create helper/test-only DAOs just to inspect database state in tests.
+- Prefer verifying behavior through existing production DAO read/write methods when they already expose the needed state.
+- Use raw queries via `database.query(...)` or `database.openHelper.writableDatabase` only when the production DAO does not expose a method needed to validate the behavior under test.
+- For clear/delete behaviors, use production DAO methods when available; otherwise use raw queries rather than introducing extra DAOs solely for test inspection.
 - Assert both:
   - data that must be cleared (returned collections are empty / size is `0`);
   - data that must remain unchanged (returned collections keep expected size/content).
@@ -55,11 +63,14 @@ These tests are database integration-style tests and should not follow `non-comp
 After completing DAO test changes, verify with this checklist:
 
 - Test uses `RobolectricTestRunner` and an in-memory `Room` DB.
-- Default fixture data is defined as class properties and inserted in `@BeforeTest`.
+- Single-level fixture variations use direct `copy(...)`; nested or repeated variations use small focused helpers/extensions.
+- Shared fixture objects are treated as immutable baselines and are never mutated in place.
+- Test helper functions describe named scenarios or state changes, not generic `Entity(...)` factories.
 - DB is closed in `@AfterTest`.
 - Test body is wrapped with `runTest`.
 - Paging tests call `PagingSource.LoadParams.Refresh` and assert `LoadResult.Page`.
-- Tests do not use raw SQL (`SELECT ...`) or `database.query(...)`.
-- Clear/delete tests verify affected and unaffected data via DAO methods and collection sizes/content.
+- Tests do not introduce helper/test-only DAOs solely for reads, deletes, or table snapshots.
+- Tests prefer existing production DAO methods for verification and use raw queries only when the DAO API does not expose the state needed by the test.
+- Clear/delete tests verify affected and unaffected data with production DAO reads when available, otherwise with raw queries.
 - Update tests verify changed data is persisted and unaffected data stays unchanged, using DAO methods.
 - Assertions use `kotlin.test` and compare full expected models when possible.
