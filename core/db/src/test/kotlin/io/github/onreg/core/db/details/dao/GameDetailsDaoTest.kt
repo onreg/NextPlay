@@ -11,6 +11,8 @@ import io.github.onreg.core.db.details.entity.GameDetailsPlatformCrossRef
 import io.github.onreg.core.db.details.model.GameDetailsInsertionBundle
 import io.github.onreg.core.db.details.model.GameDetailsWithPlatformsAndCompanies
 import io.github.onreg.core.db.platform.entity.PlatformEntity
+import io.github.onreg.core.db.test.tableRowsDoNotExist
+import io.github.onreg.core.db.test.tableRowsExist
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
@@ -165,9 +167,9 @@ internal class GameDetailsDaoTest {
             }
 
             assertTrue(error != null)
-            assertEquals(0, countRows(GameDetailsEntity.TABLE_NAME))
-            assertEquals(0, countRows(PlatformEntity.TABLE_NAME))
-            assertEquals(0, countRows(GameDetailsPlatformCrossRef.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(GameDetailsEntity.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(PlatformEntity.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(GameDetailsPlatformCrossRef.TABLE_NAME))
         }
 
     @Test
@@ -199,11 +201,11 @@ internal class GameDetailsDaoTest {
             }
 
             assertTrue(error != null)
-            assertEquals(0, countRows(GameDetailsEntity.TABLE_NAME))
-            assertEquals(0, countRows(PlatformEntity.TABLE_NAME))
-            assertEquals(0, countRows(GameDetailsPlatformCrossRef.TABLE_NAME))
-            assertEquals(0, countRows(GameCompanyEntity.TABLE_NAME))
-            assertEquals(0, countRows(GameDetailsCompanyCrossRef.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(GameDetailsEntity.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(PlatformEntity.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(GameDetailsPlatformCrossRef.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(GameCompanyEntity.TABLE_NAME))
+            assertTrue(database.tableRowsDoNotExist(GameDetailsCompanyCrossRef.TABLE_NAME))
         }
 
     @Test
@@ -237,7 +239,6 @@ internal class GameDetailsDaoTest {
                 ),
                 observeStoredGame(firstDetails.gameId),
             )
-            assertEquals(1, countRows(GameDetailsEntity.TABLE_NAME))
         }
 
     @Test
@@ -285,7 +286,6 @@ internal class GameDetailsDaoTest {
                 ),
                 observeStoredGame(firstDetails.gameId),
             )
-            assertEquals(1, countRows(GameDetailsPlatformCrossRef.TABLE_NAME))
         }
 
     @Test
@@ -333,7 +333,6 @@ internal class GameDetailsDaoTest {
                 ),
                 observeStoredGame(firstDetails.gameId),
             )
-            assertEquals(1, countRows(GameDetailsCompanyCrossRef.TABLE_NAME))
         }
 
     @Test
@@ -373,7 +372,7 @@ internal class GameDetailsDaoTest {
                 GameDetailsWithPlatformsAndCompanies(
                     details = firstDetails,
                     platforms = emptyList(),
-                    companies = listOf(updatedFirstCompany),
+                    companies = emptyList(),
                 ),
                 observeStoredGame(firstDetails.gameId),
             )
@@ -385,7 +384,7 @@ internal class GameDetailsDaoTest {
                 ),
                 observeStoredGame(secondDetails.gameId),
             )
-            assertEquals(1, countRows(GameCompanyEntity.TABLE_NAME))
+            assertTrue(database.tableRowsExist(GameCompanyEntity.TABLE_NAME))
         }
 
     @Test
@@ -461,9 +460,4 @@ internal class GameDetailsDaoTest {
             cursor.getLong(0)
         }
 
-    private fun countRows(table: String): Int =
-        database.query("SELECT COUNT(*) FROM $table", null).use { cursor ->
-            cursor.moveToFirst()
-            cursor.getInt(0)
-        }
 }

@@ -11,6 +11,7 @@ import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
 import io.github.onreg.core.db.series.entity.SeriesEntity
+import io.github.onreg.core.db.test.loadDaoRefreshPage
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -294,18 +295,7 @@ internal class SeriesDaoTest {
     }
 
     private suspend fun loadSeriesPage(): PagingSource.LoadResult.Page<Int, GameWithPlatforms> {
-        val result = seriesDao.pagingSource().load(
-            PagingSource.LoadParams.Refresh(
-                key = null,
-                loadSize = 50,
-                placeholdersEnabled = false,
-            ),
-        )
-
-        assertTrue(result is PagingSource.LoadResult.Page)
-
-        @Suppress("UNCHECKED_CAST")
-        return result as PagingSource.LoadResult.Page<Int, GameWithPlatforms>
+        return seriesDao.pagingSource().loadDaoRefreshPage()
     }
 
     private fun readSeriesEntries(): List<SeriesEntity> =

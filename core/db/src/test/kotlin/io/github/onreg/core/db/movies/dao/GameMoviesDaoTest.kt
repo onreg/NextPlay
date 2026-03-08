@@ -7,6 +7,7 @@ import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.dao.GameDao
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.movies.entity.MovieEntity
+import io.github.onreg.core.db.test.loadDaoRefreshPage
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -186,30 +187,12 @@ internal class GameMoviesDaoTest {
         }
 
         assertTrue(error != null)
-        assertEquals(0, countRows(MovieEntity.TABLE_NAME))
+        assertEquals(emptyList(), readMovies(orphanMovie.gameId))
     }
 
     private suspend fun loadMoviePage(gameId: Int): PagingSource.LoadResult.Page<Int, MovieEntity> {
-        val result = moviesDao.pagingSource(gameId).load(
-            PagingSource.LoadParams.Refresh(
-                key = null,
-                loadSize = 50,
-                placeholdersEnabled = false,
-            ),
-        )
-
-        assertTrue(result is PagingSource.LoadResult.Page)
-        return when (result) {
-            is PagingSource.LoadResult.Page -> result
-            else -> error("Expected paging source to return a page")
-        }
+        return moviesDao.pagingSource(gameId).loadDaoRefreshPage()
     }
 
     private suspend fun readMovies(gameId: Int): List<MovieEntity> = loadMoviePage(gameId).data
-
-    private fun countRows(table: String): Int =
-        database.query("SELECT COUNT(*) FROM $table", null).use { cursor ->
-            cursor.moveToFirst()
-            cursor.getInt(0)
-        }
 }

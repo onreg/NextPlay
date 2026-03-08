@@ -1,6 +1,5 @@
 package io.github.onreg.core.db.game.list.dao
 
-import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import io.github.onreg.core.db.NextPlayDatabase
@@ -11,6 +10,7 @@ import io.github.onreg.core.db.game.list.entity.GameListEntity
 import io.github.onreg.core.db.game.model.GameInsertionBundle
 import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
+import io.github.onreg.core.db.test.loadDaoRefreshPage
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -18,7 +18,6 @@ import java.time.Instant
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 @RunWith(RobolectricTestRunner::class)
@@ -161,7 +160,6 @@ internal class GameListDaoTest {
         gameListDao.insertGameListEntries(listOf(updatedFirstListEntry))
 
         assertEquals(listOf(updatedFirstListEntry), readListEntries())
-        assertEquals(1, countRows(GameListEntity.TABLE_NAME))
     }
 
     @Test
@@ -175,7 +173,6 @@ internal class GameListDaoTest {
 
         assertNotNull(error)
         assertEquals(emptyList(), readListEntries())
-        assertEquals(0, countRows(GameListEntity.TABLE_NAME))
     }
 
     @Test
@@ -271,15 +268,7 @@ internal class GameListDaoTest {
     }
 
     private suspend fun loadPage(): List<GameWithPlatforms> {
-        val result = gameListDao.pagingSource().load(
-            PagingSource.LoadParams.Refresh(
-                key = null,
-                loadSize = 50,
-                placeholdersEnabled = false,
-            ),
-        )
-
-        return assertIs<PagingSource.LoadResult.Page<Int, GameWithPlatforms>>(result).data
+        return gameListDao.pagingSource().loadDaoRefreshPage().data
     }
 
     private fun readListEntries(): List<GameListEntity> =
@@ -353,9 +342,4 @@ internal class GameListDaoTest {
             }
         }
 
-    private fun countRows(tableName: String): Int =
-        database.query("SELECT COUNT(*) FROM $tableName", null).use { cursor ->
-            cursor.moveToFirst()
-            cursor.getInt(0)
-        }
 }

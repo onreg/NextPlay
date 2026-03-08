@@ -7,6 +7,7 @@ import io.github.onreg.core.db.game.dao.GameDao
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.list.entity.GameListEntity
 import io.github.onreg.core.db.game.list.entity.GameListRemoteKeysEntity
+import io.github.onreg.core.db.test.countTableRows
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -137,11 +138,11 @@ internal class GameListRemoteKeysDaoTest {
                 null
             } catch (throwable: Throwable) {
                 throwable
-            }
-
-            assertTrue(error != null)
-            assertEquals(0, countRows(GameListRemoteKeysEntity.TABLE_NAME))
         }
+
+        assertTrue(error != null)
+        assertNull(remoteKeysDao.getByGameId(firstGame.id))
+    }
 
     @Test
     fun `should cascade delete remote keys when the parent game list entry is removed`() = runTest {
@@ -169,14 +170,6 @@ internal class GameListRemoteKeysDaoTest {
 
             assertNull(remoteKeysDao.getByGameId(firstGame.id))
             assertNull(remoteKeysDao.getByGameId(secondGame.id))
-            assertEquals(2, countRows(GameEntity.TABLE_NAME))
+            assertEquals(2, database.countTableRows(GameEntity.TABLE_NAME))
         }
-
-    private fun countRows(tableName: String): Int = database.query(
-        "SELECT COUNT(*) FROM $tableName",
-        null,
-    ).use { cursor ->
-        cursor.moveToFirst()
-        cursor.getInt(0)
-    }
 }

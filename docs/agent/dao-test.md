@@ -36,16 +36,17 @@ These tests are database integration-style tests and should not follow `non-comp
 
 ### Paging assertions
 
-- Validate paging DAO output by directly calling `pagingSource().load(PagingSource.LoadParams.Refresh(...))`.
-- Assert result type is `PagingSource.LoadResult.Page`.
-- Assert full page data with `assertEquals(expected, result.data)`.
+- Validate paging DAO output through the shared `loadDaoRefreshPage()` test extension in `core/db/src/test/kotlin/io/github/onreg/core/db/test/DaoTestHelpers.kt`.
+- Keep call sites explicit by loading the DAO paging source first, then asserting full page data with `assertEquals(expected, page.data)`.
 - Verify ordering through expected list order (for list-position ordering behavior).
 
 ### Deletion and table-scope behavior
 
 - Do not create helper/test-only DAOs just to inspect database state in tests.
 - Prefer verifying behavior through existing production DAO read/write methods when they already expose the needed state.
-- Use raw queries via `database.query(...)` or `database.openHelper.writableDatabase` only when the production DAO does not expose a method needed to validate the behavior under test.
+- Use the shared `tableRowsExist()` and `tableRowsDoNotExist()` test extensions for presence/absence checks.
+- Use `countTableRows()` only when the test needs the exact number of rows in a table, and assert that count directly with `assertEquals(expectedCount, database.countTableRows(TABLE_NAME))`.
+- Use other raw queries via `database.query(...)` or `database.openHelper.writableDatabase` only when the production DAO does not expose a method needed to validate the behavior under test.
 - For clear/delete behaviors, use production DAO methods when available; otherwise use raw queries rather than introducing extra DAOs solely for test inspection.
 - Assert both:
   - data that must be cleared (returned collections are empty / size is `0`);
@@ -68,9 +69,10 @@ After completing DAO test changes, verify with this checklist:
 - Test helper functions describe named scenarios or state changes, not generic `Entity(...)` factories.
 - DB is closed in `@AfterTest`.
 - Test body is wrapped with `runTest`.
-- Paging tests call `PagingSource.LoadParams.Refresh` and assert `LoadResult.Page`.
+- Paging tests use `loadDaoRefreshPage()` from `DaoTestHelpers.kt`.
 - Tests do not introduce helper/test-only DAOs solely for reads, deletes, or table snapshots.
-- Tests prefer existing production DAO methods for verification and use raw queries only when the DAO API does not expose the state needed by the test.
+- Tests prefer existing production DAO methods for verification and use `tableRowsExist()` or `tableRowsDoNotExist()` for presence/absence checks.
+- Tests use `countTableRows()` only for exact-count assertions, such as verifying that multiple unaffected parent rows remain.
 - Clear/delete tests verify affected and unaffected data with production DAO reads when available, otherwise with raw queries.
 - Update tests verify changed data is persisted and unaffected data stays unchanged, using DAO methods.
 - Assertions use `kotlin.test` and compare full expected models when possible.

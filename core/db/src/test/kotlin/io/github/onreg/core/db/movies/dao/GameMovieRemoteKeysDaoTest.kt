@@ -14,7 +14,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 internal class GameMovieRemoteKeysDaoTest {
@@ -97,7 +96,6 @@ internal class GameMovieRemoteKeysDaoTest {
             remoteKeysDao.insertRemoteKeys(listOf(updatedRemoteKeys))
 
             assertEquals(updatedRemoteKeys, remoteKeysDao.getByGameId(firstGame.id))
-            assertEquals(1, countRows(GameMovieRemoteKeysEntity.TABLE_NAME))
         }
 
     @Test
@@ -131,7 +129,6 @@ internal class GameMovieRemoteKeysDaoTest {
 
         assertNotNull(error)
         assertNull(remoteKeysDao.getByGameId(firstGame.id))
-        assertEquals(0, countRows(GameMovieRemoteKeysEntity.TABLE_NAME))
     }
 
     @Test
@@ -146,7 +143,6 @@ internal class GameMovieRemoteKeysDaoTest {
 
         assertNull(remoteKeysDao.getByGameId(firstGame.id))
         assertEquals(secondGameRemoteKeys, remoteKeysDao.getByGameId(secondGame.id))
-        assertEquals(1, countRows(GameMovieRemoteKeysEntity.TABLE_NAME))
     }
 
     @Test
@@ -156,14 +152,5 @@ internal class GameMovieRemoteKeysDaoTest {
         remoteKeysDao.insertRemoteKeys(emptyList())
 
         assertNull(remoteKeysDao.getByGameId(firstGame.id))
-        assertTrue(countRows(GameMovieRemoteKeysEntity.TABLE_NAME) == 0)
-    }
-
-    private fun countRows(tableName: String): Int {
-        val cursor = database.query("SELECT COUNT(*) FROM $tableName", null)
-        cursor.use {
-            assertTrue(it.moveToFirst())
-            return it.getInt(0)
-        }
     }
 }

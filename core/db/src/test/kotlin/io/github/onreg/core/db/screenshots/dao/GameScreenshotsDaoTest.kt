@@ -1,12 +1,12 @@
 package io.github.onreg.core.db.screenshots.dao
 
-import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.dao.GameDao
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.screenshots.entity.ScreenshotEntity
+import io.github.onreg.core.db.test.loadDaoRefreshPage
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -14,7 +14,6 @@ import java.time.Instant
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -257,14 +256,6 @@ internal class GameScreenshotsDaoTest {
         }
 
     private suspend fun loadScreenshots(gameId: Int): List<ScreenshotEntity> {
-        val result = screenshotsDao.pagingSource(gameId).load(
-            PagingSource.LoadParams.Refresh(
-                key = null,
-                loadSize = 50,
-                placeholdersEnabled = false,
-            ),
-        )
-
-        return assertIs<PagingSource.LoadResult.Page<Int, ScreenshotEntity>>(result).data
+        return screenshotsDao.pagingSource(gameId).loadDaoRefreshPage().data
     }
 }
