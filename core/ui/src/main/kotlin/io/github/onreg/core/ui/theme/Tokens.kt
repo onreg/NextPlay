@@ -23,3 +23,10 @@ public object IconsSize {
 public object ControlsSize {
     public val IconButton: Dp = 48.dp
 }
+
+public object MediaSectionTokens {
+    public val itemWidthPhone: Dp = 288.dp
+
+    @Suppress("ktlint:standard:property-naming")
+    public val aspectRatio16x9: Float = 16f / 9f
+}

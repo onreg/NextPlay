@@ -7,14 +7,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.onreg.core.ui.theme.NextPlayTheme
-import io.github.onreg.feature.game.impl.pane.GameDetailsPane
-import io.github.onreg.feature.game.impl.pane.GamesPane
-import io.github.onreg.feature.game.impl.pane.GamesRoute
+import io.github.onreg.feature.game.details.impl.pane.GameDetailsPane
+import io.github.onreg.feature.game.list.impl.pane.GamesPane
 
 @AndroidEntryPoint
 internal class MainActivity : ComponentActivity() {
@@ -27,17 +28,31 @@ internal class MainActivity : ComponentActivity() {
                     val nav = rememberNavController()
                     NavHost(
                         navController = nav,
-                        startDestination = GamesRoute.GAMES,
+                        startDestination = AppRoutes.GAME_LIST,
                         modifier = Modifier.padding(paddingValues),
                     ) {
-                        composable(GamesRoute.GAMES) {
-                            GamesPane(navController = nav)
+                        composable(AppRoutes.GAME_LIST) {
+                            GamesPane(
+                                onOpenGameDetails = { gameId ->
+                                    nav.navigate(AppRoutes.gameDetailsRoute(gameId))
+                                },
+                            )
                         }
-                        composable(GamesRoute.DETAILS) { backStackEntry ->
+
+                        composable(
+                            route = AppRoutes.GAME_DETAILS,
+                            arguments = listOf(
+                                navArgument(AppRoutes.ARG_GAME_ID) { type = NavType.IntType },
+                            ),
+                        ) { backStackEntry ->
+                            val gameId = backStackEntry.arguments
+                                ?.getInt(AppRoutes.ARG_GAME_ID)
+                                ?: return@composable
                             GameDetailsPane(
-                                gameId = backStackEntry.arguments?.getString("gameId").orEmpty(),
-                                goBack = {
-                                    nav.popBackStack()
+                                gameId = gameId,
+                                goBack = { nav.popBackStack() },
+                                openGameDetails = { nextGameId ->
+                                    nav.navigate(AppRoutes.gameDetailsRoute(nextGameId))
                                 },
                             )
                         }
@@ -46,4 +61,13 @@ internal class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+private object AppRoutes {
+    const val ARG_GAME_ID: String = "gameId"
+    const val GAME_LIST: String = "GameList"
+
+    const val GAME_DETAILS: String = "GameDetails/{$ARG_GAME_ID}"
+
+    fun gameDetailsRoute(gameId: Int): String = "GameDetails/$gameId"
 }

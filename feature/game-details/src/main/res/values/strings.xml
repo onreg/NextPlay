@@ -1,0 +1,13 @@
+<resources>
+    <string name="role_developer">Developer</string>
+    <string name="role_publisher">Publisher</string>
+    <string name="description_section_title">Description</string>
+    <string name="developers_and_publishers_section_title">Developers &amp; Publishers</string>
+    <string name="screenshots_section_title">Screenshots</string>
+    <string name="movies_section_title">Movies</string>
+    <string name="series_games_section_title">Series games</string>
+    <string name="official_website">Official Website</string>
+    <string name="play_video">Play video</string>
+    <string name="read_more">Read more</string>
+    <string name="read_less">Read less</string>
+</resources>

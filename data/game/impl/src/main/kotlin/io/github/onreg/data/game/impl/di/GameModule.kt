@@ -9,16 +9,22 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.onreg.core.db.TransactionProvider
 import io.github.onreg.core.db.game.dao.GameDao
-import io.github.onreg.core.db.game.dao.GameRemoteKeysDao
+import io.github.onreg.core.db.game.list.dao.GameListDao
+import io.github.onreg.core.db.game.list.dao.GameListRemoteKeysDao
 import io.github.onreg.core.db.game.model.GameWithPlatforms
+import io.github.onreg.core.db.series.dao.SeriesDao
+import io.github.onreg.core.db.series.dao.SeriesRemoteKeysDao
 import io.github.onreg.core.network.rawg.api.GameApi
+import io.github.onreg.core.network.rawg.api.GameSeriesApi
 import io.github.onreg.data.game.api.GameRepository
 import io.github.onreg.data.game.impl.GameRepositoryImpl
+import io.github.onreg.data.game.impl.GameSeriesRemoteMediatorFactory
 import io.github.onreg.data.game.impl.mapper.GameDtoMapper
 import io.github.onreg.data.game.impl.mapper.GameDtoMapperImpl
 import io.github.onreg.data.game.impl.mapper.GameEntityMapper
 import io.github.onreg.data.game.impl.mapper.GameEntityMapperImpl
 import io.github.onreg.data.game.impl.paging.GameRemoteMediator
+import io.github.onreg.data.game.impl.paging.GameSeriesRemoteMediator
 import javax.inject.Singleton
 
 @Module
@@ -49,17 +55,40 @@ public abstract class GameModule {
         public fun provideGameRemoteMediator(
             gameApi: GameApi,
             gameDao: GameDao,
-            gameRemoteKeysDao: GameRemoteKeysDao,
+            gameListDao: GameListDao,
+            gameRemoteKeysDao: GameListRemoteKeysDao,
             gameDtoMapper: GameDtoMapper,
             gameEntityMapper: GameEntityMapper,
             transactionProvider: TransactionProvider,
         ): RemoteMediator<Int, GameWithPlatforms> = GameRemoteMediator(
             gameApi = gameApi,
             gameDao = gameDao,
+            gameListDao = gameListDao,
             remoteKeysDao = gameRemoteKeysDao,
             dtoMapper = gameDtoMapper,
             entityMapper = gameEntityMapper,
             transactionProvider = transactionProvider,
         )
+
+        @Provides
+        @Singleton
+        public fun provideGameSeriesRemoteMediatorFactory(
+            api: GameSeriesApi,
+            gameDao: GameDao,
+            seriesDao: SeriesDao,
+            seriesRemoteKeysDao: SeriesRemoteKeysDao,
+            gameDtoMapper: GameDtoMapper,
+            gameEntityMapper: GameEntityMapper,
+        ): GameSeriesRemoteMediatorFactory = GameSeriesRemoteMediatorFactory { gameId ->
+            GameSeriesRemoteMediator(
+                gameId = gameId,
+                gameSeriesApi = api,
+                gameDao = gameDao,
+                seriesDao = seriesDao,
+                seriesRemoteKeysDao = seriesRemoteKeysDao,
+                dtoMapper = gameDtoMapper,
+                entityMapper = gameEntityMapper,
+            )
+        }
     }
 }

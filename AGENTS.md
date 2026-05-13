@@ -2,13 +2,11 @@
 
 - Use verification reports to fix code checks issues (Lint, Detekt, Ktlint, Unit tests) instead of
   terminal output.
+- For any change, consult `docs/agent/index.md` and read only the micro-docs whose triggers match
+  the edited paths/symbols.
 - Do not leave comments in source files. Code must be self-explanatory through clear naming, tests,
   and docs.
-- After any code change, run code checks and unit tests appropriate to the scope of the change.
-    - For large/multi-file changes (e.g. implementing a whole feature), run detekt + ktlint and all
-      Unit tests.
-    - For small/isolated changes (e.g. changing a single class), run detekt + ktlint and only the
-      single most relevant Unit test for that class (e.g. one test class), not the full suite.
+- Do not run any code quality checks until it will be requested or this step is written in implementation plan.
 
 ## Project Structure & Module Organization
 
@@ -45,8 +43,6 @@
   guidance; do not rely on ad-hoc internet searches for that information.
 - Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and
   measurements rather than guessing UI details.
-- Use the Figma MCP integration (`mcp__figma` server) for all design context, assets, and measurements
-  rather than guessing UI details.
 
 ## Build, Test, and Development Commands
 
@@ -69,7 +65,7 @@
 - Source of truth (if this doc conflicts, these win):
     - Formatting: `.editorconfig` + ktlint
     - Static analysis: detekt + Android lint
-    - Architecture/testing conventions: ADRs in `.codex/skills/feature-planner/references/`
+    - Architecture/testing conventions: ADRs in `docs/adr/`
 - Naming conventions not covered by tooling/ADRs:
     - Compose previews: describe UI state only (e.g., `FilledPreview`, `EmptyStatePreview`)
     - Icons: `ic_<name>_<size>.xml` (e.g., `ic_close_24.xml`)

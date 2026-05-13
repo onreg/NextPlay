@@ -1,26 +1,48 @@
 package io.github.onreg.core.db.game.dao
 
-import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.onreg.core.db.NextPlayDatabase
 import io.github.onreg.core.db.game.entity.GameEntity
 import io.github.onreg.core.db.game.entity.GamePlatformCrossRef
-import io.github.onreg.core.db.game.entity.GameRemoteKeysEntity
 import io.github.onreg.core.db.game.model.GameInsertionBundle
-import io.github.onreg.core.db.game.model.GameWithPlatforms
 import io.github.onreg.core.db.platform.entity.PlatformEntity
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.time.Instant
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
 internal class GameDaoTest {
+    private val firstGame = GameEntity(
+        id = 101,
+        title = "First Game",
+        imageUrl = "https://example.com/first.png",
+        releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
+        rating = 4.2,
+    )
+    private val secondGame = GameEntity(
+        id = 102,
+        title = "Second Game",
+        imageUrl = "https://example.com/second.png",
+        releaseDate = Instant.parse("2024-02-02T00:00:00Z"),
+        rating = 4.5,
+    )
+    private val thirdGame = GameEntity(
+        id = 103,
+        title = "Third Game",
+        imageUrl = "https://example.com/third.png",
+        releaseDate = Instant.parse("2024-03-03T00:00:00Z"),
+        rating = 4.8,
+    )
+    private val firstPlatform = PlatformEntity(id = 201)
+    private val secondPlatform = PlatformEntity(id = 202)
+    private val thirdPlatform = PlatformEntity(id = 203)
+
     private val database = Room
         .inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
@@ -29,7 +51,7 @@ internal class GameDaoTest {
         .build()
 
     private val gameDao = database.gameDao()
-    private val remoteKeysDao = database.gameRemoteKeysDao()
+    private val platformDao = database.platformDao()
 
     @AfterTest
     fun tearDown() {
@@ -37,122 +59,280 @@ internal class GameDaoTest {
     }
 
     @Test
-    fun `should return games with platforms ordered by insertion`() = runTest {
-        val platforms = listOf(PlatformEntity(1), PlatformEntity(2))
-        val games = listOf(
-            GameEntity(
-                id = 10,
-                title = "First",
-                imageUrl = "image1",
-                releaseDate = Instant.parse("2024-01-01T00:00:00Z"),
-                rating = 4.5,
-                insertionOrder = 1,
-            ),
-            GameEntity(
-                id = 11,
-                title = "Second",
-                imageUrl = "image2",
-                releaseDate = Instant.parse("2024-02-01T00:00:00Z"),
-                rating = 4.0,
-                insertionOrder = 2,
-            ),
-        )
-        val crossRefs = listOf(
-            GamePlatformCrossRef(gameId = 10, platformId = 1),
-            GamePlatformCrossRef(gameId = 10, platformId = 2),
-            GamePlatformCrossRef(gameId = 11, platformId = 2),
+    fun `insertGames should persist game rows`() = runTest {
+        gameDao.insertGames(listOf(firstGame, secondGame))
+
+        assertEquals(listOf(firstGame, secondGame), readGames())
+    }
+
+    @Test
+    fun `insertGames should replace an existing game with the same id`() = runTest {
+        val updatedGame = firstGame.copy(
+            title = "Updated First Game",
+            imageUrl = "https://example.com/updated-first.png",
+            rating = 4.9,
         )
 
-        gameDao.insertGamesWithPlatforms(GameInsertionBundle(games, platforms, crossRefs))
+        gameDao.insertGames(listOf(firstGame, secondGame))
+        gameDao.insertGames(listOf(updatedGame))
 
-        val pagingSource = gameDao.pagingSource()
-        val result = pagingSource.load(
-            PagingSource.LoadParams.Refresh(
-                key = null,
-                loadSize = 10,
-                placeholdersEnabled = false,
+        assertEquals(listOf(updatedGame, secondGame), readGames())
+    }
+
+    @Test
+    fun `insertGamesWithPlatforms should persist platforms games and cross refs`() = runTest {
+        val bundle = GameInsertionBundle(
+            games = listOf(firstGame, secondGame),
+            platforms = listOf(firstPlatform, secondPlatform),
+            crossRefs = listOf(
+                GamePlatformCrossRef(gameId = firstGame.id, platformId = firstPlatform.id),
+                GamePlatformCrossRef(gameId = secondGame.id, platformId = secondPlatform.id),
             ),
         )
 
-        assertTrue(result is PagingSource.LoadResult.Page)
+        gameDao.insertGamesWithPlatforms(bundle)
+
+        assertEquals(bundle.games, readGames())
+        assertEquals(bundle.platforms, readPlatforms())
+        assertEquals(bundle.crossRefs, readCrossRefs())
+    }
+
+    @Test
+    fun `insertGamesWithPlatforms should allow shared platforms across multiple games`() = runTest {
+        val sharedCrossRef = GamePlatformCrossRef(
+            gameId = firstGame.id,
+            platformId = firstPlatform.id,
+        )
+        val secondSharedCrossRef = GamePlatformCrossRef(
+            gameId = secondGame.id,
+            platformId = firstPlatform.id,
+        )
+        val secondExclusiveCrossRef = GamePlatformCrossRef(
+            gameId = secondGame.id,
+            platformId = secondPlatform.id,
+        )
+
+        gameDao.insertGamesWithPlatforms(
+            GameInsertionBundle(
+                games = listOf(firstGame, secondGame),
+                platforms = listOf(firstPlatform, secondPlatform),
+                crossRefs = listOf(sharedCrossRef, secondSharedCrossRef, secondExclusiveCrossRef),
+            ),
+        )
+
+        assertEquals(listOf(firstPlatform, secondPlatform), readPlatforms())
+        assertEquals(
+            listOf(sharedCrossRef, secondSharedCrossRef, secondExclusiveCrossRef),
+            readCrossRefs(),
+        )
+    }
+
+    @Test
+    fun `insertGamesWithPlatforms should ignore already existing platforms`() = runTest {
+        platformDao.insertPlatforms(listOf(firstPlatform))
+
+        gameDao.insertGamesWithPlatforms(
+            GameInsertionBundle(
+                games = listOf(firstGame),
+                platforms = listOf(firstPlatform, secondPlatform),
+                crossRefs = listOf(
+                    GamePlatformCrossRef(gameId = firstGame.id, platformId = firstPlatform.id),
+                    GamePlatformCrossRef(gameId = firstGame.id, platformId = secondPlatform.id),
+                ),
+            ),
+        )
+
+        assertEquals(listOf(firstPlatform, secondPlatform), readPlatforms())
+        assertEquals(listOf(firstGame), readGames())
         assertEquals(
             listOf(
-                GameWithPlatforms(
-                    game = games[0],
-                    platforms = listOf(platforms[0], platforms[1]),
-                ),
-                GameWithPlatforms(
-                    game = games[1],
-                    platforms = listOf(platforms[1]),
-                ),
+                GamePlatformCrossRef(gameId = firstGame.id, platformId = firstPlatform.id),
+                GamePlatformCrossRef(gameId = firstGame.id, platformId = secondPlatform.id),
             ),
-            result.data,
+            readCrossRefs(),
         )
     }
 
     @Test
-    fun `should cascade delete cross refs and remote keys when clearing games`() = runTest {
-        val platform = PlatformEntity(1)
-        val game = GameEntity(
-            id = 20,
-            title = "Cascade",
-            imageUrl = "image",
-            releaseDate = Instant.parse("2024-03-01T00:00:00Z"),
-            rating = 4.8,
-            insertionOrder = 1,
-        )
-        val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
-        val remoteKey = GameRemoteKeysEntity(gameId = game.id, prevKey = null, nextKey = 2)
+    fun `insertGamesWithPlatforms should rollback the whole operation when a cross ref is invalid`() =
+        runTest {
+            val bundle = GameInsertionBundle(
+                games = listOf(firstGame),
+                platforms = listOf(firstPlatform),
+                crossRefs = listOf(
+                    GamePlatformCrossRef(gameId = firstGame.id, platformId = thirdPlatform.id),
+                ),
+            )
 
+            val error = try {
+                gameDao.insertGamesWithPlatforms(bundle)
+                null
+            } catch (throwable: Throwable) {
+                throwable
+            }
+
+            assertTrue(error != null)
+            assertEquals(emptyList(), readGames())
+            assertEquals(emptyList(), readPlatforms())
+            assertEquals(emptyList(), readCrossRefs())
+        }
+
+    @Test
+    fun `should cascade delete cross refs when a game is removed`() = runTest {
         gameDao.insertGamesWithPlatforms(
             GameInsertionBundle(
-                listOf(game),
-                listOf(platform),
-                listOf(crossRef),
+                games = listOf(firstGame, secondGame),
+                platforms = listOf(firstPlatform, secondPlatform),
+                crossRefs = listOf(
+                    GamePlatformCrossRef(gameId = firstGame.id, platformId = firstPlatform.id),
+                    GamePlatformCrossRef(gameId = secondGame.id, platformId = firstPlatform.id),
+                    GamePlatformCrossRef(gameId = secondGame.id, platformId = secondPlatform.id),
+                ),
             ),
         )
-        remoteKeysDao.insertRemoteKeys(listOf(remoteKey))
 
-        gameDao.clearGames()
+        database.openHelper.writableDatabase.execSQL(
+            "DELETE FROM ${GameEntity.TABLE_NAME} WHERE ${GameEntity.ID} = ?",
+            arrayOf(firstGame.id),
+        )
 
-        assertEquals(0, countRows(GameEntity.TABLE_NAME))
-        assertEquals(0, countRows(GamePlatformCrossRef.TABLE_NAME))
-        assertEquals(0, countRows(GameRemoteKeysEntity.TABLE_NAME))
+        assertEquals(listOf(secondGame), readGames())
+        assertEquals(listOf(firstPlatform, secondPlatform), readPlatforms())
+        assertEquals(
+            listOf(
+                GamePlatformCrossRef(gameId = secondGame.id, platformId = firstPlatform.id),
+                GamePlatformCrossRef(gameId = secondGame.id, platformId = secondPlatform.id),
+            ),
+            readCrossRefs(),
+        )
     }
 
     @Test
-    fun `should cascade delete cross refs when platform is removed`() = runTest {
-        val platform = PlatformEntity(1)
-        val game = GameEntity(
-            id = 30,
-            title = "Platform",
-            imageUrl = "image",
-            releaseDate = Instant.parse("2024-04-01T00:00:00Z"),
-            rating = 4.2,
-            insertionOrder = 1,
-        )
-        val crossRef = GamePlatformCrossRef(gameId = game.id, platformId = platform.id)
-
+    fun `should cascade delete cross refs when a platform is removed`() = runTest {
         gameDao.insertGamesWithPlatforms(
             GameInsertionBundle(
-                listOf(game),
-                listOf(platform),
-                listOf(crossRef),
+                games = listOf(firstGame, secondGame),
+                platforms = listOf(firstPlatform, secondPlatform),
+                crossRefs = listOf(
+                    GamePlatformCrossRef(gameId = firstGame.id, platformId = firstPlatform.id),
+                    GamePlatformCrossRef(gameId = secondGame.id, platformId = firstPlatform.id),
+                    GamePlatformCrossRef(gameId = secondGame.id, platformId = secondPlatform.id),
+                ),
             ),
         )
 
         database.openHelper.writableDatabase.execSQL(
             "DELETE FROM ${PlatformEntity.TABLE_NAME} WHERE ${PlatformEntity.ID} = ?",
-            arrayOf(platform.id),
+            arrayOf(firstPlatform.id),
         )
 
-        assertEquals(1, countRows(GameEntity.TABLE_NAME))
-        assertEquals(0, countRows(GamePlatformCrossRef.TABLE_NAME))
+        assertEquals(listOf(firstGame, secondGame), readGames())
+        assertEquals(listOf(secondPlatform), readPlatforms())
+        assertEquals(
+            listOf(GamePlatformCrossRef(gameId = secondGame.id, platformId = secondPlatform.id)),
+            readCrossRefs(),
+        )
     }
 
-    private fun countRows(table: String): Int =
-        database.query("SELECT COUNT(*) FROM $table", null).use { cursor ->
-            cursor.moveToFirst()
-            cursor.getInt(0)
+    @Test
+    fun `insertGamesWithPlatforms with an empty bundle should be a no-op`() = runTest {
+        gameDao.insertGamesWithPlatforms(
+            GameInsertionBundle(
+                games = emptyList(),
+                platforms = emptyList(),
+                crossRefs = emptyList(),
+            ),
+        )
+
+        assertEquals(emptyList(), readGames())
+        assertEquals(emptyList(), readPlatforms())
+        assertEquals(emptyList(), readCrossRefs())
+    }
+
+    @Test
+    fun `insertGamesWithPlatforms should not create duplicate cross refs for the same game and platform`() =
+        runTest {
+            val crossRef = GamePlatformCrossRef(
+                gameId = thirdGame.id,
+                platformId = thirdPlatform.id,
+            )
+
+            gameDao.insertGamesWithPlatforms(
+                GameInsertionBundle(
+                    games = listOf(thirdGame),
+                    platforms = listOf(thirdPlatform),
+                    crossRefs = listOf(crossRef, crossRef),
+                ),
+            )
+
+            assertEquals(listOf(thirdGame), readGames())
+            assertEquals(listOf(thirdPlatform), readPlatforms())
+            assertEquals(listOf(crossRef), readCrossRefs())
+        }
+
+    private fun readGames(): List<GameEntity> =
+        database.query(
+            """
+            SELECT ${GameEntity.ID}, ${GameEntity.TITLE}, ${GameEntity.IMAGE_URL},
+                ${GameEntity.RELEASE_DATE}, ${GameEntity.RATING}
+            FROM ${GameEntity.TABLE_NAME}
+            ORDER BY ${GameEntity.ID}
+            """.trimIndent(),
+            null,
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(
+                        GameEntity(
+                            id = cursor.getInt(0),
+                            title = cursor.getString(1),
+                            imageUrl = cursor.getString(2),
+                            releaseDate = if (cursor.isNull(3)) {
+                                null
+                            } else {
+                                Instant.ofEpochMilli(cursor.getLong(3))
+                            },
+                            rating = cursor.getDouble(4),
+                        ),
+                    )
+                }
+            }
+        }
+
+    private fun readPlatforms(): List<PlatformEntity> =
+        database.query(
+            """
+            SELECT ${PlatformEntity.ID}
+            FROM ${PlatformEntity.TABLE_NAME}
+            ORDER BY ${PlatformEntity.ID}
+            """.trimIndent(),
+            null,
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(PlatformEntity(id = cursor.getInt(0)))
+                }
+            }
+        }
+
+    private fun readCrossRefs(): List<GamePlatformCrossRef> =
+        database.query(
+            """
+            SELECT ${GamePlatformCrossRef.GAME_ID}, ${GamePlatformCrossRef.PLATFORM_ID}
+            FROM ${GamePlatformCrossRef.TABLE_NAME}
+            ORDER BY ${GamePlatformCrossRef.GAME_ID}, ${GamePlatformCrossRef.PLATFORM_ID}
+            """.trimIndent(),
+            null,
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(
+                        GamePlatformCrossRef(
+                            gameId = cursor.getInt(0),
+                            platformId = cursor.getInt(1),
+                        ),
+                    )
+                }
+            }
         }
 }
